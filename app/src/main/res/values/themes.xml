@@ -1,0 +1,26 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Theme.SEP490_Mobile" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary_blue</item>
+        <item name="colorPrimaryVariant">@color/primary_blue_dark</item>
+        <item name="colorOnPrimary">@color/text_on_primary</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/secondary_green</item>
+        <item name="colorSecondaryVariant">@color/secondary_green_dark</item>
+        <item name="colorOnSecondary">@color/text_on_secondary</item>
+        <!-- Backgrounds and surfaces -->
+        <item name="android:windowBackground">@color/app_background</item>
+        <item name="colorSurface">@color/card_background</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <!-- Error color -->
+        <item name="colorError">@color/error_red</item>
+        <item name="colorOnError">@color/text_on_primary</item>
+    </style>
+
+    <!-- STYLE MỚI CHO ẢNH TRÒN -->
+    <style name="CircleImageView" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+</resources>

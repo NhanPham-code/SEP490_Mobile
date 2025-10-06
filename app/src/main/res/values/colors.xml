@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+        <color name="white">#FFFFFFFF</color>
+        <color name="black">#FF000000</color>
+
+        <color name="ocean_blue_light_start">#48CAE4</color>
+
+        <color name="grey_400">#FFBDBDBD</color>
+        <color name="grey_700">#FF616161</color>
+        <color name="green_500">#FF4CAF50</color>
+        <color name="dark_green">#FF2E7D32</color>
+        <color name="yellow_100">#FFFFF59D</color>
+        <color name="orange_700">#FFF57C00</color>
+
+        <color name="ocean_blue">#0077B6</color>
+        <color name="mint_green">#48CAE4</color>
+        <color name="teal_accent">#00B4D8</color>
+        <color name="deep_ocean">#023E8A</color>
+        <color name="primary_text_dark">#1A1A1A</color>
+        <color name="secondary_text_light">#777777</color>
+        <color name="app_background">#F8F9FA</color>
+        <color name="light_bg">#F5F5F5</color>
+        <color name="separator_light">#EEEEEE</color>
+        <color name="hover_light">#EAEAEA</color>
+
+        <!-- Primary & Secondary -->
+        <color name="primary_blue">#1976D2</color>
+        <color name="primary_blue_dark">#0D47A1</color>
+        <color name="secondary_green">#43A047</color>
+        <color name="secondary_green_dark">#2E7D32</color>
+        <color name="accent_orange">#FF9800</color>
+        <color name="accent_yellow">#FFF176</color>
+
+        <!-- Status -->
+        <color name="success_green">#4CAF50</color>
+        <color name="warning_orange">#FFA726</color>
+        <color name="error_red">#E53935</color>
+        <color name="info_blue">#29B6F6</color>
+
+        <!-- Backgrounds -->
+        <color name="background_light">#F5F5F5</color>
+        <color name="background_dark">#212121</color>
+        <color name="card_background">#FFFFFF</color>
+        <color name="divider">#E0E0E0</color>
+
+        <!-- Text -->
+        <color name="text_primary">#212121</color>
+        <color name="text_secondary">#757575</color>
+        <color name="text_on_primary">#FFFFFF</color>
+        <color name="text_on_secondary">#FFFFFF</color>
+
+        <!-- Gradients -->
+        <color name="gradient_start">#1976D2</color> <!-- Blue -->
+        <color name="gradient_end">#43A047</color>   <!-- Green -->
+</resources>

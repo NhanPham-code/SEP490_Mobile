@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">SEP490_Mobile</string>
+    <string name="title_home">Trang chủ</string>
+    <string name="title_notifications">Thông báo</string>
+    <string name="account">Tài khoảng</string>
+    <string name="map">Bản đồ</string>
+    <string name="server_web_client_id">102743926388-ulh3avou5sg9i9gp14l8cpc2nqc0e8ep.apps.googleusercontent.com</string>
+</resources>
