@@ -9,6 +9,8 @@ import com.example.sep490_mobile.data.dto.LogoutResponseDTO;
 import com.example.sep490_mobile.data.dto.PrivateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.RefreshTokenRequestDTO;
 import com.example.sep490_mobile.data.dto.RegisterResponseDTO;
+import com.example.sep490_mobile.data.dto.ResetPasswordRequestDTO;
+import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
 import com.example.sep490_mobile.data.dto.SendOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
@@ -98,4 +100,8 @@ public interface ApiService {
     // API delete biometric token
     @DELETE("users/biometric-delete")
     Call<Void> deleteBiometricToken();
+
+    // API reset password
+    @PUT("users/forgot-password")
+    Call<ResetPasswordResponseDTO> resetPassword(@Body ResetPasswordRequestDTO body);
 }

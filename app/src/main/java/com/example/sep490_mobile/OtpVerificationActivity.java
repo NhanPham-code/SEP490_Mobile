@@ -25,8 +25,13 @@ public class OtpVerificationActivity extends AppCompatActivity {
 
     private ActivityOtpVerificationBinding binding;
     private OtpViewModel otpViewModel;
-    private RegistrationData registrationData;
     private CountDownTimer countDownTimer;
+
+    // Các biến để xử lý cả 2 luồng
+    private String verificationMode; // "REGISTER" hoặc "RESET_PASSWORD"
+    private String userEmail;
+    private RegistrationData registrationData; // Chỉ có giá trị ở mode "REGISTER"
+
     private static final long COUNTDOWN_TIME = 60000; // 60 giây
 
     @Override
@@ -39,13 +44,19 @@ public class OtpVerificationActivity extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        // 1. Nhận dữ liệu từ RegisterFormActivity
-        if (getIntent().hasExtra("REGISTRATION_DATA")) {
+        // 1. Nhận dữ liệu từ Intent và xác định luồng
+        verificationMode = getIntent().getStringExtra("VERIFICATION_MODE");
+
+        if ("REGISTER".equals(verificationMode)) {
             registrationData = (RegistrationData) getIntent().getSerializableExtra("REGISTRATION_DATA");
+            userEmail = (registrationData != null) ? registrationData.getEmail() : null;
+        } else { // Mặc định là RESET_PASSWORD
+            userEmail = getIntent().getStringExtra("USER_EMAIL");
         }
 
-        if (registrationData == null) {
-            Toast.makeText(this, "Đã xảy ra lỗi, vui lòng thử lại.", Toast.LENGTH_SHORT).show();
+        // Kiểm tra an toàn, nếu không có email thì không thể tiếp tục
+        if (userEmail == null || userEmail.isEmpty()) {
+            Toast.makeText(this, "Đã xảy ra lỗi, không tìm thấy email để xác thực.", Toast.LENGTH_LONG).show();
             finish();
             return;
         }
@@ -61,7 +72,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
     }
 
     private void setupUI() {
-        String description = "Mã xác thực 6 chữ số đã được gửi đến email\n" + registrationData.getEmail();
+        // <-- SỬA LỖI Ở ĐÂY: Dùng biến `userEmail` đã được chuẩn hóa
+        String description = "Mã xác thực 6 chữ số đã được gửi đến email\n" + userEmail;
         binding.tvOtpDescription.setText(description);
     }
 
@@ -79,7 +91,8 @@ public class OtpVerificationActivity extends AppCompatActivity {
 
         otpViewModel.getErrorMessage().observe(this, error -> {
             if (error != null && !error.isEmpty()) {
-                Toast.makeText(this, "Lỗi: " + error, Toast.LENGTH_LONG).show();
+                // Hiển thị lỗi từ ViewModel, ví dụ "Mã OTP không chính xác."
+                Toast.makeText(this, error, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -93,12 +106,31 @@ public class OtpVerificationActivity extends AppCompatActivity {
         otpViewModel.getOtpVerified().observe(this, isVerified -> {
             if (isVerified) {
                 Toast.makeText(this, "Xác thực thành công!", Toast.LENGTH_SHORT).show();
-                // Chuyển sang màn hình hoàn tất đăng ký và gửi kèm dữ liệu
-                Intent intent = new Intent(this, CompleteRegisterActivity.class);
-                intent.putExtra("REGISTRATION_DATA", registrationData);
-                startActivity(intent);
+
+                // Dựa vào mode để quyết định đi đâu tiếp theo
+                if ("REGISTER".equals(verificationMode)) {
+                    // Chuyển sang màn hình hoàn tất đăng ký
+                    Intent intent = new Intent(this, CompleteRegisterActivity.class);
+                    intent.putExtra("REGISTRATION_DATA", registrationData);
+                    startActivity(intent);
+                } else { // RESET_PASSWORD
+                    // Chuyển sang màn hình đặt lại mật khẩu
+                    Intent intent = new Intent(this, ResetPasswordActivity.class);
+                    intent.putExtra("USER_EMAIL", userEmail);
+                    startActivity(intent);
+                }
+                finish(); // Đóng màn hình OTP sau khi hoàn tất
             }
         });
+    }
+
+    private void resetResendButton() {
+        binding.tvCountdown.setVisibility(View.GONE);
+        binding.tvResendOtp.setEnabled(true);
+        // Đảm bảo getContext() không null trước khi gọi getResources()
+        if (this.getApplicationContext() != null) {
+            binding.tvResendOtp.setTextColor(getResources().getColor(R.color.ocean_blue));
+        }
     }
 
     private void handleVerification() {
@@ -107,16 +139,22 @@ public class OtpVerificationActivity extends AppCompatActivity {
             Toast.makeText(this, "Vui lòng nhập đủ 6 chữ số.", Toast.LENGTH_SHORT).show();
             return;
         }
-        otpViewModel.verifyOtp(registrationData.getEmail(), otp);
+        // Luôn dùng userEmail đã được chuẩn hóa
+        otpViewModel.verifyOtp(userEmail, otp);
     }
 
     private void requestNewOtp() {
-        otpViewModel.sendOtp(registrationData.getEmail());
+        // Luôn dùng userEmail đã được chuẩn hóa
+        otpViewModel.sendOtp(userEmail);
     }
 
     private void startCountdown() {
         binding.tvResendOtp.setEnabled(false);
         binding.tvResendOtp.setTextColor(Color.GRAY);
+
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
 
         countDownTimer = new CountDownTimer(COUNTDOWN_TIME, 1000) {
             @Override
@@ -124,13 +162,14 @@ public class OtpVerificationActivity extends AppCompatActivity {
                 long seconds = millisUntilFinished / 1000;
                 String timeLeft = String.format(Locale.getDefault(), "Gửi lại sau 00:%02d", seconds);
                 binding.tvCountdown.setText(timeLeft);
+                binding.tvCountdown.setVisibility(View.VISIBLE);
             }
 
             @Override
             public void onFinish() {
-                binding.tvCountdown.setText("");
+                binding.tvCountdown.setVisibility(View.GONE);
                 binding.tvResendOtp.setEnabled(true);
-                binding.tvResendOtp.setTextColor(getResources().getColor(R.color.ocean_blue)); // Thay bằng màu gốc
+                binding.tvResendOtp.setTextColor(getResources().getColor(R.color.ocean_blue));
             }
         }.start();
     }
@@ -138,7 +177,6 @@ public class OtpVerificationActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Hủy CountDownTimer để tránh memory leak
         if (countDownTimer != null) {
             countDownTimer.cancel();
         }

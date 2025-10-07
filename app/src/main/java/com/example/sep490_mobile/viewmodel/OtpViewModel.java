@@ -124,7 +124,7 @@ public class OtpViewModel extends AndroidViewModel {
                         }
                     }
                     Log.e(TAG, "Failed to verify OTP. " + errorMsg);
-                    errorMessage.postValue(errorMsg);
+                    errorMessage.postValue("Mã OTP không chính xác.");
                 }
             }
 

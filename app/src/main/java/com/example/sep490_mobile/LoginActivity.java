@@ -121,6 +121,11 @@ public class LoginActivity extends AppCompatActivity {
                 Toast.makeText(this, "Tính năng chưa được bật. Vui lòng đăng nhập và kích hoạt trong phần tài khoản.", Toast.LENGTH_LONG).show();
             }
         });
+
+        // Sự kiện click link Quên mật khẩu
+        binding.tvForgotPassword.setOnClickListener(v ->
+                startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class))
+        );
     }
 
     private void setupObservers() {
