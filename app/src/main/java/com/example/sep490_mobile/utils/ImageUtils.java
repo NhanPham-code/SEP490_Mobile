@@ -1,7 +1,7 @@
 package com.example.sep490_mobile.utils;
 
 public class ImageUtils {
-    private static final String BASE_URL = "https://10.0.2.2:7136";
+    private static final String BASE_URL = "https://localhost:7136";
 
     public static String getFullUrl(String relativePath) {
         if (relativePath == null || relativePath.isEmpty()) {

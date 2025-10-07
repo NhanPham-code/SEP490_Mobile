@@ -1,5 +1,6 @@
 package com.example.sep490_mobile.data.remote;
 
+import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
@@ -88,7 +89,7 @@ public interface ApiService {
 
     // API get biometric tokens
     @GET("users/biometric-token")
-    Call<String> getBiometricToken();
+    Call<BiometricTokenResponseDTO> getBiometricToken();
 
     // API login with biometric token
     @POST("users/biometric-login")

@@ -70,16 +70,17 @@ public class AccountFragment extends Fragment {
         biometricHelper = new BiometricHelper(requireActivity(), new BiometricHelper.BiometricCallback() {
             @Override
             public void onAuthenticationSuccess(BiometricPrompt.AuthenticationResult result) {
-                // Khi xác thực thành công, ta có `result` chứa Cipher.
-                // Bây giờ, hãy lấy BiometricToken từ server.
+                // <-- SỬA LỖI 1: Gán `result` cho biến tạm, không phải `null`
+                tempAuthResult = result;
+                // Bây giờ mới gọi server để lấy token
                 accountViewModel.generateBiometricToken();
-                tempAuthResult = null; // Dọn dẹp biến tạm
             }
 
             @Override
             public void onAuthenticationError(String errorMessage) {
                 Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
                 binding.switchBiometric.setChecked(false);
+                tempAuthResult = null; // Dọn dẹp nếu có lỗi
             }
         });
     }
@@ -118,6 +119,12 @@ public class AccountFragment extends Fragment {
         }
     }
 
+    private void updateBiometricSwitchState() {
+        if (biometricHelper != null) {
+            // Lấy trạng thái đã lưu và cập nhật switch mà không kích hoạt listener
+            binding.switchBiometric.setChecked(biometricHelper.isBiometricLoginEnabled());
+        }
+    }
 
     private void setupClickListeners() {
         binding.btnLogin.setOnClickListener(v -> startActivity(new Intent(getActivity(), LoginActivity.class)));
@@ -133,37 +140,23 @@ public class AccountFragment extends Fragment {
 
         // --- XỬ LÝ SWITCH BIOMETRIC ---
         binding.switchBiometric.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Chỉ xử lý khi người dùng thực sự nhấn vào, không phải khi code tự set
             if (!buttonView.isPressed()) return;
 
             if (isChecked) {
-                // --- KIỂM TRA TRƯỚC KHI BẬT ---
+                // Logic BẬT tính năng (giữ nguyên)
                 BiometricManager biometricManager = BiometricManager.from(requireActivity());
                 int canAuth = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG);
-
                 if (canAuth == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
-                    // Nếu người dùng chưa cài đặt vân tay/khuôn mặt
                     Toast.makeText(getContext(), "Bạn cần cài đặt ít nhất một dấu vân tay hoặc khuôn mặt trong Cài đặt của điện thoại.", Toast.LENGTH_LONG).show();
-
-                    // (Tùy chọn nâng cao) Mở thẳng màn hình cài đặt bảo mật cho người dùng
-                    // Intent enrollIntent = new Intent(Settings.ACTION_BIOMETRIC_ENROLL);
-                    // startActivity(enrollIntent);
-
-                    binding.switchBiometric.setChecked(false); // Gạt switch về off
-                    return; // Dừng lại
+                    binding.switchBiometric.setChecked(false);
+                    return;
                 }
-
-                // Nếu mọi thứ ổn, bắt đầu quá trình
                 biometricHelper.setupForEncryption();
             } else {
-                // Người dùng tắt tính năng sinh trắc học
-
-                // 1. Xóa dữ liệu sinh trắc học ở phía client ngay lập tức để có phản hồi tức thì.
+                // Logic TẮT tính năng (giữ nguyên)
                 biometricHelper.disableBiometricLogin();
-
-                // 2. Yêu cầu ViewModel gọi API để xóa token trên server.
                 accountViewModel.deleteBiometricToken();
-
-                // 3. Thông báo cho người dùng.
                 Toast.makeText(getContext(), "Đã tắt đăng nhập bằng sinh trắc học.", Toast.LENGTH_SHORT).show();
             }
         });
@@ -210,6 +203,7 @@ public class AccountFragment extends Fragment {
             binding.layoutLoggedIn.setVisibility(View.VISIBLE);
             binding.layoutLoggedOut.setVisibility(View.GONE);
             updateUIFromSharedPrefs(); // Gọi hàm cập nhật UI
+            updateBiometricSwitchState(); // Cập nhật trạng thái switch
         } else {
             binding.layoutLoggedIn.setVisibility(View.GONE);
             binding.layoutLoggedOut.setVisibility(View.VISIBLE);

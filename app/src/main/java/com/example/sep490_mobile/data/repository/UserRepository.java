@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 
+import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
@@ -48,7 +49,7 @@ public class UserRepository {
         return apiService.loginWithBiometricToken(biometricToken);
     }
 
-    public Call<String> getBiometricToken() {
+    public Call<BiometricTokenResponseDTO> getBiometricToken() {
         return apiService.getBiometricToken();
     }
 

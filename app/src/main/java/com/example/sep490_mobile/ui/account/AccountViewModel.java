@@ -13,6 +13,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
 import com.example.sep490_mobile.data.dto.LogoutRequestDTO;
 import com.example.sep490_mobile.data.dto.LogoutResponseDTO;
@@ -79,18 +80,20 @@ public class AccountViewModel extends AndroidViewModel {
      * Gọi API server để tạo một Biometric Token mới.
      */
     public void generateBiometricToken() {
-        userRepository.getBiometricToken().enqueue(new Callback<String>() {
+        userRepository.getBiometricToken().enqueue(new Callback<BiometricTokenResponseDTO>() {
             @Override
-            public void onResponse(@NonNull Call<String> call, @NonNull Response<String> response) {
+            public void onResponse(@NonNull Call<BiometricTokenResponseDTO> call, @NonNull Response<BiometricTokenResponseDTO> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    biometricToken.postValue(response.body());
+                    // <-- LẤY TOKEN TỪ BÊN TRONG DTO -->
+                    String token = response.body().getBiometricToken();
+                    biometricToken.postValue(token);
                 } else {
                     biometricError.postValue("Lỗi khi tạo mã sinh trắc học.");
                 }
             }
 
             @Override
-            public void onFailure(@NonNull Call<String> call, @NonNull Throwable t) {
+            public void onFailure(@NonNull Call<BiometricTokenResponseDTO> call, @NonNull Throwable t) {
                 biometricError.postValue("Lỗi mạng: " + t.getMessage());
             }
         });
