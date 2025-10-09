@@ -116,14 +116,12 @@ public class RegisterFormActivity extends AppCompatActivity {
     }
 
     private void proceedToOtpStep() {
-        // TODO: Gọi API send-otp ở đây (bạn có thể thêm vào CheckEmailViewModel hoặc OtpViewModel)
-        // Ví dụ: otpViewModel.sendOtp(registrationData.getEmail());
-
         Toast.makeText(this, "Gửi mã OTP đến email của bạn...", Toast.LENGTH_SHORT).show();
 
         // Chuyển sang OtpVerificationActivity và gửi kèm dữ liệu đã nhập
-        Intent intent = new Intent(RegisterFormActivity.this, OtpVerificationActivity.class);
-        intent.putExtra("REGISTRATION_DATA", registrationData); // Gửi đối tượng qua Intent
+        Intent intent = new Intent(this, OtpVerificationActivity.class);
+        intent.putExtra("VERIFICATION_MODE", "REGISTER");
+        intent.putExtra("REGISTRATION_DATA", registrationData);
         startActivity(intent);
     }
 

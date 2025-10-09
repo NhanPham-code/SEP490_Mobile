@@ -3,6 +3,7 @@ package com.example.sep490_mobile.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,6 +28,8 @@ public class BiometricHelper {
     private final CryptographyManager cryptographyManager;
     private final BiometricCallback callback;
 
+    private  static final String TAG = "BiometricHelper";
+
     public interface BiometricCallback {
         void onAuthenticationSuccess(BiometricPrompt.AuthenticationResult result);
         void onAuthenticationError(String errorMessage);
@@ -46,7 +49,10 @@ public class BiometricHelper {
     }
 
     public boolean isBiometricLoginEnabled() {
-        return sharedPreferences.getBoolean(PREF_BIOMETRIC_ENABLED, false);
+        boolean isEnabled = sharedPreferences.getBoolean(PREF_BIOMETRIC_ENABLED, false);
+        // --- THÊM LOG ĐỂ KIỂM TRA ---
+        Log.d(TAG, "Checking isBiometricLoginEnabled: " + isEnabled);
+        return isEnabled;
     }
 
     public void authenticate(BiometricPrompt.CryptoObject cryptoObject) {

@@ -1,5 +1,6 @@
 package com.example.sep490_mobile.data.remote;
 
+import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
@@ -9,6 +10,8 @@ import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.PrivateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.RefreshTokenRequestDTO;
 import com.example.sep490_mobile.data.dto.RegisterResponseDTO;
+import com.example.sep490_mobile.data.dto.ResetPasswordRequestDTO;
+import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
 import com.example.sep490_mobile.data.dto.SendOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
@@ -92,7 +95,7 @@ public interface ApiService {
 
     // API get biometric tokens
     @GET("users/biometric-token")
-    Call<String> getBiometricToken();
+    Call<BiometricTokenResponseDTO> getBiometricToken();
 
     // API login with biometric token
     @POST("users/biometric-login")
@@ -106,4 +109,8 @@ public interface ApiService {
     Call<ODataResponse<StadiumDTO>> getStadiumsOdata(
             @QueryMap Map<String, String> odataOptions
     );
+
+    // API reset password
+    @PUT("users/forgot-password")
+    Call<ResetPasswordResponseDTO> resetPassword(@Body ResetPasswordRequestDTO body);
 }

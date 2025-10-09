@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.OpenableColumns;
 
+import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
@@ -13,6 +14,8 @@ import com.example.sep490_mobile.data.dto.LogoutRequestDTO;
 import com.example.sep490_mobile.data.dto.LogoutResponseDTO;
 import com.example.sep490_mobile.data.dto.PrivateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.RegisterResponseDTO;
+import com.example.sep490_mobile.data.dto.ResetPasswordRequestDTO;
+import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
 import com.example.sep490_mobile.data.remote.ApiClient;
@@ -40,6 +43,10 @@ public class UserRepository {
         this.context = context;
     }
 
+    public Call<ResetPasswordResponseDTO> forgotPassword(ResetPasswordRequestDTO request) {
+        return apiService.resetPassword(request);
+    }
+
     public Call<Void> deleteBiometricToken() {
         return apiService.deleteBiometricToken();
     }
@@ -48,7 +55,7 @@ public class UserRepository {
         return apiService.loginWithBiometricToken(biometricToken);
     }
 
-    public Call<String> getBiometricToken() {
+    public Call<BiometricTokenResponseDTO> getBiometricToken() {
         return apiService.getBiometricToken();
     }
 
