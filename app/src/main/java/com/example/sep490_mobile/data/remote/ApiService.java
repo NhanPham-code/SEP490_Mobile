@@ -5,15 +5,18 @@ import com.example.sep490_mobile.data.dto.LoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
 import com.example.sep490_mobile.data.dto.LogoutRequestDTO;
 import com.example.sep490_mobile.data.dto.LogoutResponseDTO;
+import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.PrivateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.RefreshTokenRequestDTO;
 import com.example.sep490_mobile.data.dto.RegisterResponseDTO;
 import com.example.sep490_mobile.data.dto.SendOtpRequestDTO;
+import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
 
 import java.util.List;
+import java.util.Map;
 
 import okhttp3.MultipartBody;
 import okhttp3.RequestBody;
@@ -25,6 +28,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.QueryMap;
 
 public interface ApiService {
 
@@ -97,4 +101,9 @@ public interface ApiService {
     // API delete biometric token
     @DELETE("users/biometric-delete")
     Call<Void> deleteBiometricToken();
+
+    @GET("odata/Stadium")
+    Call<ODataResponse<StadiumDTO>> getStadiumsOdata(
+            @QueryMap Map<String, String> odataOptions
+    );
 }

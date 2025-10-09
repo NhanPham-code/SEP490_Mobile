@@ -1,11 +1,9 @@
-package com.example.sep490_mobile.model;
+package com.example.sep490_mobile.data.dto;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 
-public class CourtsData implements Serializable {
+public class CourtsDTO implements Serializable {
     public int id;
     public int stadiumId;
     public String name;
@@ -14,13 +12,13 @@ public class CourtsData implements Serializable {
     public boolean isAvailable;
     public LocalDateTime createdAt;
     public LocalDateTime updatedAt;
-    public StadiumData stadiumData;
+    public StadiumDTO stadiumDTO;
 
-    public CourtsData() {
+    public CourtsDTO() {
 
     }
 
-    public CourtsData(int id, int stadiumId, String name, String sportType, long pricePerHour, boolean isAvailable, LocalDateTime createdAt, LocalDateTime updatedAt, StadiumData stadiumData) {
+    public CourtsDTO(int id, int stadiumId, String name, String sportType, long pricePerHour, boolean isAvailable, LocalDateTime createdAt, LocalDateTime updatedAt, StadiumDTO stadiumDTO) {
         this.id = id;
         this.stadiumId = stadiumId;
         this.name = name;
@@ -29,7 +27,7 @@ public class CourtsData implements Serializable {
         this.isAvailable = isAvailable;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.stadiumData = stadiumData;
+        this.stadiumDTO = stadiumDTO;
     }
 
     public int getId() {
@@ -96,11 +94,11 @@ public class CourtsData implements Serializable {
         this.updatedAt = updatedAt;
     }
 
-    public StadiumData getStadiumData() {
-        return stadiumData;
+    public StadiumDTO getStadiumDTO() {
+        return stadiumDTO;
     }
 
-    public void setStadiumData(StadiumData stadiumData) {
-        this.stadiumData = stadiumData;
+    public void setStadiumDTO(StadiumDTO stadiumDTO) {
+        this.stadiumDTO = stadiumDTO;
     }
 }

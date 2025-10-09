@@ -1,14 +1,13 @@
-package com.example.sep490_mobile.model;
+package com.example.sep490_mobile.data.dto;
 
 import android.icu.math.BigDecimal;
 
 import java.io.Serializable;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
 
-public class StadiumData implements Serializable {
+public class StadiumDTO implements Serializable {
     public int id;
 
     // [Required], [MaxLength(255)]
@@ -46,15 +45,15 @@ public class StadiumData implements Serializable {
     public boolean isLocked;
 
     // Các mối quan hệ (Relationships) - Sử dụng Set/List cho ICollection
-    public Set<CourtsData> courts; // Cần tạo class Courts tương ứng
-    public Set<StadiumImagesData> stadiumImages; // Cần tạo class StadiumImages tương ứng
-    public Set<StadiumVideosData> stadiumVideos; // Cần tạo class StadiumVideos tương ứng
+    public Set<CourtsDTO> courts; // Cần tạo class Courts tương ứng
+    public Set<StadiumImagesDTO> stadiumImages; // Cần tạo class StadiumImages tương ứng
+    public Set<StadiumVideosDTO> stadiumVideos; // Cần tạo class StadiumVideos tương ứng
 
-    public StadiumData() {
+    public StadiumDTO() {
 
     }
 
-    public StadiumData(int id, String name, String nameUnsigned, String address, String addressUnsigned, String description, LocalTime openTime, LocalTime closeTime, BigDecimal latitude, BigDecimal longitude, boolean isApproved, int createdBy, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isLocked, Set<CourtsData> courts, Set<StadiumImagesData> stadiumImages, Set<StadiumVideosData> stadiumVideos) {
+    public StadiumDTO(int id, String name, String nameUnsigned, String address, String addressUnsigned, String description, LocalTime openTime, LocalTime closeTime, BigDecimal latitude, BigDecimal longitude, boolean isApproved, int createdBy, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isLocked, Set<CourtsDTO> courts, Set<StadiumImagesDTO> stadiumImages, Set<StadiumVideosDTO> stadiumVideos) {
         this.id = id;
         this.name = name;
         this.nameUnsigned = nameUnsigned;
@@ -195,27 +194,27 @@ public class StadiumData implements Serializable {
         isLocked = locked;
     }
 
-    public Set<CourtsData> getCourts() {
+    public Set<CourtsDTO> getCourts() {
         return courts;
     }
 
-    public void setCourts(Set<CourtsData> courts) {
+    public void setCourts(Set<CourtsDTO> courts) {
         this.courts = courts;
     }
 
-    public Set<StadiumImagesData> getStadiumImages() {
+    public Set<StadiumImagesDTO> getStadiumImages() {
         return stadiumImages;
     }
 
-    public void setStadiumImages(Set<StadiumImagesData> stadiumImages) {
+    public void setStadiumImages(Set<StadiumImagesDTO> stadiumImages) {
         this.stadiumImages = stadiumImages;
     }
 
-    public Set<StadiumVideosData> getStadiumVideos() {
+    public Set<StadiumVideosDTO> getStadiumVideos() {
         return stadiumVideos;
     }
 
-    public void setStadiumVideos(Set<StadiumVideosData> stadiumVideos) {
+    public void setStadiumVideos(Set<StadiumVideosDTO> stadiumVideos) {
         this.stadiumVideos = stadiumVideos;
     }
 }
