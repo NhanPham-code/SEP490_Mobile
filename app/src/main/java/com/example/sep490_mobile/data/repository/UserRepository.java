@@ -14,6 +14,8 @@ import com.example.sep490_mobile.data.dto.LogoutRequestDTO;
 import com.example.sep490_mobile.data.dto.LogoutResponseDTO;
 import com.example.sep490_mobile.data.dto.PrivateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.RegisterResponseDTO;
+import com.example.sep490_mobile.data.dto.ResetPasswordRequestDTO;
+import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
 import com.example.sep490_mobile.data.remote.ApiClient;
@@ -39,6 +41,10 @@ public class UserRepository {
     public UserRepository(Context context) {
         this.apiService = ApiClient.getInstance(context).getApiService();
         this.context = context;
+    }
+
+    public Call<ResetPasswordResponseDTO> forgotPassword(ResetPasswordRequestDTO request) {
+        return apiService.resetPassword(request);
     }
 
     public Call<Void> deleteBiometricToken() {
