@@ -1,18 +1,25 @@
 package com.example.sep490_mobile.data.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class StadiumVideosDTO implements Serializable {
+    @SerializedName("Id")
     public int id;
+    @SerializedName("StadiumId")
     public int stadiumId;
+    @SerializedName("VideoUrl")
     public String videoUrl;
-    public LocalDateTime uploadedAt;
+    @SerializedName("UploadedAt")
+    public String uploadedAt;
+    @SerializedName("Stadium")
     public StadiumDTO stadium;
 
     public StadiumVideosDTO() {
     }
-    public StadiumVideosDTO(int id, int stadiumId, String videoUrl, LocalDateTime uploadedAt, StadiumDTO stadium) {
+    public StadiumVideosDTO(int id, int stadiumId, String videoUrl, String uploadedAt, StadiumDTO stadium) {
         this.id = id;
         this.stadiumId = stadiumId;
         this.videoUrl = videoUrl;
@@ -44,11 +51,11 @@ public class StadiumVideosDTO implements Serializable {
         this.videoUrl = videoUrl;
     }
 
-    public LocalDateTime getUploadedAt() {
+    public String getUploadedAt() {
         return uploadedAt;
     }
 
-    public void setUploadedAt(LocalDateTime uploadedAt) {
+    public void setUploadedAt(String uploadedAt) {
         this.uploadedAt = uploadedAt;
     }
 

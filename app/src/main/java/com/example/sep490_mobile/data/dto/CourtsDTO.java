@@ -1,24 +1,35 @@
 package com.example.sep490_mobile.data.dto;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
 import java.time.LocalDateTime;
 
 public class CourtsDTO implements Serializable {
+    @SerializedName("Id")
     public int id;
+    @SerializedName("StadiumId")
     public int stadiumId;
+    @SerializedName("Name")
     public String name;
+    @SerializedName("SportType")
     public String sportType;
+    @SerializedName("PricePerHour")
     public long pricePerHour;
+    @SerializedName("IsAvailable")
     public boolean isAvailable;
-    public LocalDateTime createdAt;
-    public LocalDateTime updatedAt;
-    public StadiumDTO stadiumDTO;
+    @SerializedName("CreatedAt")
+    public String createdAt;
+    @SerializedName("UpdatedAt")
+    public String updatedAt;
+    @SerializedName("Stadium")
+    public StadiumDTO stadium;
 
     public CourtsDTO() {
 
     }
 
-    public CourtsDTO(int id, int stadiumId, String name, String sportType, long pricePerHour, boolean isAvailable, LocalDateTime createdAt, LocalDateTime updatedAt, StadiumDTO stadiumDTO) {
+    public CourtsDTO(int id, int stadiumId, String name, String sportType, long pricePerHour, boolean isAvailable, String createdAt, String updatedAt, StadiumDTO stadiumDTO) {
         this.id = id;
         this.stadiumId = stadiumId;
         this.name = name;
@@ -27,7 +38,7 @@ public class CourtsDTO implements Serializable {
         this.isAvailable = isAvailable;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-        this.stadiumDTO = stadiumDTO;
+        this.stadium = stadiumDTO;
     }
 
     public int getId() {
@@ -78,27 +89,27 @@ public class CourtsDTO implements Serializable {
         isAvailable = available;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 
-    public StadiumDTO getStadiumDTO() {
-        return stadiumDTO;
+    public StadiumDTO getStadium() {
+        return stadium;
     }
 
-    public void setStadiumDTO(StadiumDTO stadiumDTO) {
-        this.stadiumDTO = stadiumDTO;
+    public void setStadium(StadiumDTO stadium) {
+        this.stadium = stadium;
     }
 }

@@ -9,8 +9,11 @@
     app:cardElevation="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/list_item"
         android:layout_width="match_parent"
-        android:layout_height="376dp">
+        android:layout_height="376dp"
+        android:background="@color/cardview_light_background">
+
 
         <ImageView
             android:id="@+id/stadium_image"
@@ -79,18 +82,20 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp">
+                android:padding="16dp"
+                android:background="@color/cardview_light_background">
 
                 <TextView
                     android:id="@+id/stadium_sportType"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="28dp"
-                    android:drawableStart="@drawable/ic_add_photo"
+                    android:drawableStart="@drawable/ic_court_sport"
                     android:drawablePadding="4dp"
                     android:gravity="center_vertical"
-                    android:text="Bóng Đá"
-                    android:textColor="@android:color/darker_gray"
+                    android:backgroundTint="@color/black"
+                    android:text=" Bóng Đá"
+                    android:textColor="@android:color/black"
                     android:textSize="14sp"
                     app:layout_constraintStart_toEndOf="@+id/stadium_time"
                     app:layout_constraintTop_toTopOf="@+id/stadium_time" />
@@ -112,7 +117,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:ellipsize="end"
-                    android:maxLines="1"
                     android:drawableStart="@drawable/outline_location_on_24"
                     android:text="Công viên sinh thái Cọ Dầu - 258 Hùng..."
                     android:textColor="@android:color/holo_green_dark"
@@ -142,7 +146,7 @@
                     android:drawablePadding="4dp"
                     android:gravity="center_vertical"
                     android:text="05:00 - 22:00"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@android:color/black"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="@id/stadium_name"
                     app:layout_constraintTop_toBottomOf="@+id/rating_bar" />
@@ -152,9 +156,9 @@
                     android:layout_width="0dp"
                     android:layout_height="42dp"
                     android:layout_marginTop="12dp"
-                    android:backgroundTint="@android:color/holo_green_dark"
+                    android:backgroundTint="@color/ocean_blue"
                     android:text="Đặt Sân"
-                    android:textColor="@android:color/black"
+                    android:textColor="@android:color/white"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/stadium_time" />

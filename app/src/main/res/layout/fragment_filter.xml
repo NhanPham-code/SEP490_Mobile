@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:background="@android:color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="16dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bộ Lọc"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_centerVertical="true"/>
+
+            <Button
+                android:id="@+id/btn_clear_all"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Xóa Tất Cả"
+                style="@style/Widget.AppCompat.Button.Borderless"
+                android:layout_toStartOf="@id/btn_close_filter"/>
+
+            <ImageButton
+                android:id="@+id/btn_close_filter"
+                android:layout_marginTop="10dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_close_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Đóng bộ lọc"
+                android:layout_alignParentEnd="true"/>
+        </RelativeLayout>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Loại Thể Thao"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingBottom="8dp"/>
+        <GridLayout
+            android:id="@+id/gl_sport_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:columnCount="2"
+            android:useDefaultMargins="true"
+            android:layout_marginBottom="16dp">
+            <CheckBox android:id="@+id/cb_bongda11" android:text="Bóng đá sân 11"/>
+            <CheckBox android:id="@+id/cb_bongda7" android:text="Bóng đá sân 7"/>
+            <CheckBox android:id="@+id/cb_bongda5" android:text="Bóng đá sân 5"/>
+            <CheckBox android:id="@+id/cb_bongro" android:text="Bóng rổ"/>
+            <CheckBox android:id="@+id/cb_tennis" android:text="Tennis"/>
+            <CheckBox android:id="@+id/cb_bongchuyen" android:text="Bóng chuyền"/>
+
+        </GridLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thời Gian Chơi (Từ - Đến)"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingBottom="8dp"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:layout_marginBottom="16dp">
+
+            <TextView
+                android:id="@+id/tv_start_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="09:00" android:gravity="center"
+                android:padding="16dp"
+                android:textSize="18sp"
+                android:background="?attr/selectableItemBackground" />
+            <TextView
+                android:id="@+id/tv_end_time"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="15:00" android:gravity="center"
+                android:padding="16dp"
+                android:textSize="18sp"
+                android:background="?attr/selectableItemBackground" />
+        </LinearLayout>
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Khoảng Giá (VNĐ/giờ)"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingBottom="8dp"/>
+        <SeekBar
+            android:id="@+id/price_seekbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="500"
+            android:progress="250"
+            android:layout_marginBottom="8dp"/>
+        <TextView
+            android:id="@+id/tv_current_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Giá tối đa: 250.000đ/giờ"
+            android:layout_gravity="center_horizontal"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp"/>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Địa Điểm"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:paddingBottom="8dp"/>
+        <EditText
+            android:id="@+id/et_location_search"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Nhập địa điểm"
+            android:drawableStart="@drawable/outline_location_on_24"
+            android:drawablePadding="8dp"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="127dp"
+            android:orientation="horizontal"
+            android:padding="8dp">
+
+            <Button
+                android:id="@+id/btn_apply_filters"
+                style="@style/Widget.AppCompat.Button.Colored"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:layout_weight="1"
+                android:text="ÁP DỤNG BỘ LỌC" />
+
+            <Button
+                android:id="@+id/btn_reset_filters"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_weight="1"
+                android:text="ĐẶT LẠI" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

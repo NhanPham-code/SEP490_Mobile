@@ -105,6 +105,7 @@ public interface ApiService {
     @DELETE("users/biometric-delete")
     Call<Void> deleteBiometricToken();
 
+    // API get stadium
     @GET("odata/Stadium")
     Call<ODataResponse<StadiumDTO>> getStadiumsOdata(
             @QueryMap Map<String, String> odataOptions

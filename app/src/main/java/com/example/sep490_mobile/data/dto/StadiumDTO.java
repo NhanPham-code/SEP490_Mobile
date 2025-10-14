@@ -2,58 +2,83 @@ package com.example.sep490_mobile.data.dto;
 
 import android.icu.math.BigDecimal;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Set;
 
 public class StadiumDTO implements Serializable {
+    // Ánh xạ từ Id (C# PascalCase)
+    @SerializedName("Id")
     public int id;
 
-    // [Required], [MaxLength(255)]
+    // Ánh xạ từ Name
+    @SerializedName("Name")
     public String name;
 
+    @SerializedName("NameUnsigned")
     public String nameUnsigned;
 
+    @SerializedName("Address")
     public String address;
+
+    @SerializedName("AddressUnsigned")
     public String addressUnsigned;
 
+    @SerializedName("Description")
     public String description;
 
-    // [Required] - Sử dụng LocalTime cho TimeSpan
-    public LocalTime openTime;
+    // Ánh xạ từ TimeSpan OpenTime -> Sử dụng LocalTime trong Java
+    @SerializedName("OpenTime")
+    public Duration openTime;
 
-    // [Required] - Sử dụng LocalTime cho TimeSpan
-    public LocalTime closeTime;
+    // Ánh xạ từ TimeSpan CloseTime -> Sử dụng LocalTime trong Java
+    @SerializedName("CloseTime")
+    public Duration closeTime;
 
-    // [Column(TypeName = "decimal(9,6)")] - Sử dụng BigDecimal cho Decimal
-    public BigDecimal latitude;
+    // Ánh xạ từ decimal? Latitude -> Sử dụng BigDecimal trong Java
+    @SerializedName("Latitude")
+    public Double  latitude;
 
-    // [Column(TypeName = "decimal(9,6)")] - Sử dụng BigDecimal cho Decimal
-    public BigDecimal longitude;
+    // Ánh xạ từ decimal? Longitude -> Sử dụng BigDecimal trong Java
+    @SerializedName("Longitude")
+    public Double  longitude;
 
-    public boolean isApproved = false; // Mặc định là false
+    @SerializedName("IsApproved")
+    public boolean isApproved = false;
 
+    @SerializedName("CreatedBy")
     public int createdBy;
 
-    // Sử dụng LocalDateTime cho DateTime
-    public LocalDateTime createdAt;
+    // Ánh xạ từ DateTime CreatedAt -> Sử dụng LocalDateTime trong Java
+    @SerializedName("CreatedAt")
+    public String createdAt;
 
-    // Sử dụng LocalDateTime cho DateTime
-    public LocalDateTime updatedAt;
+    // Ánh xạ từ DateTime UpdatedAt -> Sử dụng LocalDateTime trong Java
+    @SerializedName("UpdatedAt")
+    public String updatedAt;
 
+    @SerializedName("IsLocked")
     public boolean isLocked;
 
-    // Các mối quan hệ (Relationships) - Sử dụng Set/List cho ICollection
-    public Set<CourtsDTO> courts; // Cần tạo class Courts tương ứng
-    public Set<StadiumImagesDTO> stadiumImages; // Cần tạo class StadiumImages tương ứng
-    public Set<StadiumVideosDTO> stadiumVideos; // Cần tạo class StadiumVideos tương ứng
+    // Ánh xạ từ ICollection<Courts>
+    @SerializedName("Courts")
+    public Set<CourtsDTO> courts;
+
+    @SerializedName("StadiumImages")
+    public Set<StadiumImagesDTO> stadiumImages;
+
+    @SerializedName("StadiumVideos")
+    public Set<StadiumVideosDTO> stadiumVideos;
 
     public StadiumDTO() {
 
     }
 
-    public StadiumDTO(int id, String name, String nameUnsigned, String address, String addressUnsigned, String description, LocalTime openTime, LocalTime closeTime, BigDecimal latitude, BigDecimal longitude, boolean isApproved, int createdBy, LocalDateTime createdAt, LocalDateTime updatedAt, boolean isLocked, Set<CourtsDTO> courts, Set<StadiumImagesDTO> stadiumImages, Set<StadiumVideosDTO> stadiumVideos) {
+    public StadiumDTO(int id, String name, String nameUnsigned, String address, String addressUnsigned, String description, Duration  openTime, Duration  closeTime, Double  latitude, Double  longitude, boolean isApproved, int createdBy, String createdAt, String updatedAt, boolean isLocked, Set<CourtsDTO> courts, Set<StadiumImagesDTO> stadiumImages, Set<StadiumVideosDTO> stadiumVideos) {
         this.id = id;
         this.name = name;
         this.nameUnsigned = nameUnsigned;
@@ -122,35 +147,35 @@ public class StadiumDTO implements Serializable {
         this.description = description;
     }
 
-    public LocalTime getOpenTime() {
+    public Duration  getOpenTime() {
         return openTime;
     }
 
-    public void setOpenTime(LocalTime openTime) {
+    public void setOpenTime(Duration  openTime) {
         this.openTime = openTime;
     }
 
-    public LocalTime getCloseTime() {
+    public Duration  getCloseTime() {
         return closeTime;
     }
 
-    public void setCloseTime(LocalTime closeTime) {
+    public void setCloseTime(Duration  closeTime) {
         this.closeTime = closeTime;
     }
 
-    public BigDecimal getLatitude() {
+    public Double  getLatitude() {
         return latitude;
     }
 
-    public void setLatitude(BigDecimal latitude) {
+    public void setLatitude(Double  latitude) {
         this.latitude = latitude;
     }
 
-    public BigDecimal getLongitude() {
+    public Double  getLongitude() {
         return longitude;
     }
 
-    public void setLongitude(BigDecimal longitude) {
+    public void setLongitude(Double  longitude) {
         this.longitude = longitude;
     }
 
@@ -170,19 +195,19 @@ public class StadiumDTO implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public LocalDateTime getCreatedAt() {
+    public String getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
+    public void setCreatedAt(String createdAt) {
         this.createdAt = createdAt;
     }
 
-    public LocalDateTime getUpdatedAt() {
+    public String getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(LocalDateTime updatedAt) {
+    public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
     }
 

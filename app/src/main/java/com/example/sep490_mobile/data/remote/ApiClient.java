@@ -2,9 +2,19 @@ package com.example.sep490_mobile.data.remote;
 
 import android.content.Context;
 
-import androidx.annotation.Nullable;
+import android.os.Build;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+
+import com.example.sep490_mobile.Adapter.BigDecimalTypeAdapter;
+import com.example.sep490_mobile.Adapter.DurationTypeAdapter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import java.math.BigDecimal;
 import java.security.cert.CertificateException;
+import java.time.Duration;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSocketFactory;
@@ -27,7 +37,12 @@ public class ApiClient {
     // Khai báo một ApiService KHÔNG CÓ token để sử dụng cho Authenticator
     private ApiService authApiService;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private ApiClient(Context context) {
+        Gson gson = new GsonBuilder()
+                // Đăng ký bộ chuyển đổi tùy chỉnh cho BigDecimal
+                .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
+                .create();
         // ... (Giữ nguyên phần khởi tạo loggingInterceptor) ...
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -39,7 +54,7 @@ public class ApiClient {
         Retrofit baseRetrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(baseClient)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
         authApiService = baseRetrofit.create(ApiService.class);
 
@@ -54,7 +69,7 @@ public class ApiClient {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(BASE_URL)
                 .client(clientWithAuth)
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .build();
 
         apiService = retrofit.create(ApiService.class);
