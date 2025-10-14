@@ -1,16 +1,23 @@
 package com.example.sep490_mobile.ui.stadiumDetail;
 
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MediaController;
@@ -28,24 +35,45 @@ import com.example.sep490_mobile.databinding.FragmentStadiumDetailBinding;
 import com.example.sep490_mobile.utils.ImageUtils;
 import com.example.sep490_mobile.utils.PriceFormatter;
 import com.example.sep490_mobile.viewmodel.StadiumViewModel;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.ui.PlayerControlView;
+import com.google.android.exoplayer2.ui.PlayerView;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class StadiumDetailFragment extends Fragment {
 
     private FragmentStadiumDetailBinding binding;
     private StadiumViewModel stadiumViewModel;
+    private boolean isVideoPlaying = false;
+    private Button viewImg;
+    private Button viewVideo;
     private ImageButton nextButton;
     private ImageButton backButton;
+    private ImageButton nextButtonVideo;
+    private ImageButton backButtonVideo;
     private ImageView stadiumImage;
     private ImageButton backToHomeButton;
-    private VideoView stadiumVideo;
-    private Uri videoUri;
+    private PlayerView playerView;
+    private ExoPlayer player;
     private int imgPosition;
+    private int videoPosition;
     private StadiumDTO stadiumDTO;
     private int stadiumId;
+    private boolean isMuted = false;
+    private ImageButton volumeButton;
+    private ImageButton customFullscreenButton;
+    private boolean isFullScreen = false;
+    private int initialHeightPx;
+    private ViewGroup originalParent;
+    private ViewGroup activityRootView; // Root view của Activity
+    private ConstraintLayout videoOverlayContainer; // 💡 Biến mới
 
     public static StadiumDetailFragment newInstance(int stadiumId) {
         StadiumDetailFragment fragment = new StadiumDetailFragment();
@@ -69,12 +97,29 @@ public class StadiumDetailFragment extends Fragment {
         binding = FragmentStadiumDetailBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         stadiumViewModel = new ViewModelProvider(this).get(StadiumViewModel.class);
-
+        volumeButton = root.findViewById(R.id.btn_toggle_volume);
+        nextButtonVideo = root.findViewById(R.id.btn_next_video);
+        backButtonVideo = root.findViewById(R.id.btn_prev_video);
+        viewImg = root.findViewById(R.id.view_img);
+        viewVideo = root.findViewById(R.id.view_video);
         backToHomeButton = root.findViewById(R.id.btn_back);
         stadiumImage = root.findViewById(R.id.iv_stadium_image);
-        stadiumVideo = root.findViewById(R.id.vv_stadium_video);
+        playerView = root.findViewById(R.id.vv_stadium_video);
         nextButton = root.findViewById(R.id.btn_next);
         backButton = root.findViewById(R.id.btn_prev);
+        customFullscreenButton = root.findViewById(R.id.btn_custom_fullscreen);
+// ... (Trong phương thức onViewCreated hoặc setup)
+        videoOverlayContainer = root.findViewById(R.id.video_full_screen_container); // 💡 THAY THẾ vv_stadium_video
+        if (videoOverlayContainer != null) {
+            originalParent = (ViewGroup) videoOverlayContainer.getParent();
+        }
+        if (getActivity() != null) {
+            activityRootView = (ViewGroup) getActivity().findViewById(android.R.id.content);
+        }
+
+// Lưu chiều cao ban đầu (tính toán từ video_overlay_container, không cần PlayerView)
+        float density = getResources().getDisplayMetrics().density;
+        initialHeightPx = (int) (200 * density); // Giữ lại giá trị ban đầu 200dp
 
         // 1. Thiết lập tham số OData
         Map<String, String> odataUrl = new HashMap<>();
@@ -88,30 +133,59 @@ public class StadiumDetailFragment extends Fragment {
         // 3. Gọi API để tải dữ liệu
         stadiumViewModel.fetchStadium(odataUrl);
 
+        nextButtonVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StadiumVideosDTO[] videosDTOS = stadiumDTO.getStadiumVideos().toArray(new StadiumVideosDTO[0]);
+                if(videoPosition < videosDTOS.length - 1){
+                    videoPosition ++;
+                    player.seekToNextMediaItem();
+                }
+                setNextButton();
+            }
+        });
+        backButtonVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(videoPosition > 0){
+                    videoPosition --;
+                    player.seekToPreviousMediaItem();
+                }
+                setBackButton();
+            }
+        });
+
+        // 4. Thiết lập sự kiện cho nút next và back
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StadiumImagesDTO[] stadiumImagesDTOS = stadiumDTO.getStadiumImages().toArray(new StadiumImagesDTO[0]);
-                if(imgPosition < stadiumImagesDTOS.length - 1){
-                    imgPosition ++;
-                    Glide.with(getContext()).load(ImageUtils.getFullUrl(stadiumImagesDTOS.length > 0 ? "img/" + stadiumImagesDTOS[imgPosition].imageUrl : "")).centerCrop().into(binding.ivStadiumImage);
-                }
-                Toast.makeText(getContext(), "img: " + imgPosition, Toast.LENGTH_SHORT).show();
-                setNextButton(stadiumImagesDTOS);
+
+
+                    if(imgPosition < stadiumImagesDTOS.length - 1){
+                        imgPosition ++;
+                        Glide.with(getContext()).load(ImageUtils.getFullUrl(stadiumImagesDTOS.length > 0 ? "img/" + stadiumImagesDTOS[imgPosition].imageUrl : "")).centerCrop().into(binding.ivStadiumImage);
+                    }
+
+
+                setNextButton();
             }
         });
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StadiumImagesDTO[] stadiumImagesDTOS = stadiumDTO.getStadiumImages().toArray(new StadiumImagesDTO[0]);
-                if ( imgPosition > 0 ) {
-                    imgPosition --;
-                    Glide.with(getContext()).load(ImageUtils.getFullUrl(stadiumImagesDTOS.length > 0 ? "img/" + stadiumImagesDTOS[imgPosition].imageUrl : "")).centerCrop().into(binding.ivStadiumImage);
-                }
-                Toast.makeText(getContext(), "img: " + imgPosition, Toast.LENGTH_SHORT).show();
+
+                    if ( imgPosition > 0 ) {
+                        imgPosition --;
+                        Glide.with(getContext()).load(ImageUtils.getFullUrl(stadiumImagesDTOS.length > 0 ? "img/" + stadiumImagesDTOS[imgPosition].imageUrl : "")).centerCrop().into(binding.ivStadiumImage);
+                    }
+
                 setBackButton();
             }
         });
+
+        // 5. Thiết lập sự kiện cho nút back
         backToHomeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -126,19 +200,168 @@ public class StadiumDetailFragment extends Fragment {
             }
         });
 
+        // 6. Thiết lập sự kiện cho nút viewImg và viewVideo
+        viewImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StadiumImagesDTO[] stadiumImagesDTO = stadiumDTO.getStadiumImages().toArray(new StadiumImagesDTO[0]);
+                binding.btnNextVideo.setVisibility(View.GONE);
+                binding.btnPrevVideo.setVisibility(View.GONE);
+                isMuted = true;
+                volumeButton.setVisibility(View.GONE);
+                if(stadiumImagesDTO.length > 1){
+                    binding.btnNext.setVisibility(View.VISIBLE);
+                    binding.btnPrev.setVisibility(View.VISIBLE);
+                }
+                switchToImage();
+            }
+        });
+
+        viewVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                StadiumVideosDTO[] videosDTOS = stadiumDTO.getStadiumVideos().toArray(new StadiumVideosDTO[0]);
+                if(videosDTOS.length > 1){
+                    binding.btnNextVideo.setVisibility(View.VISIBLE);
+                    binding.btnPrevVideo.setVisibility(View.VISIBLE);
+                }else{
+                    binding.btnNextVideo.setVisibility(View.GONE);
+                    binding.btnPrevVideo.setVisibility(View.GONE);
+                }
+                volumeButton.setVisibility(View.VISIBLE);
+                switchToVideo();
+            }
+        });
+        playerView.setControllerVisibilityListener(new PlayerControlView.VisibilityListener() {
+            @Override
+            public void onVisibilityChange(int visibility) {
+                // 'visibility' sẽ là View.VISIBLE hoặc View.GONE
+
+                if (visibility == View.VISIBLE) {
+                    // Bộ điều khiển đang HIỂN THỊ
+                    // Ví dụ: Hiển thị các nút tùy chỉnh của bạn
+
+                    customFullscreenButton.setVisibility(View.VISIBLE);
+                } else {
+                    // Bộ điều khiển đang ẨN
+                    // Ví dụ: Ẩn các nút tùy chỉnh của bạn
+                    customFullscreenButton.setVisibility(View.GONE);
+                }
+            }
+        });
+        volumeButton.setOnClickListener(v -> toggleVolume());
+        setupCustomFullscreenButton();
 
         return root;
     }
 
+    private void setupCustomFullscreenButton() {
+        // Bạn cần tham chiếu và lưu các View khác vào 'otherContent' nếu có.
+
+        // Lưu chiều cao ban đầu (200dp)
+        // Đảm bảo initialHeightPx được tính toán chính xác và lưu trữ:
+        float density = getResources().getDisplayMetrics().density;
+        initialHeightPx = (int) (200 * density);
+
+        customFullscreenButton.setOnClickListener(v -> toggleFullscreen());
+    }
+
+    private void toggleFullscreen() {
+        isFullScreen = !isFullScreen; // Đảo ngược trạng thái
+
+        if (isFullScreen) {
+            enterFullScreenMode();
+        } else {
+            exitFullScreenMode();
+        }
+
+        // Cập nhật biểu tượng cho nút tùy chỉnh
+        int iconResource = isFullScreen ? R.drawable.exo_icon_fullscreen_exit : R.drawable.exo_icon_fullscreen_enter;
+        customFullscreenButton.setImageResource(iconResource);
+    }
+
+// ----------------------------------------------------
+// PHƯƠNG THỨC HỖ TRỢ FULLSCREEN
+// ----------------------------------------------------
+
+    private void enterFullScreenMode() {
+        if (getActivity() == null || videoOverlayContainer == null || activityRootView == null) return;
+
+        // 1. Xóa CONTAINER khỏi View cha ban đầu
+        originalParent.removeView(videoOverlayContainer);
+
+        // 2. Cấu hình LayoutParams cho toàn màn hình
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                Gravity.CENTER
+        );
+
+        // 3. Ẩn thanh Status Bar (Tùy chọn)
+        getActivity().getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        // 4. Thêm CONTAINER vào Activity Root View (Lớp phủ)
+        activityRootView.addView(videoOverlayContainer, params);
+
+        // 5. Chuyển sang màn hình ngang
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
+
+    private void exitFullScreenMode() {
+        if (getActivity() == null || videoOverlayContainer == null || originalParent == null || activityRootView == null) return;
+
+        // 1. Xóa CONTAINER khỏi Activity Root View
+        activityRootView.removeView(videoOverlayContainer);
+
+        // 2. Hiển thị lại thanh Status Bar
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        // 3. Đặt lại CONTAINER về kích thước ban đầu (200dp)
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                initialHeightPx // Giá trị 200dp
+        );
+
+        // 4. Thêm CONTAINER trở lại View cha ban đầu
+        originalParent.addView(videoOverlayContainer, params);
+
+        // 5. Chuyển về màn hình dọc
+        getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+    }
+
+    private void toggleVolume() {
+        if (player == null) return;
+
+        if (isMuted) {
+            // Đang tắt tiếng -> Bật tiếng (Set âm lượng về 1.0f)
+            player.setVolume(1.0f);
+            isMuted = false;
+            // Cập nhật biểu tượng thành Bật tiếng (Volume Up)
+            volumeButton.setImageResource(R.drawable.ic_volume_up);
+        } else {
+            // Đang bật tiếng -> Tắt tiếng (Set âm lượng về 0.0f)
+            player.setVolume(0.0f);
+            isMuted = true;
+            // Cập nhật biểu tượng thành Tắt tiếng (Volume Off/Mute)
+            volumeButton.setImageResource(R.drawable.ic_volume_off);
+        }
+    }
     private void switchToVideo() {
+        videoPosition = 0;
+        isVideoPlaying = true;
+        // Đặt lại trạng thái âm lượng
+        isMuted = false;
+        setNextButton();
+        setBackButton();
         // 1. Ẩn ImageView
         stadiumImage.setVisibility(View.GONE);
-
+        videoOverlayContainer.setVisibility(View.VISIBLE);
         // 2. Hiển thị VideoView
-        stadiumVideo.setVisibility(View.VISIBLE);
-
-        // 3. Bắt đầu phát video (Tùy chọn)
-//        stadiumVideo.start();
+        playerView.setVisibility(View.VISIBLE);
+        setVideoPlaying();
+        toggleVolume();
     }
 
     /**
@@ -146,27 +369,45 @@ public class StadiumDetailFragment extends Fragment {
      */
     private void switchToImage() {
         // 1. Dừng video và ẩn VideoView
-        if (stadiumVideo.isPlaying()) {
-            stadiumVideo.stopPlayback();
+        isVideoPlaying = false;
+        videoOverlayContainer.setVisibility(View.GONE);
+        playerView.setVisibility(View.GONE);
+        if (player != null) {
+            player.stop();
         }
-        stadiumVideo.setVisibility(View.GONE);
 
         // 2. Hiển thị ImageView
         stadiumImage.setVisibility(View.VISIBLE);
     }
-    private void setNextButton(StadiumImagesDTO[] stadiumImagesDTOS){
-        if(imgPosition >= stadiumImagesDTOS.length - 1){
-            binding.btnNext.setVisibility(View.GONE);
-        }
-            binding.btnPrev.setVisibility(View.VISIBLE);
+    private void setNextButton(){
 
+        if(isVideoPlaying == true){
+            StadiumVideosDTO[] videosDTOS = stadiumDTO.getStadiumVideos().toArray(new StadiumVideosDTO[0]);
+            if(videoPosition >= videosDTOS.length - 1){
+                binding.btnNextVideo.setVisibility(View.GONE);
+            }
+            binding.btnPrevVideo.setVisibility(View.VISIBLE);
+        }else{
+            StadiumImagesDTO[] stadiumImagesDTOS = stadiumDTO.getStadiumImages().toArray(new StadiumImagesDTO[0]);
+            if(imgPosition >= stadiumImagesDTOS.length - 1){
+                binding.btnNext.setVisibility(View.GONE);
+            }
+            binding.btnPrev.setVisibility(View.VISIBLE);
+        }
     }
     private void setBackButton(){
-        if(imgPosition <= 0){
-            binding.btnPrev.setVisibility(View.GONE);
-        }
+        if(isVideoPlaying == true){
+            if(videoPosition <= 0){
+                binding.btnPrevVideo.setVisibility(View.GONE);
+            }
+            binding.btnNextVideo.setVisibility(View.VISIBLE);
+        }else{
+            if(imgPosition <= 0){
+                binding.btnPrev.setVisibility(View.GONE);
+            }
             binding.btnNext.setVisibility(View.VISIBLE);
 
+        }
     }
 
     private void observeStadiumListResponse() {
@@ -184,6 +425,35 @@ public class StadiumDetailFragment extends Fragment {
                 Toast.makeText(this.getContext(), "Không tìm thấy chi tiết sân vận động.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    //play video
+    private void setVideoPlaying(){
+        StadiumVideosDTO[] videosDTOS = stadiumDTO.getStadiumVideos().toArray(new StadiumVideosDTO[0]);
+        String completeVideoUrl = "";
+
+        if (videosDTOS != null && videosDTOS.length > 0) {
+            // 1. Lấy tên file video
+            completeVideoUrl = videosDTOS[videoPosition].videoUrl;
+
+            // 2. Tạo đường dẫn tương đối (đảm bảo là thư mục chứa video trên server)
+
+
+
+            // 4. Chuẩn bị nguồn media và bắt đầu phát
+        }
+
+// 4. Thiết lập đường dẫn video (chỉ khi có URL hợp lệ)
+        if (!completeVideoUrl.isEmpty()) {
+            // setVideoURI thường được khuyến nghị hơn setVideoPath khi dùng URL mạng
+            // setVideoPath chấp nhận cả đường dẫn cục bộ và URL mạng, nhưng Uri rõ ràng hơn
+            player = new ExoPlayer.Builder(requireContext()).build();
+
+            // 3. Liên kết Player với PlayerView
+            playerView.setPlayer(player);
+            // Tự động chuyển sang chế độ video và bắt đầu phát
+            prepareVideo(completeVideoUrl);
+        }
     }
 
     private void loadStadiumData(StadiumDTO stadiumDTO) {
@@ -240,50 +510,7 @@ public class StadiumDetailFragment extends Fragment {
 // Khai báo kiểu dữ liệu cho videoUri là String hoặc Uri
 // Nếu là Uri, bạn sẽ cần Uri.parse() sau khi có full URL.
 
-            String completeVideoUrl = "";
 
-            if (videosDTOS != null && videosDTOS.length > 0) {
-                // 1. Lấy tên file video
-                String fileName = videosDTOS[0].videoUrl;
-
-                // 2. Tạo đường dẫn tương đối (đảm bảo là thư mục chứa video trên server)
-                String videoUrlPath = "img/" + fileName;
-                // 3. Lấy URL hoàn chỉnh (ví dụ: "https://server.com/video/file.mp4")
-                completeVideoUrl = ImageUtils.getFullUrl(videoUrlPath);
-            }
-
-// 4. Thiết lập đường dẫn video (chỉ khi có URL hợp lệ)
-            if (!completeVideoUrl.isEmpty()) {
-                switchToVideo();
-                // setVideoURI thường được khuyến nghị hơn setVideoPath khi dùng URL mạng
-                // setVideoPath chấp nhận cả đường dẫn cục bộ và URL mạng, nhưng Uri rõ ràng hơn
-                String videoUrl = "https://x.com/i/status/1977967621158117672";
-                videoUri = Uri.parse(videoUrl);
-
-                System.out.println("url: " + completeVideoUrl);
-
-                // 2. Gán Uri cho VideoView
-                stadiumVideo.setVideoURI(videoUri);
-
-                // 3. Tạo và thiết lập MediaController
-                MediaController mediaController = new MediaController(this.getContext());
-                mediaController.setAnchorView(stadiumVideo);
-                stadiumVideo.setMediaController(mediaController);
-
-                // 4. Bắt đầu phát video
-                stadiumVideo.start();
-
-                // Xử lý khi video gặp lỗi
-                stadiumVideo.setOnErrorListener((mp, what, extra) -> {
-                    Toast.makeText(this.getContext(), "Lỗi phát video: Không thể kết nối hoặc định dạng không được hỗ trợ.", Toast.LENGTH_LONG).show();
-                    return true;
-                });
-                // Tự động chuyển sang chế độ video và bắt đầu phát
-
-            } else {
-                // Trường hợp không có video: Đảm bảo chỉ hiển thị ảnh/placeholder
-                switchToImage(); // Giả sử bạn có hàm này để ẩn VideoView và hiện ImageView
-            }
 
             Glide.with(this.getContext()).load(ImageUtils.getFullUrl(imagesList.length > 0 ? "img/" + imagesList[0].imageUrl : "")).centerCrop().into(binding.ivStadiumImage);
             imgPosition = 0;
@@ -291,7 +518,7 @@ public class StadiumDetailFragment extends Fragment {
                 binding.btnNext.setVisibility(View.GONE);
                 binding.btnPrev.setVisibility(View.GONE);
             }else{
-                setNextButton(imagesList);
+                setNextButton();
                 setBackButton();
             }
 
@@ -301,7 +528,35 @@ public class StadiumDetailFragment extends Fragment {
 
         // TODO: Thêm logic cho nút Đặt sân ngay
     }
+    private void prepareVideo(String url) {
+        // Tạo MediaItem từ URL
+        MediaItem mediaItem = MediaItem.fromUri(url);
+        StadiumVideosDTO[] videosDTOS = stadiumDTO.getStadiumVideos().toArray(new StadiumVideosDTO[0]);
 
+        List<MediaItem> videoMediaItems = Arrays.stream(videosDTOS)
+                .map(dto -> {
+                    // Construct the full URI from the URL string provided by the DTO
+                    String videoUrlPath = "img/" + dto.getVideoUrl();
+                    // 3. Lấy URL hoàn chỉnh (ví dụ: "https://server.com/video/file.mp4")
+                    Uri videoUri = Uri.parse(ImageUtils.getFullUrl(videoUrlPath));
+                    System.out.println("url: " + videoUrlPath);
+
+                    // Build the MediaItem
+                    return MediaItem.fromUri(videoUri);
+                })
+                .collect(Collectors.toList());
+
+        // Gán MediaItem vào Player
+        player.setMediaItems(videoMediaItems);
+//        player.setRepeatMode(Player.REPEAT_MODE_ONE);
+        player.setPauseAtEndOfMediaItems(true);
+
+        // Chuẩn bị Player
+        player.prepare();
+
+        // Tự động phát khi sẵn sàng
+        player.setPlayWhenReady(true);
+    }
     // Hàm tiện ích để chuyển đổi định dạng giờ OData (PT6H) sang hiển thị (06:00)
     private String formatTime(String odataTime) {
         if (odataTime == null || odataTime.length() < 3 || !odataTime.startsWith("PT")) {
@@ -344,5 +599,17 @@ public class StadiumDetailFragment extends Fragment {
             // Nếu việc phân tích số gặp lỗi, trả về chuỗi gốc
             return odataTime;
         }
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+        if (player != null) {
+            activityRootView.removeView(videoOverlayContainer);
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            player.clearMediaItems();
+            player.release();
+            player = null;
+        }
+
     }
 }
