@@ -8,6 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.sep490_mobile.data.dto.ApiErrorResponseDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
 import com.example.sep490_mobile.data.repository.UserRepository;
 
@@ -109,22 +110,15 @@ public class OtpViewModel extends AndroidViewModel {
                         Log.i(TAG, "OTP verified successfully for " + email);
                         otpVerified.postValue(true);
                     } else {
-                        // Trường hợp server trả về {"verified":false}
-                        Log.w(TAG, "Incorrect OTP for " + email);
-                        errorMessage.postValue("Mã OTP không chính xác.");
+                        Log.e(TAG, "OTP verification failed for " + email);
+                        errorMessage.postValue(response.body().getMessage() != null
+                                ? response.body().getMessage() : "Mã OTP không chính xác hoặc đã hết hạn.");
                     }
                 } else {
                     // Xử lý lỗi từ server (vd: 400, 404)
-                    String errorMsg = "Mã OTP không hợp lệ hoặc đã hết hạn.";
-                    if (response.errorBody() != null) {
-                        try {
-                            errorMsg = response.errorBody().string();
-                        } catch (IOException e) {
-                            Log.e(TAG, "Error parsing error body", e);
-                        }
-                    }
+                    String errorMsg = "Yêu cầu xác thực thất bại.";
                     Log.e(TAG, "Failed to verify OTP. " + errorMsg);
-                    errorMessage.postValue("Mã OTP không chính xác.");
+                    errorMessage.postValue(errorMsg);
                 }
             }
 

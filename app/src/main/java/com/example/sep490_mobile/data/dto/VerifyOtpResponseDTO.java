@@ -7,7 +7,14 @@ public class VerifyOtpResponseDTO {
     @SerializedName("verified")
     private boolean isVerified;
 
+    @SerializedName("message")
+    private String message;
+
     public boolean isVerified() {
         return isVerified;
+    }
+
+    public String getMessage() {
+        return message;
     }
 }
