@@ -10,6 +10,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.os.Handler;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -21,6 +23,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.MediaController;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.VideoView;
 
@@ -74,6 +77,11 @@ public class StadiumDetailFragment extends Fragment {
     private ViewGroup originalParent;
     private ViewGroup activityRootView; // Root view của Activity
     private ConstraintLayout videoOverlayContainer; // 💡 Biến mới
+    private TextView descriptionTextView;
+    private TextView readMoreTextView;
+    private boolean isExpanded = false; // Trạng thái ban đầu: Thu gọn
+    private static final int MAX_COLLAPSED_LINES = 2;
+    private final Handler handler = new Handler();
 
     public static StadiumDetailFragment newInstance(int stadiumId) {
         StadiumDetailFragment fragment = new StadiumDetailFragment();
@@ -97,6 +105,8 @@ public class StadiumDetailFragment extends Fragment {
         binding = FragmentStadiumDetailBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         stadiumViewModel = new ViewModelProvider(this).get(StadiumViewModel.class);
+        descriptionTextView = root.findViewById(R.id.tv_stadium_description);
+        readMoreTextView = root.findViewById(R.id.tv_read_more);
         volumeButton = root.findViewById(R.id.btn_toggle_volume);
         nextButtonVideo = root.findViewById(R.id.btn_next_video);
         backButtonVideo = root.findViewById(R.id.btn_prev_video);
@@ -109,7 +119,7 @@ public class StadiumDetailFragment extends Fragment {
         backButton = root.findViewById(R.id.btn_prev);
         customFullscreenButton = root.findViewById(R.id.btn_custom_fullscreen);
 // ... (Trong phương thức onViewCreated hoặc setup)
-        videoOverlayContainer = root.findViewById(R.id.video_full_screen_container); // 💡 THAY THẾ vv_stadium_video
+        videoOverlayContainer = root.findViewById(R.id.video_container); // 💡 THAY THẾ vv_stadium_video
         if (videoOverlayContainer != null) {
             originalParent = (ViewGroup) videoOverlayContainer.getParent();
         }
@@ -133,6 +143,24 @@ public class StadiumDetailFragment extends Fragment {
         // 3. Gọi API để tải dữ liệu
         stadiumViewModel.fetchStadium(odataUrl);
 
+        readMoreTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                isExpanded = !isExpanded; // Đảo ngược trạng thái
+
+                if (isExpanded) {
+                    // Chuyển sang trạng thái Mở rộng (Expand)
+                    descriptionTextView.setMaxLines(Integer.MAX_VALUE); // Bỏ giới hạn dòng
+                    descriptionTextView.setEllipsize(null);               // Bỏ dấu "..."
+                    readMoreTextView.setText("Thu gọn");
+                } else {
+                    // Chuyển sang trạng thái Thu gọn (Collapse)
+                    descriptionTextView.setMaxLines(MAX_COLLAPSED_LINES); // Giới hạn lại 4 dòng
+                    descriptionTextView.setEllipsize(TextUtils.TruncateAt.END); // Thêm dấu "..."
+                    readMoreTextView.setText("Xem thêm");
+                }
+            }
+        });
         nextButtonVideo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -251,8 +279,35 @@ public class StadiumDetailFragment extends Fragment {
         });
         volumeButton.setOnClickListener(v -> toggleVolume());
         setupCustomFullscreenButton();
-
+        delayAndSetTextMore();
         return root;
+    }
+    public void delayAndSetTextMore() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Logic trong đây sẽ chạy sau khoảng thời gian DELAY_TIME_MS
+                setTextMore();
+            }
+        }, 100);
+    }
+    private void setTextMore(){
+        // Sử dụng post() để đảm bảo code chạy sau quá trình layout
+        descriptionTextView.post(new Runnable() {
+            @Override
+            public void run() {
+                // LÚC NÀY, lineCount đã được cập nhật chính xác!
+                int newLineCount = descriptionTextView.getLineCount();
+                // Ví dụ: Áp dụng lại logic "Xem thêm/Thu gọn"
+                if (newLineCount > MAX_COLLAPSED_LINES) {
+                    readMoreTextView.setVisibility(View.VISIBLE);
+                } else {
+                    readMoreTextView.setVisibility(View.GONE);
+                }
+                descriptionTextView.setMaxLines(MAX_COLLAPSED_LINES);
+                descriptionTextView.setEllipsize(TextUtils.TruncateAt.END);
+            }
+        });
     }
 
     private void setupCustomFullscreenButton() {
@@ -375,8 +430,13 @@ public class StadiumDetailFragment extends Fragment {
         if (player != null) {
             player.stop();
         }
-
+        imgPosition = 0;
+        setNextButton();
+        setBackButton();
         // 2. Hiển thị ImageView
+
+        StadiumImagesDTO[] stadiumImagesDTOS = stadiumDTO.getStadiumImages().toArray(new StadiumImagesDTO[0]);
+        Glide.with(getContext()).load(ImageUtils.getFullUrl(stadiumImagesDTOS.length > 0 ? "img/" + stadiumImagesDTOS[imgPosition].imageUrl : "")).centerCrop().into(binding.ivStadiumImage);
         stadiumImage.setVisibility(View.VISIBLE);
     }
     private void setNextButton(){
@@ -461,7 +521,7 @@ public class StadiumDetailFragment extends Fragment {
         StadiumImagesDTO[] imagesList = stadiumDTO.getStadiumImages().toArray(new StadiumImagesDTO[0]);
         StadiumVideosDTO[] videosDTOS = stadiumDTO.getStadiumVideos().toArray( new StadiumVideosDTO[0]);
 
-        binding.tvStadiumDescription.setText(stadiumDTO.getDescription());
+        descriptionTextView.setText(stadiumDTO.getDescription());
         // Cập nhật thông tin cơ bản
         binding.tvStadiumName.setText(stadiumDTO.getName());
         binding.tvStadiumLocation.setText(stadiumDTO.getAddress());
@@ -492,10 +552,10 @@ public class StadiumDetailFragment extends Fragment {
             // 4. Định dạng và hiển thị kết quả
             String priceRange = "";
             if(minPrice != maxPrice){
-                 priceRange = PriceFormatter.formatPrice(minPrice) + " - " + PriceFormatter.formatPrice(maxPrice) + " VND/giờ";
+                 priceRange = PriceFormatter.formatPrice(minPrice) + " - " + PriceFormatter.formatPrice(maxPrice);
 
             }else{
-                priceRange = PriceFormatter.formatPrice(minPrice) + " VND/giờ";
+                priceRange = PriceFormatter.formatPrice(minPrice);
             }
             binding.tvPriceRange.setText(priceRange);
 
@@ -610,6 +670,5 @@ public class StadiumDetailFragment extends Fragment {
             player.release();
             player = null;
         }
-
     }
 }

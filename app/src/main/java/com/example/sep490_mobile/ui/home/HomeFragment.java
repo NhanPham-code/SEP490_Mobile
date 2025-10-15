@@ -1,6 +1,7 @@
 package com.example.sep490_mobile.ui.home;
 
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -119,6 +120,7 @@ public class HomeFragment extends Fragment implements OnItemClickListener{
                 System.out.println("test visibleItemCount: " + visibleItemCount);
                 System.out.println("test totalItemCount: " + totalItemCount);
                 System.out.println("test firstVisibleItemPosition: " + firstVisibleItemPosition);
+                System.out.println("test skip: " + skip);
 
 
                 // Kiểm tra điều kiện để tải thêm:
@@ -341,5 +343,13 @@ public class HomeFragment extends Fragment implements OnItemClickListener{
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+    @Override
+    public void onStop(){
+        super.onStop();
+        isLastPage = false;
+        skip = 0;
+        odataUrl.replace("$skip", "0");
+        odataUrl.replace("$top", "10");
     }
 }

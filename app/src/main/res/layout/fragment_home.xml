@@ -6,7 +6,8 @@
     tools:context=".ui.home.HomeFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/rounded_background_seafoam"
+
+    android:background="@drawable/bg_gradient"
     android:padding="16dp"
     android:layout_marginBottom="50dp">
 
@@ -18,40 +19,31 @@
         android:hint="Tìm kiếm..."
         android:imeOptions="actionSearch"
         android:inputType="text"
-        android:padding="12dp"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
         android:drawableStart="@drawable/ic_search"
-        android:background="@drawable/rounded_search_background"
+        android:drawablePadding="8dp" android:background="@drawable/rounded_search_background"
+        android:textColor="@android:color/black"
+        android:textColorHint="#9E9E9E"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/filter_button"
         app:layout_constraintHorizontal_weight="1"
-        android:layout_marginEnd="8dp"
-        android:elevation="2dp"
-        />
+        android:layout_marginEnd="12dp" android:elevation="4dp" />
 
-    <!-- Tạo một drawable đơn giản cho nền tìm kiếm nếu cần -->
-    <!-- Ví dụ về file: res/drawable/rounded_search_background.xml
-    <?xml version="1.0" encoding="utf-8"?>
-    <shape xmlns:android="http://schemas.android.com/apk/res/android">
-        <solid android:color="#F0F0F0"/>
-        <corners android:radius="12dp"/>
-    </shape>
-    -->
-
-    <!-- 2. Nút lọc (Filter Button) -->
     <ImageButton
         android:id="@+id/filter_button"
+        android:layout_marginRight="5dp"
         android:layout_width="48dp"
-        android:layout_height="0dp"
-        android:src="@drawable/ic_filter_list"
+        android:layout_height="48dp" android:src="@drawable/ic_filter_list"
         android:contentDescription="Lọc danh sách"
-        android:background="@drawable/circle_background_mint"
-        app:tint="@android:color/black"
-        app:layout_constraintTop_toTopOf="@+id/search_edit_text"
+        android:background="@drawable/rounded_filter_background"
+        app:tint="@color/secondary_green_dark" app:layout_constraintTop_toTopOf="@+id/search_edit_text"
         app:layout_constraintBottom_toBottomOf="@+id/search_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
-        android:elevation="2dp"
-        />
+        android:elevation="4dp" />
 
     <!-- 3. RecyclerView được điều chỉnh nằm dưới thanh tìm kiếm/lọc -->
     <androidx.recyclerview.widget.RecyclerView
