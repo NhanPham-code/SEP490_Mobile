@@ -28,6 +28,7 @@ output-metadata.json
 .idea/*
 # Except the following (safe to share)
 !.idea/codeStyles/
+!.idea/inspectionProfiles/
 !.idea/vcs.xml
 !.idea/runConfigurations/
 
