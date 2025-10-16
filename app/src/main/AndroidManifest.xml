@@ -10,6 +10,12 @@
     <uses-permission android:name="android.permission.INTERNET" /> <!-- Quyền truy cập Camera -->
     <uses-permission android:name="android.permission.CAMERA" /> <!-- Quyền đọc ảnh cho Android 13+ -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /> <!-- Quyền đọc ảnh cho Android 12 trở xuống -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
     <uses-permission
         android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
@@ -26,6 +32,9 @@
         android:theme="@style/Theme.SEP490_Mobile"
 
         tools:targetApi="31">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBiOqnUEa9LIHHvLSkB96osobAQg7sRpT4" />
         <activity
             android:name=".ResetPasswordActivity"
             android:exported="false" />
@@ -50,10 +59,18 @@
         <activity
             android:name=".LoginActivity"
             android:exported="false" />
-
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_API_KEY" />
+        <activity
+            android:name=".ChatActivity"
+            android:exported="false"
+            android:parentActivityName=".ChatListActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".ChatListActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+        <activity
+            android:name=".MapActivity"
+            android:exported="true" />
 
         <activity
             android:name=".MainActivity"

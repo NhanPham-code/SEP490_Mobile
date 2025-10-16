@@ -1,4 +1,4 @@
-package com.example.sep490_mobile.Adapter;
+package com.example.sep490_mobile.adapter;
 
 import android.os.Build;
 

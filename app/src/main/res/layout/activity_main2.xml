@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#e8f1ff"
+    tools:context=".ChatListActivity">
+
+    <!-- Thanh tiêu đề -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="#4285F4"
+        app:title="Tin nhắn"
+        app:titleTextColor="@android:color/white"
+        android:elevation="6dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:gravity="center_vertical"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+
+    <!-- Ô tìm kiếm -->
+    <EditText
+        android:id="@+id/searchEditText"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:layout_below="@id/toolbar"
+        android:layout_marginHorizontal="12dp"
+        android:layout_marginTop="10dp"
+        android:hint="🔍 Tìm kiếm bạn bè..."
+        android:background="@drawable/search_bg"
+        android:paddingHorizontal="16dp"
+        android:textSize="15sp"
+        android:textColor="#333333"
+        android:textColorHint="#999999"
+
+        android:elevation="4dp"
+        android:inputType="text"
+        android:imeOptions="actionSearch" />
+
+    <!-- Danh sách chat -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/chatList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/searchEditText"
+        android:layout_marginTop="8dp"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:scrollbars="vertical"
+        android:overScrollMode="never"
+        android:fadingEdge="vertical"
+        android:fadingEdgeLength="30dp" />
+
+</RelativeLayout>
