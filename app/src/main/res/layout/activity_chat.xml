@@ -34,19 +34,19 @@
 
         <ImageButton
             android:id="@+id/imageBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/ic_image"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:src="@drawable/image"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Send Image"
             android:scaleType="centerInside"/>
 
         <ImageButton
             android:id="@+id/gifBtn"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
             android:layout_marginStart="4dp"
-            android:src="@drawable/ic_gif"
+            android:src="@drawable/gif"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Send GIF"
             android:scaleType="centerInside"/>

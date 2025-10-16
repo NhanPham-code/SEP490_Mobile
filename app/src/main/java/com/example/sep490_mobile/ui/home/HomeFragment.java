@@ -1,17 +1,13 @@
 package com.example.sep490_mobile.ui.home;
 
-import android.content.Context;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText; // Đã đổi sang EditText để phù hợp với thanh search
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -21,7 +17,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.sep490_mobile.Adapter.StadiumAdapter;
+import com.example.sep490_mobile.adapter.StadiumAdapter;
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
