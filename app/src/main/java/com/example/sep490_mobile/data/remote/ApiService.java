@@ -1,24 +1,25 @@
 package com.example.sep490_mobile.data.remote;
 
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
+import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.ScheduleBookingODataResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
 import com.example.sep490_mobile.data.dto.LogoutRequestDTO;
 import com.example.sep490_mobile.data.dto.LogoutResponseDTO;
-import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.PrivateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.RefreshTokenRequestDTO;
 import com.example.sep490_mobile.data.dto.RegisterResponseDTO;
 import com.example.sep490_mobile.data.dto.ResetPasswordRequestDTO;
 import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
+import com.example.sep490_mobile.data.dto.ScheduleODataStadiumResponseDTO;
 import com.example.sep490_mobile.data.dto.SendOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
 
-import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -31,6 +32,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
 public interface ApiService {
@@ -114,4 +116,13 @@ public interface ApiService {
     // API reset password
     @PUT("users/forgot-password")
     Call<ResetPasswordResponseDTO> resetPassword(@Body ResetPasswordRequestDTO body);
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<ScheduleBookingODataResponseDTO> getBookings(@Query("$filter") String filter);
+
+    @GET("odata/Stadium")
+    Call<ScheduleODataStadiumResponseDTO> getStadiums(
+            @Query("$filter") String filter,
+            @Query("$expand") String expand
+    );
 }

@@ -313,7 +313,7 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:contentDescription="Giá thuê"
-                        android:src="@drawable/ic_money" />
+                        android:src="@drawable/ic_money_icon" />
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
