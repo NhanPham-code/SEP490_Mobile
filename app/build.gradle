@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
+    id 'androidx.navigation.safeargs'
 }
 
 android {
@@ -44,6 +45,8 @@ dependencies {
     implementation libs.legacy.support.v4
     implementation libs.play.services.maps
     implementation libs.activity
+    implementation libs.appcompat
+    implementation libs.material
     implementation libs.preference
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
@@ -86,6 +89,9 @@ dependencies {
 
     // Biometric Authentication
     implementation "androidx.biometric:biometric-ktx:1.2.0-alpha05" // Sử dụng bản ktx để có các hàm tiện ích
+
+    // THÊM DÒNG NÀY VÀO
+    debugImplementation "androidx.fragment:fragment-testing:1.7.1"
     // Phiên bản mới nhất của ExoPlayer
     implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
     // Hoặc nếu chỉ cần các thành phần UI cơ bản (như PlayerView):
