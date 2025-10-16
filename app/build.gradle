@@ -45,6 +45,7 @@ dependencies {
     implementation libs.legacy.support.v4
     implementation libs.play.services.maps
     implementation libs.activity
+    implementation libs.preference
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
@@ -107,6 +108,10 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 
-        
 
+
+    // Phiên bản mới nhất của ExoPlayer
+    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
+    // Hoặc nếu chỉ cần các thành phần UI cơ bản (như PlayerView):
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
 }

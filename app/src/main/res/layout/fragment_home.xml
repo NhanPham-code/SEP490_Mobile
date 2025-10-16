@@ -1,22 +1,72 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/home_fragment_constraint_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.home.HomeFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.home.HomeFragment">
 
-    <TextView
-        android:id="@+id/text_home"
-        android:layout_width="match_parent"
+    android:background="@drawable/bg_gradient"
+    android:padding="16dp"
+    android:layout_marginBottom="50dp">
+
+    <!-- 1. Thanh tìm kiếm (Search Bar) -->
+    <EditText
+        android:id="@+id/search_edit_text"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp"
+        android:hint="Tìm kiếm..."
+        android:imeOptions="actionSearch"
+        android:inputType="text"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:drawableStart="@drawable/ic_search"
+        android:drawablePadding="8dp" android:background="@drawable/rounded_search_background"
+        android:textColor="@android:color/black"
+        android:textColorHint="#9E9E9E"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/filter_button"
+        app:layout_constraintHorizontal_weight="1"
+        android:layout_marginEnd="12dp" android:elevation="4dp" />
+
+    <ImageButton
+        android:id="@+id/filter_button"
+        android:layout_marginRight="5dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp" android:src="@drawable/ic_filter_list"
+        android:contentDescription="Lọc danh sách"
+        android:background="@drawable/rounded_filter_background"
+        app:tint="@color/secondary_green_dark" app:layout_constraintTop_toTopOf="@+id/search_edit_text"
+        app:layout_constraintBottom_toBottomOf="@+id/search_edit_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="4dp" />
+
+    <!-- 3. RecyclerView được điều chỉnh nằm dưới thanh tìm kiếm/lọc -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/my_recycler_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@+id/search_edit_text"
+        tools:listitem="@android:layout/simple_list_item_1" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="4dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

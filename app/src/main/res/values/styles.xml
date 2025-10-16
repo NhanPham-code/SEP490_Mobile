@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base Style for Stadium Detail Screen -->
+    <style name="StadiumDetail" />
+
+    <!-- Header Styles -->
+    <style name="StadiumDetail.BackButton">
+        <item name="android:background">@drawable/circle_background_mint</item>
+        <item name="android:src">@drawable/ic_arrow_back_48dp</item>
+        <item name="tint">@android:color/white</item>
+    </style>
+
+    <style name="StadiumDetail.Title">
+
+        <item name="android:textColor">#B10D0D</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="StadiumDetail.Location">
+        <item name="android:textColor">@android:color/holo_green_dark</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:gravity">center</item>
+        <item name="android:drawablePadding">4dp</item>
+        <item name="drawableStartCompat">@drawable/outline_location_on_24</item>
+    </style>
+
+    <!-- Media Player Styles -->
+    <style name="StadiumDetail.MediaNavButton">
+        <item name="android:layout_width">40dp</item>
+        <item name="android:layout_height">40dp</item>
+        <item name="android:layout_marginStart">5dp</item>
+        <item name="android:background">@drawable/rounded_transparent_dark_background</item>
+        <item name="tint">@android:color/white</item>
+    </style>
+
+    <style name="StadiumDetail.VideoControlButton">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:padding">8dp</item>
+    </style>
+    <style name="StadiumDetail.VideoControlButtonVolume">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_margin">8dp</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:padding">8dp</item>
+        <item name="tint">@android:color/white</item>
+    </style>
+
+    <!-- Toggle Button Style -->
+    <style name="StadiumDetail.Toggle" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:backgroundTint">@color/white</item>
+        <item name="android:textColor">@color/black</item>
+        <item name="android:drawablePadding">6dp</item>
+        <item name="cornerRadius">15dp</item>
+        <item name="strokeColor">@color/grey_400</item>
+        <item name="iconTint">@color/black</item>
+    </style>
+
+    <!-- Info Card Styles -->
+    <style name="StadiumDetail.InfoCard" parent="Widget.MaterialComponents.CardView">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginHorizontal">16dp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="cardCornerRadius">10dp</item>
+        <item name="cardElevation">2dp</item>
+    </style>
+
+    <style name="StadiumDetail.InfoCard.Content">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:gravity">center</item>
+        <item name="android:padding">10dp</item>
+    </style>
+
+    <style name="StadiumDetail.InfoCard.Title">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@android:color/black</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:drawablePadding">8dp</item>
+    </style>
+
+    <style name="StadiumDetail.InfoCard.Value">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_marginTop">4dp</item>
+        <item name="android:textColor">#333333</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+</resources>

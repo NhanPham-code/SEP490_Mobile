@@ -40,6 +40,7 @@ public class MainActivity extends AppCompatActivity {
         // Hide the action bar
         Objects.requireNonNull(getSupportActionBar()).hide();
 
+
     }
 
 }
