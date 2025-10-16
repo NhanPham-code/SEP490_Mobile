@@ -14,6 +14,8 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -136,6 +138,11 @@ public class AccountFragment extends Fragment {
         binding.ivEditProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), EditProfileActivity.class);
             editProfileLauncher.launch(intent);
+        });
+
+        binding.menuBookingHistory.getRoot().setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            navController.navigate(R.id.action_navigation_account_to_navigation_schedule);
         });
 
         // --- XỬ LÝ SWITCH BIOMETRIC ---
