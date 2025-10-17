@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+        <color name="colorPrimary">@color/primary_blue</color>
+        <color name="colorPrimaryDark">@color/primary_blue_dark</color>
+        <color name="colorAccent">@color/accent_orange</color>
+
         <color name="white">#FFFFFFFF</color>
         <color name="black">#FF000000</color>
 
@@ -52,4 +56,27 @@
         <!-- Gradients -->
         <color name="gradient_start">#1976D2</color> <!-- Blue -->
         <color name="gradient_end">#43A047</color>   <!-- Green -->
+        <color name="purple_200">#FFBB86FC</color>
+        <color name="purple_500">#FF6200EE</color>
+        <color name="purple_700">#FF3700B3</color>
+        <color name="teal_200">#FF03DAC5</color>
+        <color name="teal_700">#FF018786</color>
+
+        <array name="avatar_colors">
+                <item>#f44336</item> <!-- Red -->
+                <item>#E91E63</item> <!-- Pink -->
+                <item>#9C27B0</item> <!-- Purple -->
+                <item>#673AB7</item> <!-- Deep Purple -->
+                <item>#3F51B5</item> <!-- Indigo -->
+                <item>#2196F3</item> <!-- Blue -->
+                <item>#03A9F4</item> <!-- Light Blue -->
+                <item>#00BCD4</item> <!-- Cyan -->
+                <item>#009688</item> <!-- Teal -->
+                <item>#4CAF50</item> <!-- Green -->
+                <item>#8BC34A</item> <!-- Light Green -->
+                <item>#FF9800</item> <!-- Orange -->
+                <item>#FF5722</item> <!-- Deep Orange -->
+                <item>#795548</item> <!-- Brown -->
+                <item>#607D8B</item> <!-- Blue Grey -->
+        </array>
 </resources>

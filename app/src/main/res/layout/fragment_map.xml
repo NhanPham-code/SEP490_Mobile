@@ -1,13 +1,121 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.map.MapFragment">
+    android:fitsSystemWindows="true"
+    tools:context=".MapActivity"
+    android:background="#F5F5F5">
 
-    <TextView
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toTopOf="@+id/layoutControls"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        tools:layout="@android:layout/simple_list_item_1" />
+
+    <LinearLayout
+        android:id="@+id/layoutControls"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="Hello" />
+        android:layout_height="wrap_content"
+        android:background="@drawable/bg_controls"
+        android:padding="12dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:elevation="8dp"
+        android:layout_marginBottom="45dp">
 
-</FrameLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <!-- SỬA Ở ĐÂY: Đổi layout_width thành "0dp" và giữ layout_weight="1" -->
+            <EditText
+                android:id="@+id/editTextSearch"
+                android:layout_width="0dp"
+                android:layout_height="48dp"
+                android:layout_weight="1"
+                android:background="@drawable/bg_edittext"
+                android:elevation="2dp"
+                android:hint="Tìm kiếm địa điểm..."
+                android:inputType="text"
+                android:paddingHorizontal="16dp"
+                android:textColor="#333"
+                android:textColorHint="#999" />
+
+            <!-- SỬA Ở ĐÂY: Đổi layout_width thành "wrap_content" để nó tự vừa với chữ -->
+            <Button
+                android:id="@+id/buttonSearch"
+                android:layout_width="wrap_content"
+                android:layout_height="48dp"
+                android:text="Tìm"
+                android:backgroundTint="#7C4DFF"
+                android:textColor="#FFF"
+                android:textAllCaps="false"
+                android:layout_marginLeft="10dp"
+                android:layout_marginStart="10dp"
+                android:elevation="2dp"
+                />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginTop="12dp">
+
+            <Button
+                android:id="@+id/buttonCurrentLocation"
+                android:layout_width="0dp"
+                android:layout_height="42dp"
+                android:layout_weight="1"
+                android:text="Vị trí hiện tại"
+                android:backgroundTint="#EDE7F6"
+                android:textColor="#6200EE"
+                android:textAllCaps="false"
+                android:elevation="1dp"
+                />
+
+            <RadioGroup
+                android:id="@+id/radioGroupRadius"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginLeft="18dp"
+                android:layout_marginStart="18dp"
+                android:gravity="center_vertical">
+
+                <RadioButton
+                    android:id="@+id/radio5km"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="5km"
+                    android:checked="true"
+                    android:buttonTint="#7C4DFF"
+                    android:textColor="#6200EE"
+                    />
+                <RadioButton
+                    android:id="@+id/radio10km"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="10km"
+                    android:buttonTint="#7C4DFF"
+                    android:textColor="#6200EE"
+                    />
+            </RadioGroup>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

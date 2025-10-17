@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@id/navigation_home">
 
     <fragment
         android:id="@+id/navigation_home"
@@ -27,5 +27,36 @@
         android:id="@+id/navigation_account"
         android:name="com.example.sep490_mobile.ui.account.AccountFragment"
         android:label="@string/account"
-        tools:layout="@layout/fragment_account" />
+        tools:layout="@layout/fragment_account">
+        <action
+            android:id="@+id/action_navigation_account_to_navigation_schedule"
+            app:destination="@id/navigation_schedule" />
+    </fragment>
+
+    <!-- ĐÃ THÊM: Khai báo ChatListActivity là một đích đến -->
+    <activity
+        android:id="@+id/navigation_chat"
+        android:name="com.example.sep490_mobile.ChatListActivity"
+        android:label="Tin nhắn"
+        tools:layout="@layout/activity_main2" />
+
+    <fragment
+        android:id="@+id/navigation_schedule"
+        android:name="com.example.sep490_mobile.ui.schedule.ScheduleFragment"
+        android:label="Lịch"
+        tools:layout="@layout/fragment_schedule">
+        <action
+            android:id="@+id/action_navigation_schedule_to_bookingDetailFragment"
+            app:destination="@id/bookingDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/bookingDetailFragment"
+        android:name="com.example.sep490_mobile.ui.scheduledetail.BookingDetailFragment"
+        android:label="Booking Detail">
+        <argument
+            android:name="booking"
+            app:argType="com.example.sep490_mobile.data.dto.ScheduleBookingDTO" />
+    </fragment>
+
 </navigation>
