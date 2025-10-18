@@ -79,4 +79,21 @@
                 <item>#795548</item> <!-- Brown -->
                 <item>#607D8B</item> <!-- Blue Grey -->
         </array>
+
+        <color name="status_pending_bg">#FFFBEB</color>
+        <color name="status_pending_text">#B45309</color>
+        <color name="status_accepted_bg">#EFF6FF</color>
+        <color name="status_accepted_text">#1D4ED8</color>
+        <color name="status_completed_bg">#ECFDF5</color>
+        <color name="status_completed_text">#065F46</color>
+        <color name="status_cancelled_bg">#FEE2E2</color>
+        <color name="status_cancelled_text">#991B1B</color>
+        <color name="status_waiting_bg">#F3F4F6</color>
+        <color name="status_waiting_text">#4B5563</color>
+        <color name="status_default_bg">#E5E7EB</color>
+        <color name="status_default_text">#374151</color>
+        <color name="status_accepted">#007BFF</color>
+        <color name="status_completed">#28A745</color>
+        <color name="status_cancelled">#DC3545</color>
+        <color name="status_payfail">#FFC107</color>
 </resources>
