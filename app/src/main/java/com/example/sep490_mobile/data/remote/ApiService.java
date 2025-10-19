@@ -1,7 +1,12 @@
 package com.example.sep490_mobile.data.remote;
 
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
+import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.CreateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.PublicProfileDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
 import com.example.sep490_mobile.data.dto.ScheduleBookingODataResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
@@ -125,4 +130,18 @@ public interface ApiService {
             @Query("$filter") String filter,
             @Query("$expand") String expand
     );
+
+    // API get other profile
+    @GET("users/get")
+    Call<ODataResponse<PublicProfileDTO>> getPublicProfileByListId(@Query("$filter=UserId in ") String userId);
+
+    // API get Team post
+    @GET("odata/TeamPost")
+    Call<ODataResponse<ReadTeamPostDTO>> getTeamPost(@QueryMap Map<String, String> odataOptions);
+
+    @POST("CreateTeamPost")
+    Call<ReadTeamPostDTO> createTeamPost(@Body CreateTeamPostDTO body);
+
+    @POST("AddNewTeamMember")
+    Call<ReadTeamMemberDTO> createTeamMember(@Body CreateTeamMemberDTO body);
 }

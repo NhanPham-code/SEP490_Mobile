@@ -19,6 +19,7 @@
             android:layout_width="48dp"
             android:layout_height="48dp"
             android:scaleType="centerCrop"
+            app:cornerRadius="50dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             tools:src="@tools:sample/avatars" />
@@ -52,7 +53,9 @@
             android:id="@+id/chatButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="7dp"
+            android:backgroundTint="@color/hover_light"
+            android:background="@drawable/message_you_background"
             android:contentDescription="Chat với người đăng"
             android:src="@drawable/baseline_chat_24"
             app:layout_constraintBottom_toBottomOf="@id/playerAvatar"
@@ -236,7 +239,7 @@
             app:layout_constraintTop_toBottomOf="@id/seeMore"
             tools:text="50.000₫" />
 
-        <com.google.android.material.button.MaterialButton
+        <Button
             android:id="@+id/joinButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

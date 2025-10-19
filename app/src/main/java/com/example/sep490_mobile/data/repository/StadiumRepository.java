@@ -26,4 +26,10 @@ public class StadiumRepository {
         return apiService.getStadiumsOdata(odataOptions);
     }
 
+    public Call<ODataResponse<StadiumDTO>> getStadiumByListId(String stadiumId){
+        Map<String, String> odataOptions = Map.of("$filter", "Id in ( " + stadiumId + " )");
+//        odataOptions.put("$expand", "Stadiums");
+        return apiService.getStadiumsOdata(odataOptions);
+    }
+
 }

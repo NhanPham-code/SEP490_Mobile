@@ -61,7 +61,7 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
 
         StadiumDTO stadiumDTO = stadiumDTOS.get(position);
         CourtsDTO[] courtsDTOS = stadiumDTO.courts.toArray(new CourtsDTO[0]);
-        String time = DurationConverter.convertDuration(String.valueOf(stadiumDTO.openTime).toString()) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime.toString());
+        String time = DurationConverter.convertDuration(String.valueOf(stadiumDTO.openTime).toString(), 1) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime.toString(), 1);
         String sportType = "";
         StadiumImagesDTO[] stadiumImagesDTO = stadiumDTO.stadiumImages.toArray(new StadiumImagesDTO[0]);
         switch (courtsDTOS.length > 0 ? courtsDTOS[0].sportType : ""){

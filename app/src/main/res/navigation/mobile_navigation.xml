@@ -18,6 +18,12 @@
         tools:layout="@layout/fragment_map" />
 
     <fragment
+        android:id="@+id/navigation_find_team"
+        android:name="com.example.sep490_mobile.ui.findTeam.FindTeamFragment"
+        android:label="@string/find_team"
+        tools:layout="@layout/fragment_find_team" />
+
+    <fragment
         android:id="@+id/navigation_notifications"
         android:name="com.example.sep490_mobile.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"

@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    android:clickable="true"
+    android:focusable="true">
+
+    <LinearLayout
+        android:id="@+id/sidebar_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        android:gravity="center_vertical"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Bộ Lọc Kết Quả"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@android:color/black"
+            android:drawableStart="@drawable/ic_filter_list"
+            android:drawablePadding="8dp" />
+
+        <Button
+            android:id="@+id/clear_filters_btn"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Xóa Tất Cả"
+            android:textSize="12sp"
+            android:textColor="#3F51B5"
+            android:drawableStart="@drawable/ic_refresh_line"
+            android:drawableTint="#3F51B5"
+            android:padding="4dp"/>
+
+        <ImageButton
+            android:id="@+id/close_filter_btn"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_close_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Đóng bộ lọc" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/header_divider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#E0E0E0"
+        app:layout_constraintTop_toBottomOf="@id/sidebar_header" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/header_divider"
+        app:layout_constraintBottom_toTopOf="@id/filter_actions_container">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
+
+                <RelativeLayout
+                    android:id="@+id/sport_filter_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Loại Thể Thao"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/sport_filter_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp">
+
+                    <CheckBox android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng đá sân 5" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng đá sân 7" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng đá sân 11" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng Rổ" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tennis" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cầu Lông" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng Chuyền" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="12dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
+
+                <RelativeLayout
+                    android:id="@+id/date_filter_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Chọn Ngày"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/date_filter_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp">
+
+                    <EditText
+                        android:id="@+id/play_date_filter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Chọn ngày chơi"
+                        android:inputType="date"
+                        android:drawableStart="@drawable/ic_calendar_black_24dp"
+                        android:drawablePadding="8dp"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:background="@drawable/edittext_border"
+                        android:padding="10dp"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginTop="8dp">
+
+                        <Button style="@style/Widget.AppCompat.Button.Borderless.Colored" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Hôm nay" android:textSize="12sp"/>
+                        <Button style="@style/Widget.AppCompat.Button.Borderless.Colored" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Mai" android:textSize="12sp"/>
+                        <Button style="@style/Widget.AppCompat.Button.Borderless.Colored" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tuần sau" android:textSize="12sp"/>
+                        <Button style="@style/Widget.AppCompat.Button.Borderless.Colored" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Tháng sau" android:textSize="12sp"/>
+                    </LinearLayout>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="12dp"/>
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
+
+                <RelativeLayout
+                    android:id="@+id/time_filter_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thời Gian Chơi"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/time_filter_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp">
+
+                    <EditText
+                        android:id="@+id/play_time_filter"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Chọn giờ chơi"
+                        android:inputType="time"
+                        android:drawableStart="@drawable/ic_time_line"
+                        android:drawablePadding="8dp"
+                        android:focusable="false"
+                        android:clickable="true"
+                        android:background="@drawable/edittext_border"
+                        android:padding="10dp"/>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="12dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
+
+                <RelativeLayout
+                    android:id="@+id/players_filter_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Số Người Cần"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/players_filter_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:paddingTop="8dp">
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tối thiểu:" android:layout_gravity="center_vertical"/>
+                    <EditText
+                        android:id="@+id/min_players_input"
+                        android:layout_width="60dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:text="1"
+                        android:maxLength="2"
+                        android:textAlignment="center"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="24dp"/>
+
+                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Tối đa:" android:layout_gravity="center_vertical"/>
+                    <EditText
+                        android:id="@+id/max_players_input"
+                        android:layout_width="60dp"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:text="10"
+                        android:maxLength="2"
+                        android:textAlignment="center"
+                        android:layout_marginStart="8dp"/>
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="12dp"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp">
+
+                <RelativeLayout
+                    android:id="@+id/location_filter_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="8dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Địa Điểm"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="@android:color/black"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true" />
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:id="@+id/location_filter_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingTop="8dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/edittext_border"
+                        android:padding="4dp">
+
+                        <EditText
+                            android:id="@+id/location_search_input"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="Nhập địa điểm"
+                            android:drawableStart="@drawable/outline_location_on_24"
+                            android:drawablePadding="8dp"
+                            android:background="@android:color/transparent"
+                            android:padding="6dp"
+                            android:layout_toStartOf="@id/location_clear_btn"/>
+
+                        <ImageButton
+                            android:id="@+id/location_clear_btn"
+                            android:layout_width="32dp"
+                            android:layout_height="32dp"
+                            android:src="@drawable/ic_close_24"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"
+                            android:contentDescription="Xóa địa điểm"/>
+                    </RelativeLayout>
+
+
+                </LinearLayout>
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="12dp"/>
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/filter_actions_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:background="@android:color/white"
+        android:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <Button
+            android:id="@+id/apply_filters_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Áp Dụng Bộ Lọc"
+            android:backgroundTint="#FF9800"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:drawableStart="@drawable/outline_rocket_launch_24"
+            android:layout_marginBottom="8dp" />
+
+        <Button
+            android:id="@+id/reset_filters_btn"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Đặt Lại"
+            android:textColor="#FF9800"
+            android:textStyle="bold"
+            android:drawableStart="@drawable/ic_refresh_line" />
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

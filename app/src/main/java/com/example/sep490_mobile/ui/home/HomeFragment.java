@@ -338,6 +338,8 @@ public class HomeFragment extends Fragment implements OnItemClickListener{
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        model.clearAllData();
         binding = null;
     }
     @Override

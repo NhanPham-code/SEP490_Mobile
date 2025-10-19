@@ -12,7 +12,9 @@ import com.example.sep490_mobile.data.dto.LoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
 import com.example.sep490_mobile.data.dto.LogoutRequestDTO;
 import com.example.sep490_mobile.data.dto.LogoutResponseDTO;
+import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.PrivateUserProfileDTO;
+import com.example.sep490_mobile.data.dto.PublicProfileDTO;
 import com.example.sep490_mobile.data.dto.RegisterResponseDTO;
 import com.example.sep490_mobile.data.dto.ResetPasswordRequestDTO;
 import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
@@ -138,6 +140,10 @@ public class UserRepository {
                 fullNamePart, emailPart, passwordPart, addressPart, phoneNumberPart,
                 genderPart, dateOfBirthPart, avatarPart
         );
+    }
+
+    public Call<ODataResponse<PublicProfileDTO>> getPublicProfileByListId(String userId){
+        return apiService.getPublicProfileByListId("(" + userId + ")");
     }
 
     /**
