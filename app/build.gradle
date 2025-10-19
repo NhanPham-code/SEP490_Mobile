@@ -126,5 +126,9 @@ dependencies {
     // Hoặc nếu chỉ cần các thành phần UI cơ bản (như PlayerView):
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
 
+
     implementation 'org.apache.commons:commons-text:1.10.0' // Kiểm tra version mới nhất
+
+    implementation 'com.google.code.gson:gson:2.9.0'
+
 }

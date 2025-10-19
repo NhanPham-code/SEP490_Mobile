@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -145,6 +146,12 @@ public class AccountFragment extends Fragment {
             navController.navigate(R.id.action_navigation_account_to_navigation_schedule);
         });
 
+        binding.menuSubject.getRoot().setOnClickListener(v -> {
+            NavController navController = NavHostFragment.findNavController(AccountFragment.this);
+
+
+            navController.navigate(R.id.action_navigation_account_to_bookingHistoryFragment);
+        });
         // --- XỬ LÝ SWITCH BIOMETRIC ---
         binding.switchBiometric.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // Chỉ xử lý khi người dùng thực sự nhấn vào, không phải khi code tự set
@@ -219,11 +226,11 @@ public class AccountFragment extends Fragment {
 
     private void setupMenu() {
         binding.menuBookingHistory.imgMenuIcon.setImageResource(R.drawable.ic_history_booking);
-        binding.menuBookingHistory.tvMenuText.setText("Lịch đặt sân");
+        binding.menuBookingHistory.tvMenuText.setText("Lịch chơi");
         binding.menuNotifications.imgMenuIcon.setImageResource(R.drawable.ic_notification);
         binding.menuNotifications.tvMenuText.setText("Thông báo");
-        binding.menuSubject.imgMenuIcon.setImageResource(R.drawable.ic_dashboard_black_24dp);
-        binding.menuSubject.tvMenuText.setText("Thêm Sau");
+        binding.menuSubject.imgMenuIcon.setImageResource(R.drawable.ic_history); // Dùng icon lịch sử
+        binding.menuSubject.tvMenuText.setText("Lịch sử");
         binding.menuDiscount.imgMenuIcon.setImageResource(R.drawable.ic_discount);
         binding.menuDiscount.tvMenuText.setText("Mã giảm giá");
     }
