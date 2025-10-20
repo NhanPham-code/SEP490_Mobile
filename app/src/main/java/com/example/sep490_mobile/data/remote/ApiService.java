@@ -1,6 +1,8 @@
 package com.example.sep490_mobile.data.remote;
 
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
+import com.example.sep490_mobile.data.dto.FeedbackDto;
+import com.example.sep490_mobile.data.dto.FeedbackRequestDto;
 import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.ScheduleBookingODataResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
@@ -32,6 +34,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
@@ -125,4 +128,38 @@ public interface ApiService {
             @Query("$filter") String filter,
             @Query("$expand") String expand
     );
+
+    @GET("odata/FeedbackOData")
+    Call<ODataResponse<FeedbackDto>> getFeedbacksOdata(
+            @QueryMap Map<String, String> odataOptions
+    );
+
+
+    @Multipart
+    @POST("feedback")
+    Call<FeedbackDto> createFeedbackMultipart(
+            @Part("UserId") RequestBody userId,
+            @Part("StadiumId") RequestBody stadiumId,
+            @Part("Rating") RequestBody rating,
+            @Part("Comment") RequestBody comment,
+            @Part MultipartBody.Part image // pass null nếu không có ảnh
+    );
+
+    @Multipart
+    @PUT("feedback/{id}")
+    Call<FeedbackDto> updateFeedbackMultipart(
+            @Path("id") int id,
+            @Part("UserId") RequestBody userId,
+            @Part("StadiumId") RequestBody stadiumId,
+            @Part("Rating") RequestBody rating,
+            @Part("Comment") RequestBody comment,
+            @Part MultipartBody.Part image
+    );
+
+    @PUT("feedback/{id}")
+    Call<FeedbackDto> updateFeedback(@Path("id") int feedbackId, @Body FeedbackRequestDto request);
+
+
+    @DELETE("feedback/{id}")
+    Call<Void> deleteFeedback(@Path("id") int feedbackId);
 }

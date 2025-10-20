@@ -1,5 +1,7 @@
 package com.example.sep490_mobile.ui.stadiumDetail;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
@@ -9,6 +11,8 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+// 👇 THÊM DÒNG NÀY VÀO
+import com.example.sep490_mobile.ui.feedback.FeedbackFragment;
 
 import android.os.Handler;
 import android.text.TextUtils;
@@ -69,6 +73,8 @@ public class StadiumDetailFragment extends Fragment {
     private int videoPosition;
     private StadiumDTO stadiumDTO;
     private int stadiumId;
+
+    private int currentUserId = -1;
     private boolean isMuted = false;
     private ImageButton volumeButton;
     private ImageButton customFullscreenButton;
@@ -279,8 +285,30 @@ public class StadiumDetailFragment extends Fragment {
         });
         volumeButton.setOnClickListener(v -> toggleVolume());
         setupCustomFullscreenButton();
+
+        loadUserData();
+        insertFeedbackFragment();
         delayAndSetTextMore();
         return root;
+    }
+    private void loadUserData() {
+        if (getContext() == null) return;
+        SharedPreferences prefs = getContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+        this.currentUserId = prefs.getInt("user_id", -1);
+    }
+
+    /**
+     * Tạo và chèn FeedbackFragment vào vị trí đã định sẵn trong layout.
+     */
+    private void insertFeedbackFragment() {
+        // 1. Tạo một instance của FeedbackFragment, truyền ID sân và ID người dùng vào
+        FeedbackFragment feedbackFragment = FeedbackFragment.newInstance(stadiumId, currentUserId);
+
+        // 2. Dùng FragmentManager để đặt Fragment con vào container
+        // Dùng getChildFragmentManager() vì đây là Fragment lồng trong Fragment
+        getChildFragmentManager().beginTransaction()
+                .replace(R.id.feedback_fragment_container, feedbackFragment)
+                .commit();
     }
     public void delayAndSetTextMore() {
         handler.postDelayed(new Runnable() {
