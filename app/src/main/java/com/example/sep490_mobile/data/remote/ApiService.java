@@ -21,6 +21,10 @@ import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
+import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
+import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
+import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
 
 import java.util.Map;
 
@@ -162,4 +166,14 @@ public interface ApiService {
 
     @DELETE("feedback/{id}")
     Call<Void> deleteFeedback(@Path("id") int feedbackId);
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsHistory(@Query("$filter") String filter);
+
+    // API lấy các gói đặt tháng
+    @GET("monthlyBooking")
+    Call<MonthlyBookingODataResponse> getMonthlyBookings(@Query("$filter") String filter);
+
+    @GET("discounts/{id}")
+    Call<ReadDiscountDTO> getDiscountById(@Path("id") int discountId);
 }
