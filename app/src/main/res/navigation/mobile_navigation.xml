@@ -9,20 +9,66 @@
         android:id="@+id/navigation_home"
         android:name="com.example.sep490_mobile.ui.home.HomeFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/action_navigation_home_to_visuallyBookingFragment"
+            app:destination="@id/visuallyBookingFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_stadiumDetailFragment"
+            app:destination="@id/stadiumDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/visuallyBookingFragment"
+        android:name="com.example.sep490_mobile.ui.booking.VisuallyBookingFragment"
+        android:label="VisuallyBookingFragment"
+        tools:layout="@layout/fragment_visually_booking" >
+        <action
+            android:id="@+id/action_visuallyBookingFragment_to_checkoutFragment"
+            app:destination="@id/checkoutFragment" />
+        <argument
+            android:name="stadiumId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/stadiumDetailFragment"
+        android:name="com.example.sep490_mobile.ui.stadiumDetail.StadiumDetailFragment"
+        android:label="Stadium Detail">
+        <argument
+            android:name="stadiumId"
+            app:argType="integer" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkoutFragment"
+        android:name="com.example.sep490_mobile.ui.booking.CheckoutFragment"
+        android:label="CheckoutFragment"
+        tools:layout="@layout/fragment_checkout">
+        <argument
+            android:name="stadiumId"
+            app:argType="integer" />
+        <argument
+            android:name="date"
+            app:argType="string" />
+        <argument
+            android:name="totalPrice"
+            app:argType="float" />
+        <argument
+            android:name="selectedCourts"
+            app:argType="com.example.sep490_mobile.data.dto.SelectedCourtInfo[]" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_map"
         android:name="com.example.sep490_mobile.ui.map.MapFragment"
         android:label="@string/map"
         tools:layout="@layout/fragment_map" />
-
     <fragment
         android:id="@+id/navigation_notifications"
         android:name="com.example.sep490_mobile.ui.notifications.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
-
     <fragment
         android:id="@+id/navigation_account"
         android:name="com.example.sep490_mobile.ui.account.AccountFragment"
@@ -32,7 +78,6 @@
             android:id="@+id/action_navigation_account_to_navigation_schedule"
             app:destination="@id/navigation_schedule" />
     </fragment>
-
     <fragment
         android:id="@+id/navigation_schedule"
         android:name="com.example.sep490_mobile.ui.schedule.ScheduleFragment"
@@ -42,7 +87,6 @@
             android:id="@+id/action_navigation_schedule_to_bookingDetailFragment"
             app:destination="@id/bookingDetailFragment" />
     </fragment>
-
     <fragment
         android:id="@+id/bookingDetailFragment"
         android:name="com.example.sep490_mobile.ui.scheduledetail.BookingDetailFragment"

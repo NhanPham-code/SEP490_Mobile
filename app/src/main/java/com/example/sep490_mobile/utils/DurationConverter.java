@@ -3,6 +3,7 @@ package com.example.sep490_mobile.utils;
 import android.os.Build;
 
 import java.time.Duration;
+import java.util.Locale;
 
 public class DurationConverter {
     public static String convertDuration(String isoDuration) {
@@ -35,5 +36,21 @@ public class DurationConverter {
             System.err.println("Đảm bảo chuỗi tuân thủ định dạng ISO 8601, ví dụ: 'PT8H', 'PT1H30M', 'P3D'.");
         }
         return "";
+    }
+
+    public static int parseHour(Duration duration) {
+        if (duration == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return 0;
+        }
+        return (int) duration.toHours();
+    }
+
+    public static String convertDuration(Duration duration) {
+        if (duration == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return "N/A";
+        }
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
+        return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes);
     }
 }

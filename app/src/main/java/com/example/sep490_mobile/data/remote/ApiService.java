@@ -1,7 +1,10 @@
 package com.example.sep490_mobile.data.remote;
 
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
+import com.example.sep490_mobile.data.dto.BookingCreateDto;
+import com.example.sep490_mobile.data.dto.BookingReadDto;
 import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
 import com.example.sep490_mobile.data.dto.ScheduleBookingODataResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
@@ -20,6 +23,7 @@ import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
 
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -125,4 +129,19 @@ public interface ApiService {
             @Query("$filter") String filter,
             @Query("$expand") String expand
     );
+
+    @GET("bookings/booked")
+    Call<ODataResponse<BookingReadDto>> getBookedCourtsByDay(
+            @Query("$filter") String filter,
+            @Query("$expand") String expand
+    );
+
+    @GET("GetAllCourtRelationParent")
+    Call<List<ReadCourtRelationDTO>> getAllCourtRelationByParentId(@Query("parentId") int parentId);
+
+    @GET("GetAllCourtRelationChild")
+    Call<List<ReadCourtRelationDTO>> getAllCourtRelationByChildId(@Query("childId") int childId);
+
+    @POST("Bookings/add") // Match your API endpoint path
+    Call<BookingReadDto> createBooking(@Body BookingCreateDto bookingRequest);
 }

@@ -54,8 +54,8 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
 
         StadiumDTO stadiumDTO = stadiumDTOS.get(position);
         CourtsDTO[] courtsDTOS = stadiumDTO.courts.toArray(new CourtsDTO[0]);
-        String time = DurationConverter.convertDuration(String.valueOf(stadiumDTO.openTime).toString()) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime.toString());
-        String sportType = "";
+        // ✅ This is much cleaner and calls the new method directly
+        String time = DurationConverter.convertDuration(stadiumDTO.openTime) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime);        String sportType = "";
         StadiumImagesDTO[] stadiumImagesDTO = stadiumDTO.stadiumImages.toArray(new StadiumImagesDTO[0]);
         switch (courtsDTOS.length > 0 ? courtsDTOS[0].sportType : ""){
             case "Bóng đá sân 7":
@@ -101,6 +101,30 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
                 }
                 // Mở Activity mới
 
+            }
+        });
+
+        holder.book_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Get the stadium ID for the current item
+                int stadiumId = stadiumDTO.getId();
+
+                // ✨ Use the new interface method to notify the fragment
+                if (listener != null) {
+                    listener.onBookButtonClick(stadiumId);
+                }
+            }
+        });
+
+        holder.listItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int stadiumId = stadiumDTO.getId();
+                if (listener != null) {
+                    // This remains unchanged for clicking the whole item
+                    listener.onItemClick(stadiumId);
+                }
             }
         });
     }

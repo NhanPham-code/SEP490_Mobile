@@ -53,6 +53,15 @@
         <color name="text_on_primary">#FFFFFF</color>
         <color name="text_on_secondary">#FFFFFF</color>
 
+        <color name="legend_booked_red">#FF4136</color>
+        <color name="legend_locked_gray">#AAAAAA</color>
+        <color name="legend_related_pink">#FFDDE1</color>
+        <color name="legend_selected_purple">#B10DC9</color>
+
+        <color name="cell_default_background">#FFFFFFFF</color>
+        <color name="cell_disabled_background">#E0E0E0</color>
+        <color name="cell_selected_background">#42A5F5</color>
+
         <!-- Gradients -->
         <color name="gradient_start">#1976D2</color> <!-- Blue -->
         <color name="gradient_end">#43A047</color>   <!-- Green -->
