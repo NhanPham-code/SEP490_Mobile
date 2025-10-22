@@ -1,7 +1,11 @@
 package com.example.sep490_mobile.ui.findTeam;
 
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
+
+import com.example.sep490_mobile.data.dto.StadiumDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -11,6 +15,8 @@ import java.util.Map;
 public class ShareFilterFindTeamViewModel extends ViewModel {
     private final MutableLiveData<Map<String, String>> selected = new MutableLiveData<Map<String, String>>();
     private MutableLiveData<String> address = new MutableLiveData<String>();
+    private MutableLiveData<BookingReadDTO> booking= new MutableLiveData<BookingReadDTO>();
+    private MutableLiveData<StadiumDTO> stadium = new MutableLiveData<StadiumDTO>();
     private MutableLiveData<String> playDate = new MutableLiveData<String>(getCurrentDateString());
     private MutableLiveData<String> playTime = new MutableLiveData<String>("15:00");
     private MutableLiveData<Integer> needPlayer = new MutableLiveData<Integer>(1);
@@ -51,11 +57,31 @@ private String getCurrentDateString() {
         maxPlayer.setValue(DEFAULT_MAX_PLAYER);
     }
 
-    public MutableLiveData<Map<String, String>> getSelected() {
+    public LiveData<StadiumDTO> getStadium() {
+        return stadium;
+    }
+
+    public void setStadium(StadiumDTO stadium) {
+        this.stadium.setValue(stadium);
+    }
+
+    public LiveData<BookingReadDTO> getBooking() {
+        return booking;
+    }
+
+    public void setBooking(BookingReadDTO booking) {
+        this.booking.setValue(booking);
+    }
+
+    public LiveData<Map<String, String>> getSelected() {
         return selected;
     }
 
-    public MutableLiveData<String> getAddress() {
+    public void setSelected(Map<String, String> odata) {
+        this.selected.setValue(odata);
+    }
+
+    public LiveData<String> getAddress() {
         return address;
     }
 
@@ -63,7 +89,7 @@ private String getCurrentDateString() {
         this.address.setValue(address);
     }
 
-    public MutableLiveData<String> getPlayDate() {
+    public LiveData<String> getPlayDate() {
         return playDate;
     }
 
@@ -71,7 +97,7 @@ private String getCurrentDateString() {
         this.playDate.setValue(playDate);
     }
 
-    public MutableLiveData<String> getPlayTime() {
+    public LiveData<String> getPlayTime() {
         return playTime;
     }
 
@@ -79,14 +105,14 @@ private String getCurrentDateString() {
         this.playTime.setValue(playTime);
     }
 
-    public MutableLiveData<Integer> getMinPlayerr() {
+    public LiveData<Integer> getMinPlayerr() {
         return minPlayer;
     }
 
     public void setMinPlayer(int minPlayer) {
         this.minPlayer.setValue(minPlayer);
     }
-    public MutableLiveData<Integer> getNeedPlayer() {
+    public LiveData<Integer> getNeedPlayer() {
         return needPlayer;
     }
 
@@ -94,7 +120,7 @@ private String getCurrentDateString() {
         this.needPlayer.setValue(needPlayer);
     }
 
-    public MutableLiveData<Integer> getMaxPlayer() {
+    public LiveData<Integer> getMaxPlayer() {
         return maxPlayer;
     }
 
@@ -102,7 +128,7 @@ private String getCurrentDateString() {
         this.maxPlayer.setValue(maxPlayer);
     }
 
-    public MutableLiveData<List<String>> getSportType() {
+    public LiveData<List<String>> getSportType() {
         return sportType;
     }
 

@@ -5,7 +5,9 @@ import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 public class PublicProfileDTO implements Serializable {
-    @SerializedName("Id")
+    @SerializedName("@odata.type")
+    public String odataType;
+    @SerializedName("UserId")
     public int id;
     @SerializedName("FullName")
     public String fullName;

@@ -1,7 +1,9 @@
 package com.example.sep490_mobile.adapter;
 
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Handler;
@@ -10,7 +12,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -22,6 +26,7 @@ import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.FindTeamDTO;
 import com.example.sep490_mobile.data.dto.PublicProfileDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberForDetailDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.remote.OnItemClickListener;
@@ -33,7 +38,8 @@ import com.example.sep490_mobile.utils.PriceFormatter;
 import java.util.Dictionary;
 import java.util.List;
 
-public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTeamViewHolder> {
+// Đã đổi tên lớp từ FindTeamAdapter
+public class PostManagerAdapter extends RecyclerView.Adapter<PostManagerAdapter.PostManagerViewHoder> {
 
     private List<ReadTeamPostDTO> teamPostDTOS;
 
@@ -43,12 +49,15 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
     private Context context;
     private int myId;
     private final Handler handler = new Handler();
-    public FindTeamAdapter(Context context){
+
+    // Đã đổi tên hàm khởi tạo
+    public PostManagerAdapter(Context context){
         this.context = context;
     }
     private OnItemClickListener listener;
 
-    public void setFindTeamDTO(FindTeamDTO findTeamDTO, OnItemClickListener listener){
+    // Đã đổi tên phương thức setFindTeamDTO
+    public void setPostData(FindTeamDTO findTeamDTO, OnItemClickListener listener){
         this.teamPostDTOS = findTeamDTO.getTeamPostDTOS();
         this.stadiums = findTeamDTO.getStadiums();
         this.users = findTeamDTO.getUsers();
@@ -58,61 +67,22 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
 
     @NonNull
     @Override
-    public FindTeamViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.list_item_findteam, parent, false);
+    // Đã đổi kiểu trả về và tên ViewHolder
+    public PostManagerViewHoder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.list_item_my_post, parent, false);
 
         SharedPreferences sharedPreferences = context.getSharedPreferences("MyAppPrefs", context.MODE_PRIVATE);
         myId = sharedPreferences.getInt("user_id", 0);
-        return new FindTeamViewHolder(view);
+        // Đã đổi tên ViewHolder
+        return new PostManagerViewHoder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull FindTeamViewHolder holder, int position) {
+    // Đã đổi tên ViewHolder trong tham số
+    public void onBindViewHolder(@NonNull PostManagerViewHoder holder, int position) {
         ReadTeamPostDTO readTeamPostDTO = teamPostDTOS.get(position);
         StadiumDTO stadiumDTO = stadiums.get(readTeamPostDTO.getStadiumId());
         PublicProfileDTO publicProfileDTO = users.get(readTeamPostDTO.getCreatedBy());
-        int leaderId = -1; // Khởi tạo giá trị mặc định
-
-        for (ReadTeamMemberDTO member : readTeamPostDTO.getTeamMembers()) {
-            // 1. Lọc: Chỉ giữ lại thành viên có Role là Leader
-            if ("Leader".equalsIgnoreCase(member.getRole()) && member.getUserId() == myId) {
-
-
-                // 2. Map: Lấy ID và gán cho leaderId
-                leaderId = member.getUserId();
-
-                // 3. Dừng: Vì chỉ cần Leader đầu tiên (tương đương với findFirst())
-                break;
-            }
-//            System.out.println("leaderId: " + member.getId());
-        }
-        int memberId = -1; // Khởi tạo giá trị mặc định
-        int waiting = -1;
-        for (ReadTeamMemberDTO member : readTeamPostDTO.getTeamMembers()) {
-            // 1. Lọc: Chỉ giữ lại thành viên có ID trùng với myId
-            if (myId == member.getUserId() && "Member".equalsIgnoreCase(member.getRole())) {
-
-
-                // 2. Map: Lấy ID (chính là myId) và gán cho memberId
-                memberId = member.getUserId(); // Hoặc đơn giản: memberId = myId;
-
-                // 3. Dừng: Vì đã tìm thấy ID của người dùng hiện tại
-                break;
-            }else if (myId == member.getUserId() && "Waiting".equalsIgnoreCase(member.getRole())){
-                waiting = member.getUserId(); // Hoặc đơn giản: memberId = myId;
-
-                // 3. Dừng: Vì đã tìm thấy ID của người dùng hiện tại
-                break;
-            }
-            System.out.println("leaderId: member " + member.getUserId());
-        }
-// Nếu vòng lặp kết thúc mà không tìm thấy, memberId vẫn là -1.
-// Nếu vòng lặp kết thúc mà không tìm thấy, leaderId vẫn là -1.
-// Nếu myId có trong team, kết quả sẽ là myId. Nếu không, kết quả là -1.
-
-        System.out.println("finteamId leader: " + leaderId);
-        System.out.println("finteamId member: " + memberId);
-
 
         // 1. Kiểm tra NULL cho Người Tạo (PublicProfileDTO)
         if (publicProfileDTO != null) {
@@ -134,12 +104,82 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             holder.stadiumName.setText("Sân không rõ");
         }
 
+        SharedPreferences sharedPreferences = context.getSharedPreferences("MyAppPrefs", context.MODE_PRIVATE);
+        int myId  = sharedPreferences.getInt("user_id", 0);
+
+        int isLeader = -1;
+        for (ReadTeamMemberDTO member : readTeamPostDTO.getTeamMembers()) {
+            if(member.getRole().equalsIgnoreCase("Leader") && member.getUserId() == myId){
+                isLeader = 1;
+                break;
+            }else if ((member.getRole().equalsIgnoreCase("Member") || member.getRole().equalsIgnoreCase("Waiting")) && member.getUserId() == myId){
+                isLeader = 0;
+                break;
+            }
+        }
+
+
         String price = PriceFormatter.formatPrice((int) readTeamPostDTO.pricePerPerson);
         String datePlay = "";
         String createdTime = "";
+        boolean disableButtons = false; // Mặc định là KHÔNG tắt (false)
+
+// Logic so sánh ngày
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // --- Lấy ngày như cũ ---
             datePlay = DurationConverter.convertIsoPlayDate(readTeamPostDTO.getPlayDate(), "dd/MM/yyyy");
             createdTime = DurationConverter.convertIsoPlayDate(readTeamPostDTO.getCreatedAt(), "dd/MM/yyyy - HH:mm");
+
+            // --- Logic so sánh mới ---
+            try {
+                // 1. Lấy ngày hôm nay (chỉ ngày, không giờ) theo múi giờ thiết bị
+                java.time.LocalDate today = java.time.LocalDate.now();
+
+                // 2. Phân tích chuỗi ISO date gốc (ví dụ: "2025-10-25T17:00:00+07:00")
+                // Chuyển nó về múi giờ của thiết bị và lấy ngày
+                java.time.LocalDate localPlayDate = java.time.OffsetDateTime
+                        .parse(readTeamPostDTO.getPlayDate())
+                        .atZoneSameInstant(java.time.ZoneId.systemDefault())
+                        .toLocalDate();
+
+                // 3. So sánh: "nếu lớn hơn hoặc bằng hôm nay thì tắt"
+                if (localPlayDate.isAfter(today) || localPlayDate.isEqual(today)) {
+                    disableButtons = true; // Tắt nút nếu trận đấu diễn ra hôm nay hoặc trong tương lai
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                // Nếu không phân tích được ngày, tắt nút để đảm bảo an toàn
+                disableButtons = true;
+            }
+        } else {
+            // --- Fallback cho API < 26 (dưới Android 8.0) ---
+            datePlay = ""; // (Bạn có thể cần 1 hàm convert riêng cho API cũ)
+            createdTime = ""; // (Bạn có thể cần 1 hàm convert riêng cho API cũ)
+
+            try {
+                // 1. Dùng SimpleDateFormat cho API cũ
+                // Cú pháp này cố gắng phân tích ISO 8601
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.US);
+                // Chúng ta phải cắt bớt thông tin múi giờ vì SimpleDateFormat xử lý không tốt
+                java.util.Date playDate = sdf.parse(readTeamPostDTO.getPlayDate().substring(0, 19));
+
+                // 2. Lấy ngày hôm nay và xóa thông tin giờ
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.set(java.util.Calendar.HOUR_OF_DAY, 0);
+                cal.set(java.util.Calendar.MINUTE, 0);
+                cal.set(java.util.Calendar.SECOND, 0);
+                cal.set(java.util.Calendar.MILLISECOND, 0);
+                java.util.Date today = cal.getTime();
+
+                // 3. So sánh: if playDate IS NOT before today (tức là >= today)
+                if (!playDate.before(today)) {
+                    disableButtons = true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                disableButtons = true; // An toàn là tắt nút
+            }
         }
 
         // Các thành phần khác không liên quan đến lỗi Null
@@ -150,39 +190,55 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
         holder.playersInfo.setText("cần " + readTeamPostDTO.getJoinedPlayers() + " / " + readTeamPostDTO.getNeededPlayers()+ " người" );
         HtmlConverter.convertHtmlToMarkdown(readTeamPostDTO.getDescription(), holder.gameDescription);
         holder.price.setText(price + "đ");
-        if(readTeamPostDTO.getJoinedPlayers() >= readTeamPostDTO.getNeededPlayers()){
-            holder.joinButton.setText("Đã đủ người");
-            holder.joinButton.setBackgroundColor(context.getResources().getColor(R.color.grey_700));
-            holder.joinButton.setEnabled(false);
-        }
-        else if(leaderId == myId && memberId != myId){
-            holder.joinButton.setText("Bạn là chủ bài đăng");
-            holder.joinButton.setBackgroundColor(context.getResources().getColor(R.color.gradient_end));
-            holder.joinButton.setEnabled(false);
-        }
-        else if(memberId > 0){
-            holder.joinButton.setText("Đã tham gia");
-            holder.joinButton.setBackgroundColor(context.getResources().getColor(R.color.grey_700));
-            holder.joinButton.setEnabled(false);
 
-        } else if (waiting > 0) {
-            holder.joinButton.setText("Đang chờ duyệt");
-            holder.joinButton.setBackgroundColor(context.getResources().getColor(R.color.accent_orange));
-            holder.joinButton.setEnabled(false);
+        if (disableButtons == true) {
+            if(isLeader == 1){
 
-        } else if(memberId < 0 || leaderId < 0){
-            holder.joinButton.setText("Tham gia");
-            holder.joinButton.setBackgroundColor(context.getResources().getColor(R.color.gradient_start));
-            holder.joinButton.setEnabled(true);
+                holder.editButton.setVisibility(View.VISIBLE);
+                holder.deleteButton.setVisibility(View.VISIBLE);
+                holder.statusPost.setVisibility(View.GONE);
+            }else{
+                holder.editButton.setVisibility(View.GONE);
+                holder.deleteButton.setVisibility(View.GONE);
+                holder.statusPost.setVisibility(View.GONE);
+            }
+
+
+        }else {
+            holder.editButton.setVisibility(View.GONE);
+            holder.deleteButton.setVisibility(View.GONE);
+            holder.statusPost.setText("Bài đăng quá hạng");
+            holder.statusPost.setVisibility(View.VISIBLE);
+            holder.statusPost.setTextColor(context.getResources().getColor(R.color.color_accent));
         }
 
 
-        holder.joinButton.setOnClickListener(new View.OnClickListener() {
+        holder.editButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if(listener != null){
-                    listener.onItemClick(readTeamPostDTO.getId(), "join");
+
+                    listener.onItemClick(readTeamPostDTO.getId(), "edit");
                 }
+            }
+        });
+        holder.deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Context ctx = v.getContext();
+                new AlertDialog.Builder(ctx)
+                        .setTitle("Xóa bài đăng")
+                        .setMessage("Bạn có muốn xóa bài đăng này không?")
+                        .setPositiveButton("Xóa", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                if (listener != null) {
+                                    listener.onItemClick(holder.getBindingAdapterPosition(), "delete");
+                                }
+                            }
+                        })
+                        .setNegativeButton("Hủy", null)
+                        .show();
             }
         });
 
@@ -250,7 +306,8 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
         return teamPostDTOS.size();
     }
 
-    public class FindTeamViewHolder extends RecyclerView.ViewHolder {
+    // Đã đổi tên lớp ViewHolder
+    public class PostManagerViewHoder extends RecyclerView.ViewHolder {
         // Các thành phần giao diện của item
         public ImageView playerAvatar;
         public TextView playerName;
@@ -262,11 +319,15 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
         public TextView playersInfo;
         public TextView gameDescription;
         public TextView price;
-        public Button joinButton;
+        public ImageButton editButton; // Bạn có thể muốn đổi tên biến này thành actionButton
+        public ImageButton deleteButton;
         public TextView seeMore;
         public ConstraintLayout card;
+        public TextView statusPost;
+        public LinearLayout bottomCard;
 
-        public FindTeamViewHolder(@NonNull View itemView) {
+        // Đã đổi tên hàm khởi tạo của ViewHolder
+        public PostManagerViewHoder(@NonNull View itemView) {
             super(itemView);
             // Ánh xạ các thành phần giao diện
             playerAvatar = itemView.findViewById(R.id.playerAvatar);
@@ -279,9 +340,12 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             playersInfo = itemView.findViewById(R.id.playersInfo);
             gameDescription = itemView.findViewById(R.id.gameDescription);
             price = itemView.findViewById(R.id.price);
-            joinButton = itemView.findViewById(R.id.joinButton);
+            editButton = itemView.findViewById(R.id.editButton);
             seeMore = itemView.findViewById(R.id.seeMore); // <-- ÁNH XẠ
             card = itemView.findViewById(R.id.find_team_card_item);
+            deleteButton = itemView.findViewById(R.id.deleteButton);
+            statusPost = itemView.findViewById(R.id.status_post);
+            bottomCard = itemView.findViewById(R.id.bottom_card);
         }
     }
 }

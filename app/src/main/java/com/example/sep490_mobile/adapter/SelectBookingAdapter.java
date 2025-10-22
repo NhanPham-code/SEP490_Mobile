@@ -1,6 +1,7 @@
 package com.example.sep490_mobile.adapter;
 
 import android.content.Context;
+import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,25 +11,24 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sep490_mobile.data.dto.CourtsDTO;
-import com.example.sep490_mobile.data.dto.ScheduleBookingDetailDTO;
 import com.example.sep490_mobile.data.dto.SelectBookingDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
 import com.example.sep490_mobile.utils.DurationConverter;
+import com.example.sep490_mobile.utils.PriceFormatter;
 import com.google.android.material.button.MaterialButton;
-import com.google.android.material.card.MaterialCardView;
+
 import android.widget.TextView;
 
 import com.example.sep490_mobile.R; // Assuming your resources are in the default R class
-import com.example.sep490_mobile.data.dto.ScheduleBookingDTO;
-import com.example.sep490_mobile.ui.home.OnItemClickListener;
+import com.example.sep490_mobile.data.remote.OnItemClickListener;
 
 import java.util.Dictionary;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class SelectBookingAdapter extends RecyclerView.Adapter<SelectBookingAdapter.SelectBookingViewHolder> {
 
-    private List<ScheduleBookingDTO> scheduleBookingDTOS;
+    private List<BookingReadDTO> bookingReadDTOS;
     private Dictionary<Integer, StadiumDTO> stadiumDTODictionary;
     private Context context;
     private OnItemClickListener listener;
@@ -38,7 +38,7 @@ public class SelectBookingAdapter extends RecyclerView.Adapter<SelectBookingAdap
     }
 
     public void setSelectBookingList(SelectBookingDTO selectBookingDTO, OnItemClickListener listener){
-        this.scheduleBookingDTOS = selectBookingDTO.getScheduleBookingDTOS();
+        this.bookingReadDTOS = selectBookingDTO.getBookingReadDTOS();
         this.stadiumDTODictionary = selectBookingDTO.getStadiums();
         this.listener = listener;
         notifyDataSetChanged();
@@ -53,47 +53,83 @@ public class SelectBookingAdapter extends RecyclerView.Adapter<SelectBookingAdap
         return new SelectBookingViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull SelectBookingViewHolder holder, int position) {
-        if (scheduleBookingDTOS != null) {
-            ScheduleBookingDTO booking = scheduleBookingDTOS.get(position);
+        // 1. Kiểm tra an toàn: Nếu bookingReadDTOS == null, không làm gì cả (đảm bảo bởi getItemCount() nhưng vẫn giữ để an toàn)
+        if (bookingReadDTOS == null || stadiumDTODictionary == null) return;
 
-            // Set Header information
-            holder.tvBookingId.setText(booking.getId()); // Assuming you have a string resource like "Booking #%s"
-            holder.tvBookingStatus.setText(booking.getStatus());
+        BookingReadDTO booking = bookingReadDTOS.get(position);
 
-            // Simple status-based background/text color logic (Example only)
-            if ("Đã xác nhận".equals(booking.getStatus())) {
-                holder.tvBookingStatus.setBackgroundColor(Color.parseColor("#71C863")); // Green
-            } else if ("Đang chờ".equals(booking.getStatus())) {
-                holder.tvBookingStatus.setBackgroundColor(Color.parseColor("#FFC107")); // Amber
-            } else {
-                holder.tvBookingStatus.setBackgroundColor(Color.parseColor("#9E9E9E")); // Gray default
-            }
+        // --- 2. Set Header Information ---
+        // Tối ưu: Đảm bảo không bị null và thêm prefix
+        holder.tvBookingId.setText("Mã Booking: " + String.valueOf(booking.getId()));
+        String status = booking.getStatus();
+        holder.tvBookingStatus.setText(status != null ? status : "Không rõ trạng thái");
 
-            List<ScheduleBookingDetailDTO> bookingDetailDTO = booking.getBookingDetails();
-            List<CourtsDTO> courtsDTOS = stadiumDTODictionary.get(booking.getStadiumId()).getCourts().stream().collect(Collectors.toList());
-            // Set Body details
-            holder.tvStadiumName.setText(booking.getStadiumName());
-            // Format date as needed, assuming it's a simple string for now
-            holder.tvBookingDate.setText(""); // e.g., "Ngày chơi: %s"
-            holder.tvSportType.setText(courtsDTOS.get(0).getSportType());
-            holder.tvAddress.setText(stadiumDTODictionary.get(booking.getStadiumId()).getAddress());
-            // Format price as a currency string, assuming a simple string for now
-            holder.tvPrice.setText(booking.getTotalPrice() + "");
-
-            // Set up click listener for the button
-            holder.btnSelectBooking.setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onItemClick(position);
-                }
-            });
+        // Simple status-based background/text color logic
+        if ("Đã xác nhận".equalsIgnoreCase(status)) {
+            holder.tvBookingStatus.setBackgroundColor(Color.parseColor("#4CAF50")); // Green
+            holder.tvBookingStatus.setTextColor(Color.WHITE);
+        } else if ("Đang chờ".equalsIgnoreCase(status)) {
+            holder.tvBookingStatus.setBackgroundColor(Color.parseColor("#FF9800")); // Amber
+            holder.tvBookingStatus.setTextColor(Color.BLACK);
+        } else {
+            holder.tvBookingStatus.setBackgroundColor(Color.parseColor("#9E9E9E")); // Gray default
+            holder.tvBookingStatus.setTextColor(Color.WHITE);
         }
+
+        // --- 3. Xử lý Dữ liệu Sân (Stadium Data) VÀ SỬA LỖI NullPointerException (LỖI 1) ---
+        // BẮT BUỘC: Lấy và kiểm tra đối tượng Stadium trước khi truy cập
+        StadiumDTO stadiumDTO = stadiumDTODictionary.get(booking.getStadiumId());
+
+        // Set Body details
+        holder.tvStadiumName.setText(booking.getStadiumName());
+
+        if (stadiumDTO != null) {
+            // Địa chỉ
+            holder.tvAddress.setText(stadiumDTO.getAddress());
+
+            // Loại sân (Sport Type)
+            // SỬA LỖI 2: Xử lý IndexOutOfBoundsException nếu danh sách courts rỗng
+            CourtsDTO[] courtsDTOS = stadiumDTO.getCourts().toArray(new CourtsDTO[0]);
+            if (courtsDTOS != null && courtsDTOS.length > 0) {
+                holder.tvSportType.setText(courtsDTOS[0].getSportType());
+            } else {
+                holder.tvSportType.setText("Chưa rõ loại hình");
+            }
+        } else {
+            // Trường hợp không tìm thấy thông tin sân (giá trị an toàn)
+            holder.tvAddress.setText("Địa chỉ không khả dụng");
+            holder.tvSportType.setText("Loại hình không khả dụng");
+        }
+        holder.tvStadiumName.setText(stadiumDTO.getName());
+        // Format date: Điền giá trị thực tế (giả sử getBookingDate() trả về String)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            holder.tvBookingDate.setText("Ngày chơi: " + ( booking.getBookingDetails().get(0).getStartTime() != null ? DurationConverter.convertCustomToReadable(booking.getBookingDetails().get(0).getStartTime().toString(), "dd/MM/yyyy") : "N/A"));
+        }
+
+        // Tối ưu: Format price as a currency string
+        try {
+
+            String price = PriceFormatter.formatPriceDouble(booking.getTotalPrice());
+            holder.tvPrice.setText(price);
+        } catch (Exception e) {
+            // Fallback nếu có lỗi định dạng
+            holder.tvPrice.setText(booking.getTotalPrice() + " đ");
+        }
+
+        // --- 4. Set up click listener ---
+        holder.btnSelectBooking.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onItemClick(position);
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return scheduleBookingDTOS != null ? scheduleBookingDTOS.size() : 0;
+        return bookingReadDTOS != null ? bookingReadDTOS.size() : 0;
     }
 
     public class SelectBookingViewHolder extends RecyclerView.ViewHolder {

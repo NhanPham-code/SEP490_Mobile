@@ -19,15 +19,19 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.example.sep490_mobile.R; // Đảm bảo package này đúng
+import com.example.sep490_mobile.databinding.FragmentFilterFindTeamBinding;
 import com.example.sep490_mobile.ui.home.SharedViewModel;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class FilterFindTeam extends Fragment {
@@ -37,6 +41,7 @@ public class FilterFindTeam extends Fragment {
     private Button clearFiltersBtn;
     private Button applyFiltersBtn;
     private Button resetFiltersBtn;
+    private FragmentFilterFindTeamBinding binding;
     private List<String> sportTypes = new ArrayList<>();
 
     // Các phần tử Toggle
@@ -65,7 +70,9 @@ public class FilterFindTeam extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout
-        return inflater.inflate(R.layout.fragment_filter_find_team, container, false);
+        binding = FragmentFilterFindTeamBinding.inflate(inflater, container, false);
+        View root = binding.getRoot();
+        return root;
     }
 
     @Override
@@ -80,7 +87,7 @@ public class FilterFindTeam extends Fragment {
 
         // Thiết lập Date/Time Picker cho EditText
         setupDateAndTimePickers();
-
+        setSelectedFilters();
         // Thiết lập trạng thái ban đầu (nếu cần)
         // Ví dụ: playersFilterContent.setVisibility(View.GONE);
     }
@@ -139,8 +146,57 @@ public class FilterFindTeam extends Fragment {
 
     private void closeFragment() {
         if (getParentFragmentManager() != null) {
-            getParentFragmentManager().popBackStack();
+            getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
+    }
+
+    // set lại những trường đã chọn
+    private void setSelectedFilters() {
+        ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
+
+        if(model.getSportType().hasObservers()){
+            List<String> selectedSports = model.getSportType().getValue();
+            if (selectedSports != null) {
+                // Đặt lại tất cả CheckBox về unchecked trước khi thiết lập
+                resetCheckboxes(sportFilterContent);
+
+                for (String sport : selectedSports) {
+                    // Đảm bảo sử dụng binding và kiểm tra null để tránh lỗi nếu không tìm thấy view
+                    if (sport.equalsIgnoreCase("Bóng đá sân 11") && binding.bg11 != null) {
+                        binding.bg11.setChecked(true);
+                    } else if (sport.equalsIgnoreCase("Bóng đá sân 5") && binding.bg5 != null) {
+                        binding.bg5.setChecked(true);
+                    } else if (sport.equalsIgnoreCase("Bóng đá sân 7") && binding.bg7 != null) {
+                        binding.bg7.setChecked(true);
+                    } else if (sport.equalsIgnoreCase("Bóng Chuyền") && binding.bgC != null) {
+                        binding.bgC.setChecked(true);
+                    } else if (sport.equalsIgnoreCase("Bóng Rổ") && binding.bgR != null) {
+                        binding.bgR.setChecked(true);
+                    } else if (sport.equalsIgnoreCase("Cầu Lông") && binding.bgCl != null) {
+                        binding.bgCl.setChecked(true);
+                    } else if (sport.equalsIgnoreCase("Tennis") && binding.bgTn != null) {
+                        binding.bgTn.setChecked(true);
+                    }
+                }
+            }
+        }
+        if(model.getPlayDate().hasObservers()){
+            playDateFilter.setText(model.getPlayDate().getValue());
+        }
+        if(model.getPlayTime().hasObservers()){
+            playTimeFilter.setText(model.getPlayTime().getValue());
+        }
+        if(model.getMinPlayerr().hasObservers()){
+            minPlayersInput.setText(model.getMinPlayerr().getValue().toString());
+
+        }
+        if(model.getMaxPlayer().hasObservers()){
+            maxPlayersInput.setText(model.getMaxPlayer().getValue().toString());
+        }
+        if(model.getAddress().hasObservers()){
+            locationSearchInput.setText(model.getAddress().getValue());
+        }
+
     }
 
     private void applyFilters() {
@@ -182,7 +238,14 @@ public class FilterFindTeam extends Fragment {
             model.setAddress(location);
         }
 
-        getParentFragmentManager().popBackStack();
+        String filter = odata.stream().collect(Collectors.joining(" and "));
+        Map<String, String> url = new HashMap<>();
+        url.put("$filter", filter);
+        model.setSelected(url);
+
+        if (getParentFragmentManager() != null) {
+            getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
     }
 
     private void resetFilters() {

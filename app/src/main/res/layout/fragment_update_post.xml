@@ -33,70 +33,6 @@
                     android:layout_marginBottom="16dp"
                     android:drawablePadding="12dp"
                     android:gravity="center_vertical"
-                    android:text="Booking Đã Chọn"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
-                    android:textColor="?android:attr/textColorPrimary"
-                    app:drawableStartCompat="@drawable/ic_bookmark" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="4dp"
-                    android:text="Thông tin booking được truyền vào để tạo bài đăng tìm đội"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Caption"
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:paddingBottom="8dp"/>
-
-                <LinearLayout
-                    android:id="@+id/selectedBookingInfo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:background="@drawable/info_background"
-                    android:orientation="vertical"
-                    android:padding="16dp"
-                    android:visibility="gone"
-                    tools:visibility="visible">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:drawablePadding="8dp"
-                        android:gravity="center_vertical"
-                        android:text="Thông tin chi tiết"
-                        android:textColor="@color/success_green"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/bookingInfoContent"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:textColor="@color/black"
-                        tools:text="Sân: Sân bóng ABC\nNgày: 20/10/2024\nThời gian: 19:00 - 20:30" />
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="6dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="20dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="16dp"
-                    android:drawablePadding="12dp"
-                    android:gravity="center_vertical"
                     android:text="Thông Tin Cơ Bản"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title"
                     android:textColor="?android:attr/textColorPrimary"
@@ -109,7 +45,7 @@
                     android:layout_marginBottom="16dp">
                     <TextView style="@style/InputLabelStyle" android:text="Tiêu đề bài đăng *" />
                     <EditText
-                        android:id="@+id/newTitleEditText"
+                        android:id="@+id/updateTitleEditText"
                         style="@style/StandardInputStyle"
                         android:background="@drawable/bg_edittext"
                         android:inputType="textCapSentences"
@@ -125,7 +61,7 @@
                     android:layout_marginBottom="16dp">
                     <TextView style="@style/InputLabelStyle" android:text="Địa điểm *" />
                     <EditText
-                        android:id="@+id/newLocationEditText"
+                        android:id="@+id/updateLocationEditText"
                         style="@style/StandardInputStyle"
                         android:clickable="false"
                         android:focusable="false"
@@ -150,7 +86,7 @@
                         android:textSize="12sp"
                         android:textColor="?android:attr/textColorSecondary"/>
                     <TextView
-                        android:id="@+id/newSport"
+                        android:id="@+id/updateSport"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="Bóng đá 5 người"
@@ -175,7 +111,7 @@
                     <TextView style="@style/InputLabelStyle"
                         android:text="Giá mỗi người (VNĐ) *" />
                     <EditText
-                        android:id="@+id/newPricePerPersonEditText"
+                        android:id="@+id/updatePricePerPersonEditText"
                         style="@style/StandardInputStyle"
                         android:background="@drawable/edittext_border"
                         android:inputType="numberDecimal"
@@ -190,12 +126,11 @@
                     android:orientation="vertical">
                     <TextView style="@style/InputLabelStyle" android:text="Mô tả" />
                     <EditText
-                        android:id="@+id/newDescriptionEditText"
+                        android:id="@+id/updateDescriptionEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="top"
                         android:inputType="textMultiLine|textCapSentences"
-                        android:minLines="4"
                         android:drawablePadding="8dp"
                         android:background="@drawable/edittext_border"
                         android:padding="12dp"/>
@@ -241,7 +176,7 @@
                         android:orientation="vertical">
                         <TextView style="@style/InputLabelStyle" android:text="Số thành viên cần tìm *" />
                         <EditText
-                            android:id="@+id/newNeededPlayersEditText"
+                            android:id="@+id/updateNeededPlayersEditText"
                             style="@style/StandardInputStyle"
                             android:hint="5"
                             android:inputType="number"
@@ -292,13 +227,13 @@
                         android:textColor="?android:attr/textColorSecondary"
                         android:paddingTop="8dp"
                         android:paddingStart="8dp"/>
-                    <Spinner
-                        android:id="@+id/newPlayDateEditText"
+                    <TextView
+                        android:id="@+id/updatePlayDateEditText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="48dp"
                         android:gravity="center_vertical"
-                        style="@style/Widget.AppCompat.Spinner.Underlined"/>
+                        style="@style/Widget.AppCompat.ActionBar.TabText"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -316,14 +251,14 @@
                         android:textSize="12sp"
                         android:textColor="?android:attr/textColorSecondary"
                         android:paddingTop="8dp"/>
-                    <Spinner
-                        android:id="@+id/newTimePlaySpinner"
+                    <TextView
+                        android:id="@+id/updateTimePlaySpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:minHeight="48dp"
                         android:gravity="center_vertical"
-                        style="@style/Widget.AppCompat.Spinner.Underlined"/>
-                    <TextView style="@style/HelperTextStyle" android:text="Giờ bắt đầu hoạt động" android:paddingStart="8dp" />
+                        style="@style/Widget.AppCompat.ActionBar.TabText"/>
+                    <TextView style="@style/HelperTextStyle" android:text="Giờ bắt đầu chơi" android:paddingStart="8dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -340,12 +275,12 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
                 android:padding="10dp"
-                android:text="TẠO BÀI ĐĂNG"
+                android:text="SỬA BÀI ĐĂNG"
                 android:textStyle="bold"
                 android:textSize="10sp"
                 android:backgroundTint="@color/colorPrimary"/>
             <Button
-                android:id="@+id/back_button_create"
+                android:id="@+id/back_button_update"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"

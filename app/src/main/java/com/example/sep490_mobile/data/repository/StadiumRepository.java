@@ -8,6 +8,7 @@ import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.remote.ApiClient;
 import com.example.sep490_mobile.data.remote.ApiService;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,8 +28,9 @@ public class StadiumRepository {
     }
 
     public Call<ODataResponse<StadiumDTO>> getStadiumByListId(String stadiumId){
-        Map<String, String> odataOptions = Map.of("$filter", "Id in ( " + stadiumId + " )");
-//        odataOptions.put("$expand", "Stadiums");
+        Map<String, String> odataOptions = new HashMap<>();
+        odataOptions.put("$filter", "Id in ( " + stadiumId + " )");
+        odataOptions.put("$expand", "Courts");
         return apiService.getStadiumsOdata(odataOptions);
     }
 
