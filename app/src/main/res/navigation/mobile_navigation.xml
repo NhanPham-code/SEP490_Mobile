@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_home">
+    app:startDestination="@id/navigation_home">
 
     <fragment
         android:id="@+id/navigation_home"
@@ -73,11 +73,34 @@
         android:id="@+id/navigation_account"
         android:name="com.example.sep490_mobile.ui.account.AccountFragment"
         android:label="@string/account"
-        tools:layout="@layout/fragment_account" >
+        tools:layout="@layout/fragment_account">
         <action
             android:id="@+id/action_navigation_account_to_navigation_schedule"
             app:destination="@id/navigation_schedule" />
+        <action
+            android:id="@+id/action_navigation_account_to_bookingHistoryFragment"
+            app:destination="@id/bookingHistoryFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/bookingHistoryDetailFragment"
+        android:name="com.example.sep490_mobile.ui.bookingdetail.BookingHistoryDetailFragment"
+        android:label="Chi tiết Lịch đặt"
+        tools:layout="@layout/fragment_booking_history_detail">
+        <argument
+            android:name="bookingItem"
+            app:argType="com.example.sep490_mobile.data.dto.booking.IBookingHistoryItem" />
+    </fragment>
+
+    <action
+        android:id="@+id/action_bookingHistoryFragment_to_bookingHistoryDetailFragment"
+        app:destination="@id/bookingHistoryDetailFragment" />
+    <!-- ĐÃ THÊM: Khai báo ChatListActivity là một đích đến -->
+    <activity
+        android:id="@+id/navigation_chat"
+        android:name="com.example.sep490_mobile.ChatListActivity"
+        android:label="Tin nhắn"
+        tools:layout="@layout/activity_main2" />
+
     <fragment
         android:id="@+id/navigation_schedule"
         android:name="com.example.sep490_mobile.ui.schedule.ScheduleFragment"
@@ -95,5 +118,9 @@
             android:name="booking"
             app:argType="com.example.sep490_mobile.data.dto.ScheduleBookingDTO" />
     </fragment>
-
+    <fragment
+        android:id="@+id/bookingHistoryFragment"
+    android:name="com.example.sep490_mobile.ui.booking.BookingHistoryFragment"
+    android:label="fragment_booking_history"
+    tools:layout="@layout/fragment_booking_history" />
 </navigation>

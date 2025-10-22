@@ -22,6 +22,10 @@ import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
+import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
+import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
+import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -36,6 +40,7 @@ import retrofit2.http.Multipart;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Part;
+import retrofit2.http.Path;
 import retrofit2.http.Query;
 import retrofit2.http.QueryMap;
 
@@ -144,4 +149,14 @@ public interface ApiService {
 
     @POST("Bookings/add") // Match your API endpoint path
     Call<BookingReadDto> createBooking(@Body BookingCreateDto bookingRequest);
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsHistory(@Query("$filter") String filter);
+
+    // API lấy các gói đặt tháng
+    @GET("monthlyBooking")
+    Call<MonthlyBookingODataResponse> getMonthlyBookings(@Query("$filter") String filter);
+
+    @GET("discounts/{id}")
+    Call<ReadDiscountDTO> getDiscountById(@Path("id") int discountId);
 }

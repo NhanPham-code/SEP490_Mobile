@@ -7,12 +7,10 @@ import android.os.Build;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
-import com.example.sep490_mobile.Adapter.BigDecimalTypeAdapter;
-import com.example.sep490_mobile.Adapter.DurationTypeAdapter;
+import com.example.sep490_mobile.adapter.DurationTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.math.BigDecimal;
 import java.security.cert.CertificateException;
 import java.time.Duration;
 

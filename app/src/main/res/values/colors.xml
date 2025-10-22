@@ -65,4 +65,44 @@
         <!-- Gradients -->
         <color name="gradient_start">#1976D2</color> <!-- Blue -->
         <color name="gradient_end">#43A047</color>   <!-- Green -->
+        <color name="purple_200">#FFBB86FC</color>
+        <color name="purple_500">#FF6200EE</color>
+        <color name="purple_700">#FF3700B3</color>
+        <color name="teal_200">#FF03DAC5</color>
+        <color name="teal_700">#FF018786</color>
+
+        <array name="avatar_colors">
+                <item>#f44336</item> <!-- Red -->
+                <item>#E91E63</item> <!-- Pink -->
+                <item>#9C27B0</item> <!-- Purple -->
+                <item>#673AB7</item> <!-- Deep Purple -->
+                <item>#3F51B5</item> <!-- Indigo -->
+                <item>#2196F3</item> <!-- Blue -->
+                <item>#03A9F4</item> <!-- Light Blue -->
+                <item>#00BCD4</item> <!-- Cyan -->
+                <item>#009688</item> <!-- Teal -->
+                <item>#4CAF50</item> <!-- Green -->
+                <item>#8BC34A</item> <!-- Light Green -->
+                <item>#FF9800</item> <!-- Orange -->
+                <item>#FF5722</item> <!-- Deep Orange -->
+                <item>#795548</item> <!-- Brown -->
+                <item>#607D8B</item> <!-- Blue Grey -->
+        </array>
+
+        <color name="status_pending_bg">#FFFBEB</color>
+        <color name="status_pending_text">#B45309</color>
+        <color name="status_accepted_bg">#EFF6FF</color>
+        <color name="status_accepted_text">#1D4ED8</color>
+        <color name="status_completed_bg">#ECFDF5</color>
+        <color name="status_completed_text">#065F46</color>
+        <color name="status_cancelled_bg">#FEE2E2</color>
+        <color name="status_cancelled_text">#991B1B</color>
+        <color name="status_waiting_bg">#F3F4F6</color>
+        <color name="status_waiting_text">#4B5563</color>
+        <color name="status_default_bg">#E5E7EB</color>
+        <color name="status_default_text">#374151</color>
+        <color name="status_accepted">#007BFF</color>
+        <color name="status_completed">#28A745</color>
+        <color name="status_cancelled">#DC3545</color>
+        <color name="status_payfail">#FFC107</color>
 </resources>

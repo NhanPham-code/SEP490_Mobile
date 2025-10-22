@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="booking_types_array">
+        <item>Tất cả loại</item>
+        <item>Lịch đặt ngày</item>
+        <item>Lịch đặt tháng</item>
+    </string-array>
+
+    <string-array name="booking_status_array">
+        <item>Tất cả trạng thái</item>
+        <item>Đã nhận</item>
+        <item>Hoàn thành</item>
+        <item>Đã hủy</item>
+        <item>Chờ thanh toán</item>
+        <item>Thanh toán lỗi</item>
+    </string-array>
+</resources>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="12dp"
+    android:layout_marginEnd="12dp"
+    android:layout_marginTop="12dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="3dp"
+    app:strokeWidth="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="16dp">
+
+        <ImageView
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_calendar_month"
+            android:layout_gravity="center_vertical"
+            app:tint="?attr/colorPrimary"/>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:layout_marginStart="16dp">
+
+            <TextView
+                android:id="@+id/tv_stadium_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Sân bóng Thống Nhất"
+                android:textStyle="bold"
+                android:textSize="18sp"
+                android:textColor="@color/deep_ocean"/>
+
+            <TextView
+                android:id="@+id/tv_booking_period"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Gói tháng 10/2025"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:id="@+id/tv_booking_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Tổng tiền: 8,000,000đ"
+                android:textSize="14sp"
+                android:textColor="@color/ocean_blue"
+                android:textStyle="bold"
+                android:layout_marginTop="4dp"/>
+
+            <TextView
+                android:id="@+id/tv_time_frame"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:text="Khung giờ: 18:00 - 19:00"
+                android:textSize="13sp"
+                android:textStyle="italic"
+                android:layout_marginTop="4dp"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_booking_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:background="@drawable/tag_background"
+            tools:text="Hoàn thành"
+            android:textColor="@color/white"
+            android:textSize="11sp"
+            android:textStyle="bold"
+            android:textAllCaps="true"/>
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
