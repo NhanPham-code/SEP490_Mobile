@@ -3,8 +3,15 @@ package com.example.sep490_mobile.data.remote;
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
 import com.example.sep490_mobile.data.dto.BookingCreateDto;
 import com.example.sep490_mobile.data.dto.BookingReadDto;
+import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.CreateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
+import com.example.sep490_mobile.data.dto.PublicProfileDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberForDetailDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamPostResponse;
 import com.example.sep490_mobile.data.dto.ScheduleBookingODataResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
@@ -19,6 +26,8 @@ import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
 import com.example.sep490_mobile.data.dto.ScheduleODataStadiumResponseDTO;
 import com.example.sep490_mobile.data.dto.SendOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
+import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.UpdateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
@@ -150,6 +159,20 @@ public interface ApiService {
     @POST("Bookings/add") // Match your API endpoint path
     Call<BookingReadDto> createBooking(@Body BookingCreateDto bookingRequest);
 
+    // API get other profile
+    @GET("users/get")
+    Call<ODataResponse<PublicProfileDTO>> getPublicProfileByListId(@Query("$filter=UserId in ") String userId);
+
+    // API get Team post
+    @GET("odata/TeamPost")
+    Call<ODataResponse<ReadTeamPostDTO>> getTeamPost(@QueryMap Map<String, String> odataOptions);
+
+    @POST("CreateTeamPost")
+    Call<ReadTeamPostResponse> createTeamPost(@Body CreateTeamPostDTO createTeamPostDTO);
+
+    @POST("AddNewTeamMember")
+    Call<ReadTeamMemberDTO> createTeamMember(@Body CreateTeamMemberDTO createTeamMemberDTO);
+
     @GET("bookings/history?$expand=BookingDetails")
     Call<BookingHistoryODataResponse> getBookingsHistory(@Query("$filter") String filter);
 
@@ -159,4 +182,23 @@ public interface ApiService {
 
     @GET("discounts/{id}")
     Call<ReadDiscountDTO> getDiscountById(@Path("id") int discountId);
+
+    @PUT("UpdateTeamPost")
+    Call<ReadTeamPostDTO> updateTeamPost(@Body UpdateTeamPostDTO updateTeamPostDTO);
+
+    @PUT("UpdateTeamMember")
+    Call<ReadTeamMemberForDetailDTO> updateTeamMember(@Body UpdateTeamMemberDTO updateTeamMemberDTO);
+
+    @GET("GetAllTeamMember")
+    Call<List<ReadTeamMemberForDetailDTO>> getTeamMember(@Query("postId") int postId);
+
+    @GET("GetTeamMemberByPostIdAndId")
+    Call<ReadTeamMemberForDetailDTO> getTeamMemberByPostIdAndId(@Query("teamId") int teamId, @Query("postId") int postId);
+
+    @DELETE("DeleteTeamPost")
+    Call<Boolean> deleteTeamPost(@Query("postId") int postId);
+
+    @DELETE("DeleteTeamMember")
+    Call<Boolean> deleteTeamMember(@Query("teamMemberId") int teamMemberId, @Query("postId") int postId);
+
 }

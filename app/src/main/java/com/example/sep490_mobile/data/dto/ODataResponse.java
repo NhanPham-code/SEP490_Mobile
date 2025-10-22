@@ -6,12 +6,12 @@ import java.util.List;
 
 public class ODataResponse<T> {
     @SerializedName("value")
-    private List<T> items;
+    public List<T> items;
 
     // Ánh xạ tới khóa "@odata.count" (lưu ý ký tự @)
     // Dùng kiểu Long hoặc Integer để lưu số lượng
     @SerializedName("@odata.count")
-    private Long count;
+    public Long count;
 
     // Ánh xạ tới "@odata.context" (Không bắt buộc)
     @SerializedName("@odata.context")

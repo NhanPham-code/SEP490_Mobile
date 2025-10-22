@@ -219,7 +219,8 @@ public class StadiumDetailFragment extends Fragment {
             public void onClick(View v) {
                 FragmentManager fragmentManager = getParentFragmentManager();
                 if (fragmentManager.getBackStackEntryCount() > 0) {
-                    fragmentManager.popBackStack();
+                    getParentFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
 
                 } else {
                     // Xử lý trường hợp không có gì trong back stack (hiếm)

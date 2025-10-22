@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- Header: ID và Trạng thái -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvBookingId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical"
+                android:textStyle="bold"
+                tools:text="Booking #123"
+                app:drawableStartCompat="@drawable/ic_bookmark" />
+
+            <TextView
+                android:id="@+id/tvBookingStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:paddingHorizontal="12dp"
+                android:paddingVertical="4dp"
+                android:textColor="@android:color/white"
+                android:textSize="12sp"
+                android:textStyle="bold"
+                tools:background="#71C863"
+                tools:text="Đã xác nhận" />
+        </RelativeLayout>
+
+        <!-- Body: Chi tiết Booking -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvStadiumName"
+                style="@style/BookingDetailText"
+                tools:text="Sân bóng ABC"
+                app:drawableStartCompat="@drawable/ic_stadium_24" />
+
+            <TextView
+                android:id="@+id/tvBookingDate"
+                style="@style/BookingDetailText"
+                tools:text="Ngày chơi: 20/10/2025"
+                app:drawableStartCompat="@drawable/ic_calendar" />
+
+            <TextView
+                android:id="@+id/tvSportType"
+                style="@style/BookingDetailText"
+                tools:text="Bóng đá"
+                app:drawableStartCompat="@drawable/ic_court_sport" />
+
+            <TextView
+                android:id="@+id/tvAddress"
+                style="@style/BookingDetailText"
+                tools:text="123 Đường ABC, Quận 1, TP.HCM"
+                app:drawableStartCompat="@drawable/outline_location_on_24" />
+
+            <TextView
+                android:id="@+id/tvPrice"
+                style="@style/BookingDetailText"
+                tools:text="500.000đ"
+                app:drawableStartCompat="@drawable/ic_money" />
+        </LinearLayout>
+
+        <!-- Footer: Nút chọn -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnSelectBooking"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            app:cornerRadius="24dp"
+            android:text="Chọn booking này"
+            app:icon="@drawable/ic_check" />
+    </LinearLayout>
+
+</com.google.android.material.card.MaterialCardView>

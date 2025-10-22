@@ -23,6 +23,7 @@ import com.example.sep490_mobile.adapter.StadiumAdapter;
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
+import com.example.sep490_mobile.data.remote.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentHomeBinding;
 import com.example.sep490_mobile.ui.booking.VisuallyBookingFragment;
 import com.example.sep490_mobile.ui.stadiumDetail.StadiumDetailFragment;
@@ -33,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 import androidx.annotation.Nullable;
 
-public class HomeFragment extends Fragment implements OnItemClickListener{
+public class HomeFragment extends Fragment implements OnItemClickListener {
 
     private RecyclerView recyclerView;
     // Đã đổi kiểu từ TextView sang EditText, vì nó hoạt động như thanh tìm kiếm
@@ -56,7 +57,7 @@ public class HomeFragment extends Fragment implements OnItemClickListener{
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
+        getParentFragmentManager().clearBackStack("FindTeamFragment");
         binding = FragmentHomeBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         showLoading();
@@ -336,6 +337,16 @@ public class HomeFragment extends Fragment implements OnItemClickListener{
 
         // 2. Dùng NavController để điều hướng
         NavHostFragment.findNavController(HomeFragment.this).navigate(action);
+    }
+
+    @Override
+    public void onItemClick(int item, String type) {
+
+    }
+
+    @Override
+    public void onItemClickRemoveMember(int id, int postId, String type) {
+
     }
 
     @Override
