@@ -70,9 +70,10 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
         SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
             // Cập nhật UI với `item`
-            odataUrl.put("$filter", item.get("$filter"));
-            performSearch();
-
+            if(item.isEmpty() == false){
+                odataUrl.put("$filter", item.get("$filter"));
+                performSearch();
+            }
         });
 
 
@@ -357,8 +358,12 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
     @Override
     public void onStop(){
         super.onStop();
+        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
         isLastPage = false;
         skip = 0;
+        Map<String, String> odata = new HashMap<>();
+        odata.put("$filter", "");
+        model.select(odata);
         odataUrl.replace("$skip", "0");
         odataUrl.replace("$top", "10");
     }
