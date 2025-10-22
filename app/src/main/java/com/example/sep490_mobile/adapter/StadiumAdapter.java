@@ -16,6 +16,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -24,6 +26,7 @@ import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.CourtsDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.StadiumImagesDTO;
+import com.example.sep490_mobile.ui.home.BookingOptionsBottomSheet;
 import com.example.sep490_mobile.ui.home.OnItemClickListener;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.ImageUtils;
@@ -86,11 +89,12 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         holder.stadiumSportType.setText(sportType);
         Glide.with(this.context).load(ImageUtils.getFullUrl(stadiumImagesDTO.length > 0 ? "img/" + stadiumImagesDTO[0].imageUrl : "")).centerCrop().into(holder.stadiumImages);
 
-        holder.book_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int stadiumId = stadiumDTO.getId();
-                // Mở Activity mới
+        holder.book_button.setOnClickListener(v -> { // Changed from holder.bookButton
+            if (context instanceof FragmentActivity) {
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                // SỬA LỖI 2: Use 'stadiumDTO' which holds the data for this item
+                BookingOptionsBottomSheet bottomSheet = BookingOptionsBottomSheet.newInstance(stadiumDTO.getId()); // Changed from stadium.getId()
+                bottomSheet.show(fragmentManager, bottomSheet.getTag());
             }
         });
 
@@ -113,18 +117,18 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
             }
         });
 
-        holder.book_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // Get the stadium ID for the current item
-                int stadiumId = stadiumDTO.getId();
-
-                // ✨ Use the new interface method to notify the fragment
-                if (listener != null) {
-                    listener.onBookButtonClick(stadiumId);
-                }
-            }
-        });
+//        holder.book_button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Get the stadium ID for the current item
+//                int stadiumId = stadiumDTO.getId();
+//
+//                // ✨ Use the new interface method to notify the fragment
+//                if (listener != null) {
+//                    listener.onBookButtonClick(stadiumId);
+//                }
+//            }
+//        });
 
         holder.listItem.setOnClickListener(new View.OnClickListener() {
             @Override

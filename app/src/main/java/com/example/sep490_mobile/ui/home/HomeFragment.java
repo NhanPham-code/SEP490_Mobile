@@ -325,7 +325,6 @@ public class HomeFragment extends Fragment implements OnItemClickListener{
     public void onItemClick(int stadiumId){
         HomeFragmentDirections.ActionNavigationHomeToStadiumDetailFragment action =
                 HomeFragmentDirections.actionNavigationHomeToStadiumDetailFragment(stadiumId);
-
         NavHostFragment.findNavController(HomeFragment.this).navigate(action);
     }
 
