@@ -51,14 +51,20 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
                              Bundle savedInstanceState) {
         binding = FragmentFindTeamBinding.inflate(inflater, container, false);        // Inflate the layout for this fragment
         View root = binding.getRoot();
+        SharedPreferences sharedPreferences = this.getContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE);
+        int currentUserId = sharedPreferences.getInt("user_id", 0);
+        if(currentUserId <= 0){
+            Toast.makeText(getContext(), "Bạn cần đăng nhập để sửa dụng chức năng này", Toast.LENGTH_LONG).show();
+            return root;
+        }
         showLoading();
-
         recyclerView = root.findViewById(R.id.my_recycler_view);
         odataUrl.put("$expand", "TeamMembers");
         odataUrl.put("$top", "10");
         odataUrl.put("$skip", skip + "");
         odataUrl.put("$orderby", "CreatedAt desc");
         String iso = DurationConverter.createCurrentISOStringToSearch(); // 2025-10-22T14:43:05.472+07:00
+
 
 // For OData V4 servers (preferred):
         String filter = "PlayDate gt " + iso;
@@ -70,12 +76,14 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
             // Cập nhật UI với `item`
-            odataUrl.replace("$filter", filter + item.get("$filter"));
-            System.out.println("filter: " + odataUrl.get("$filter"));
-            odataUrl.replace("$top", "10");
-            odataUrl.replace("$skip", "0");
-            skip = 0;
-            findTeamViewModel.fetchFindTeamList(odataUrl);
+            if(item.get("$filter").length() > 0){
+                odataUrl.replace("$filter", filter + " and " + item.get("$filter"));
+                System.out.println("filter: " + odataUrl.get("$filter"));
+                odataUrl.replace("$top", "10");
+                odataUrl.replace("$skip", "0");
+                skip = 0;
+                findTeamViewModel.fetchFindTeamList(odataUrl);
+            }
         });
 
         root.findViewById(R.id.btn_create_post).setOnClickListener(new View.OnClickListener() {
@@ -441,6 +449,9 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
     @Override
     public void onStop(){
         super.onStop();
+//        ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
+//
+//        model.setSelected(null);
         isLastPage = false;
         skip = 0;
         odataUrl.replace("$skip", "0");
