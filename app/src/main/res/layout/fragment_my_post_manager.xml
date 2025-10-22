@@ -1,0 +1,92 @@
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:id="@+id/my_post_fragment_constraint_layout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".ui.home.HomeFragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/bg_gradient">
+
+    <LinearLayout
+        android:id="@+id/header_my_post"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp"
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageButton
+            android:id="@+id/back_button"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:backgroundTint="@color/divider"
+            android:background="@drawable/circle_background_mint"
+            android:src="@drawable/ic_arrow_back">
+
+        </ImageButton>
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:textStyle="bold"
+            android:textColor="@color/gray_700"
+            android:textSize="30dp"
+            android:text="Bài Đăng Của Tôi"
+            tools:layout_editor_absoluteX="16dp">
+
+        </TextView>
+    </LinearLayout>
+
+    <!-- 1. Thanh tìm kiếm (Search Bar) -->
+    <LinearLayout
+        android:id="@+id/button_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/rounded_background_seafoam"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="7dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/header_my_post">
+
+        <Button
+            android:id="@+id/btn_create_post"
+            android:layout_width="0dp"
+            android:layout_height="60dp"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:backgroundTint="@color/primary_blue"
+            android:padding="10dp"
+            app:cornerRadius="24dp"
+            android:text="Tạo Bài Đăng"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+
+
+    <!-- 3. RecyclerView được điều chỉnh nằm dưới thanh tìm kiếm/lọc -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_my_post"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_container"
+        tools:listitem="@android:layout/list_content" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:elevation="4dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

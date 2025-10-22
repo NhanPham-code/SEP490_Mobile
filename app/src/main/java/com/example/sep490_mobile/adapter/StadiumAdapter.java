@@ -22,7 +22,7 @@ import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.CourtsDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.StadiumImagesDTO;
-import com.example.sep490_mobile.ui.home.OnItemClickListener;
+import com.example.sep490_mobile.data.remote.OnItemClickListener;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.ImageUtils;
 import com.google.firebase.database.DataSnapshot;
@@ -61,7 +61,7 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
 
         StadiumDTO stadiumDTO = stadiumDTOS.get(position);
         CourtsDTO[] courtsDTOS = stadiumDTO.courts.toArray(new CourtsDTO[0]);
-        String time = DurationConverter.convertDuration(String.valueOf(stadiumDTO.openTime).toString()) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime.toString());
+        String time = DurationConverter.convertDuration(String.valueOf(stadiumDTO.openTime).toString(), 1) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime.toString(), 1);
         String sportType = "";
         StadiumImagesDTO[] stadiumImagesDTO = stadiumDTO.stadiumImages.toArray(new StadiumImagesDTO[0]);
         switch (courtsDTOS.length > 0 ? courtsDTOS[0].sportType : ""){
@@ -101,6 +101,7 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
                 }
             }
         });
+
 
         // Xử lý sự kiện click cho nút bản đồ
         holder.map_button.setOnClickListener(new View.OnClickListener() {

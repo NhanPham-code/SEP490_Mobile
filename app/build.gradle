@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.android.libraries.mapsplatform.secrets.gradle.plugin)
-    //id 'com.google.gms.google-services'
+    id 'com.google.gms.google-services'
     id 'androidx.navigation.safeargs'
 }
 
@@ -102,7 +102,6 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
     implementation 'com.squareup.okhttp3:okhttp:4.12.0'
-    implementation 'com.google.code.gson:gson:2.10.1'
 
     implementation 'com.github.bumptech.glide:glide:4.16.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.16.0'
@@ -113,7 +112,11 @@ dependencies {
 
     implementation 'com.github.stfalcon-studio:StfalconImageViewer:1.0.1'
 
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.12.0' // Hoặc phiên bản mới hơn
 
+    // Thư viện để phân tích JSON từ API
+    implementation 'com.google.code.gson:gson:2.10.1'
 
 
     // THÊM DÒNG NÀY VÀO
@@ -123,5 +126,11 @@ dependencies {
     // Hoặc nếu chỉ cần các thành phần UI cơ bản (như PlayerView):
     implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
 
+
+    implementation 'org.apache.commons:commons-text:1.10.0' // Kiểm tra version mới nhất
+
     implementation 'com.google.code.gson:gson:2.9.0'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4' // Hoặc phiên bản mới nhất
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+
 }

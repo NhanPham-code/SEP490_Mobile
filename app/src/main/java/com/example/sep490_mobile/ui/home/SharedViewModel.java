@@ -51,4 +51,20 @@ public class SharedViewModel extends ViewModel {
     public LiveData<Map<String, String>> getSelected() {
         return selected;
     }
+    private static final String DEFAULT_START_TIME = "09:00";
+    private static final String DEFAULT_END_TIME = "15:00";
+    private static final String DEFAULT_PRICE = "250000";
+    public void clearAllData() {
+        // Đặt tất cả các MutableLiveData về giá trị mặc định/ban đầu (hoặc null)
+
+        // Đặt về null hoặc Map/List rỗng nếu muốn xóa hoàn toàn
+        selected.setValue(null);
+        address.setValue(null);
+        sportType.setValue(null);
+
+        // Đặt về các giá trị String khởi tạo ban đầu
+        startTime.setValue(DEFAULT_START_TIME);
+        endTime.setValue(DEFAULT_END_TIME);
+        price.setValue(DEFAULT_PRICE);
+    }
 }

@@ -15,7 +15,17 @@
         <color name="dark_green">#FF2E7D32</color>
         <color name="yellow_100">#FFFFF59D</color>
         <color name="orange_700">#FFF57C00</color>
-
+        <color name="gray_900">#1F2937</color>
+        <color name="gray_700">#4B5563</color>
+        <color name="gray_600">#4B5563</color>
+        <color name="gray_300">#D1D5DB</color>
+        <color name="green_700">#065F46</color>
+        <color name="green_100">#D1FAE5</color>
+        <color name="orange_50">#FFF7ED</color>
+        <color name="amber_50">#FFFAF0</color>
+        <color name="color_primary">#EF4444</color>
+        <color name="color_secondary">#06B6D4</color>
+        <color name="color_accent">#F59E0B</color> ```
         <color name="ocean_blue">#0077B6</color>
         <color name="mint_green">#48CAE4</color>
         <color name="teal_accent">#00B4D8</color>
