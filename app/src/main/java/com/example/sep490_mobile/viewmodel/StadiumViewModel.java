@@ -10,8 +10,11 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.sep490_mobile.data.dto.CourtsDTO;
 import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
+import com.example.sep490_mobile.data.remote.ApiClient;
 import com.example.sep490_mobile.data.repository.StadiumRepository;
 
 import java.io.IOException;
@@ -19,6 +22,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -39,6 +45,8 @@ public class StadiumViewModel extends AndroidViewModel {
     // Public LiveData (dùng để View quan sát - chỉ đọc)
     public final LiveData<ODataResponse<StadiumDTO>> stadiums = _stadiums;
     public final LiveData<ODataResponse<StadiumDTO>> newStadiums = _newStadium;
+    private final MutableLiveData<Map<Integer, List<Integer>>> _courtRelations = new MutableLiveData<>();
+    public final LiveData<Map<Integer, List<Integer>>> courtRelations = _courtRelations;
     public final LiveData<Long> totalCount = _totalCount;
     public final LiveData<Boolean> isLoading = _isLoading;
     public final LiveData<String> errorMessage = _errorMessage;
@@ -123,5 +131,64 @@ public class StadiumViewModel extends AndroidViewModel {
                 Log.e(TAG, "fetchStadium failure", t); // Đây là log quan trọng nhất
             }
         });
+    }
+
+    public void fetchCourtRelations(List<CourtsDTO> courts) {
+        if (courts == null || courts.isEmpty()) {
+            _courtRelations.postValue(Collections.emptyMap());
+            return;
+        }
+
+        // Sử dụng ConcurrentHashMap để an toàn khi truy cập từ nhiều thread (callback)
+        final Map<Integer, List<Integer>> finalRelationsMap = new ConcurrentHashMap<>();
+        // Sử dụng AtomicInteger để đếm số lời gọi API chưa hoàn thành
+        final AtomicInteger pendingCalls = new AtomicInteger(courts.size() * 2);
+
+        for (CourtsDTO court : courts) {
+            final int courtId = court.getId();
+            // Khởi tạo một danh sách an toàn cho mỗi courtId
+            finalRelationsMap.put(courtId, new CopyOnWriteArrayList<>());
+
+            Callback<List<ReadCourtRelationDTO>> callback = new Callback<List<ReadCourtRelationDTO>>() {
+                @Override
+                public void onResponse(Call<List<ReadCourtRelationDTO>> call, Response<List<ReadCourtRelationDTO>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        List<Integer> currentRelations = finalRelationsMap.get(courtId);
+
+                        // Lặp qua kết quả và thêm các ID liên quan
+                        for (ReadCourtRelationDTO relation : response.body()) {
+                            // Nếu court hiện tại là parent, thì child là quan hệ
+                            if (relation.getParentCourtId() == courtId) {
+                                if (!currentRelations.contains(relation.getChildCourtId())) {
+                                    currentRelations.add(relation.getChildCourtId());
+                                }
+                            }
+                            // Nếu court hiện tại là child, thì parent là quan hệ
+                            if (relation.getChildCourtId() == courtId) {
+                                if (!currentRelations.contains(relation.getParentCourtId())) {
+                                    currentRelations.add(relation.getParentCourtId());
+                                }
+                            }
+                        }
+                    }
+                    // Dù thành công hay thất bại, giảm biến đếm và kiểm tra
+                    if (pendingCalls.decrementAndGet() == 0) {
+                        _courtRelations.postValue(finalRelationsMap); // Khi tất cả đã xong, cập nhật LiveData
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<ReadCourtRelationDTO>> call, Throwable t) {
+                    // Dù thành công hay thất bại, giảm biến đếm và kiểm tra
+                    if (pendingCalls.decrementAndGet() == 0) {
+                        _courtRelations.postValue(finalRelationsMap); // Cập nhật LiveData
+                    }
+                }
+            };
+
+            // Gọi 2 API cho mỗi sân
+            ApiClient.getInstance(getApplication()).getApiService().getAllCourtRelationByParentId(courtId).enqueue(callback);
+            ApiClient.getInstance(getApplication()).getApiService().getAllCourtRelationByChildId(courtId).enqueue(callback);
+        }
     }
 }

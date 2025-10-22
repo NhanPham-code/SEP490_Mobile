@@ -63,6 +63,15 @@
         <color name="text_on_primary">#FFFFFF</color>
         <color name="text_on_secondary">#FFFFFF</color>
 
+        <color name="legend_booked_red">#FF4136</color>
+        <color name="legend_locked_gray">#AAAAAA</color>
+        <color name="legend_related_pink">#FFDDE1</color>
+        <color name="legend_selected_purple">#B10DC9</color>
+
+        <color name="cell_default_background">#FFFFFFFF</color>
+        <color name="cell_disabled_background">#E0E0E0</color>
+        <color name="cell_selected_background">#42A5F5</color>
+
         <!-- Gradients -->
         <color name="gradient_start">#1976D2</color> <!-- Blue -->
         <color name="gradient_end">#43A047</color>   <!-- Green -->
@@ -106,4 +115,12 @@
         <color name="status_completed">#28A745</color>
         <color name="status_cancelled">#DC3545</color>
         <color name="status_payfail">#FFC107</color>
+        <color name="light_blue_background">#E3F2FD</color>
+        <color name="light_green_background">#E8F5E9</color>
+        <color name="chip_background_blue">#D1E9FF</color>
+        <color name="chip_text_blue">#0D47A1</color>
+        <color name="chip_background_green">#C8E6C9</color>
+        <color name="chip_text_green">#1B5E20</color>
+        <color name="design_default_color_primary">#6200EE</color>
+        <color name="design_default_color_secondary">#03DAC5</color>
 </resources>

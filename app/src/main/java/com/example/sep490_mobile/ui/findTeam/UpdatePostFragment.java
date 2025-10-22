@@ -181,8 +181,8 @@ public class UpdatePostFragment extends Fragment {
                     Toast.makeText(getContext(), "Số thành viên cần tìm không thể âm", Toast.LENGTH_LONG).show();
                     return null;
                 }
-                if(neededPlayers > currentReadTeamPostDTO.getJoinedPlayers()){
-                    Toast.makeText(getContext(), "Số thành viên cần tìm không thể lớn hơn số thành viên đã tham gia", Toast.LENGTH_LONG).show();
+                if(neededPlayers < currentReadTeamPostDTO.getJoinedPlayers()){
+                    Toast.makeText(getContext(), "Số thành viên cần tìm không thể nhỏ hơn số thành viên đã tham gia", Toast.LENGTH_LONG).show();
                     return null;
                 }
             } catch (NumberFormatException e) {

@@ -6,4 +6,6 @@ public interface OnItemClickListener {
 
     void onItemClick(int item, String type);
     void onItemClickRemoveMember(int id ,int postId, String type);
+
+    void onBookButtonClick(int stadiumId);
 }

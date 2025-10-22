@@ -9,8 +9,8 @@
         <option name="gradleJvm" value="#GRADLE_LOCAL_JAVA_HOME" />
         <option name="modules">
           <set>
-            <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/../../../Kỳ 9/Đồ án/SEP490_Mobile" />
+            <option value="$PROJECT_DIR$/../../../Kỳ 9/Đồ án/SEP490_Mobile/app" />
           </set>
         </option>
       </GradleProjectSettings>

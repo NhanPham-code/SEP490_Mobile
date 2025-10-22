@@ -2,7 +2,6 @@ package com.example.sep490_mobile.utils;
 
 import android.os.Build;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import java.text.ParseException;
@@ -15,33 +14,30 @@ import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.format.TextStyle;
 import java.util.Date;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
-
 public class DurationConverter {
     public static String createCurrentISOString() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        // 1. Định nghĩa múi giờ bạn muốn (ví dụ: +07:00 cho Việt Nam)
-        ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
+            // 1. Định nghĩa múi giờ bạn muốn (ví dụ: +07:00 cho Việt Nam)
+            ZoneId zoneId = ZoneId.of("Asia/Ho_Chi_Minh");
 
-        // 2. Lấy thời điểm hiện tại trong múi giờ đó
-        OffsetDateTime now = OffsetDateTime.now(zoneId);
+            // 2. Lấy thời điểm hiện tại trong múi giờ đó
+            OffsetDateTime now = OffsetDateTime.now(zoneId);
 
-        // 3. Định nghĩa Formatter
-        // Mẫu: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
-        // 'T' là ký tự cố định, SSS là mili giây, XXX là định dạng offset (+07:00)
-        DateTimeFormatter formatter = null;
+            // 3. Định nghĩa Formatter
+            // Mẫu: yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+            // 'T' là ký tự cố định, SSS là mili giây, XXX là định dạng offset (+07:00)
+            DateTimeFormatter formatter = null;
 
             formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
 
 
-        // 4. Định dạng và trả về chuỗi
-        return now.format(formatter);
+            // 4. Định dạng và trả về chuỗi
+            return now.format(formatter);
         }
         return "";
     }
@@ -54,6 +50,7 @@ public class DurationConverter {
         }
         return "";
     }
+
     public static OffsetDateTime createCurrentISOSDateTime() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 1. Định nghĩa múi giờ bạn muốn (ví dụ: +07:00 cho Việt Nam)
@@ -63,13 +60,12 @@ public class DurationConverter {
             OffsetDateTime now = OffsetDateTime.now(zoneId);
 
 
-
-
             // 4. Định dạng và trả về chuỗi
             return now;
         }
         return null;
     }
+
     public static String convertDuration(String isoDuration, int take) {
         try {
             // 1. Parse the ISO 8601 duration string (e.g., "PT8H")
@@ -89,14 +85,13 @@ public class DurationConverter {
             long minutes = (totalSeconds % 3600) / 60;
             long seconds = totalSeconds % 60;
             String formattedTime = "";
-            if(take == 1){
+            if (take == 1) {
                 formattedTime = String.format("%02d:%02d", hours, minutes);
             }
-            if(take == 2){
+            if (take == 2) {
                 formattedTime = String.format("%02d:%02d:%02d", hours, minutes, seconds);
             }
             // Sử dụng String.format để định dạng chuỗi
-
 
 
             return formattedTime;
@@ -107,6 +102,7 @@ public class DurationConverter {
         }
         return "";
     }
+
     public static String convertCustomToReadable(String inputDateTimeString, String outputPattern) {
         // 1. Định nghĩa Mẫu (Pattern) của chuỗi đầu vào
         // EEE: Tên viết tắt của ngày (Thu)
@@ -144,6 +140,7 @@ public class DurationConverter {
             return "Lỗi phân tích cú pháp ngày giờ.";
         }
     }
+
     // Formatter NGHIÊM NGẶT NHẤT cho định dạng đầu ra (Ví dụ: 22/10/2025 - 15:22)
     public static LocalDateTime parseLocalTime(String localTimeString) {
         // Pattern: YYYY-MM-DD T HH:mm:ss . <Fractional Seconds/Nanoseconds>
@@ -177,6 +174,7 @@ public class DurationConverter {
             return "Invalid Date";
         }
     }
+
     public static String convertDateToIsoDateTime(String dateStr, String inputFormat, ZoneId zoneId) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return dateStr; // Cần giải pháp khác cho API < 26
@@ -199,7 +197,7 @@ public class DurationConverter {
         }
     }
 
-    public static String formatJoinDateFindTeam(String dateStr){
+    public static String formatJoinDateFindTeam(String dateStr) {
         OffsetDateTime dateTime = null;
         String formattedTime = "";
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -251,6 +249,22 @@ public class DurationConverter {
             System.err.println("Lỗi: Giá trị giờ/phút/giây không hợp lệ trong chuỗi: " + formattedTime);
             return "";
         }
+    }
+
+    public static int parseHour(Duration duration) {
+        if (duration == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return 0;
+        }
+        return (int) duration.toHours();
+    }
+
+    public static String convertDuration(Duration duration) {
+        if (duration == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+            return "N/A";
+        }
+        long hours = duration.toHours();
+        long minutes = duration.toMinutes() % 60;
+        return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)

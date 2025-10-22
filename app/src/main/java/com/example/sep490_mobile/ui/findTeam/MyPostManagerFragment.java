@@ -346,6 +346,12 @@ public class MyPostManagerFragment extends Fragment implements OnItemClickListen
     public void onItemClickRemoveMember(int id, int postId, String type) {
 
     }
+
+    @Override
+    public void onBookButtonClick(int stadiumId) {
+
+    }
+
     @Override
     public void onStop(){
         super.onStop();

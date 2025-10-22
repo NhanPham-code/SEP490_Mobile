@@ -1,6 +1,6 @@
 package com.example.sep490_mobile.adapter;
 
-import static com.example.sep490_mobile.utils.DurationConverter.convertIsoPlayDate;
+//import static com.example.sep490_mobile.utils.DurationConverter.convertIsoPlayDate;
 import static com.example.sep490_mobile.utils.DurationConverter.convertTimeToIsoDuration;
 import static com.example.sep490_mobile.utils.DurationConverter.formatJoinDateFindTeam;
 

@@ -10,10 +10,12 @@ import android.widget.EditText; // Đã đổi sang EditText để phù hợp v�
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,12 +25,14 @@ import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.remote.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentHomeBinding;
+import com.example.sep490_mobile.ui.booking.VisuallyBookingFragment;
 import com.example.sep490_mobile.ui.stadiumDetail.StadiumDetailFragment;
 import com.example.sep490_mobile.utils.removeVietnameseSigns;
 import com.example.sep490_mobile.viewmodel.StadiumViewModel;
 
 import java.util.HashMap;
 import java.util.Map;
+import androidx.annotation.Nullable;
 
 public class HomeFragment extends Fragment implements OnItemClickListener {
 
@@ -95,7 +99,25 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
         return root;
     }
 
-    // Trong onViewCreated hoặc onCreate:
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Lấy view gốc của fragment bằng ID đã đặt trong XML
+        // (ID của ConstraintLayout gốc trong fragment_home.xml)
+        ConstraintLayout rootLayout = view.findViewById(R.id.home_fragment_constraint_layout);
+
+        if (rootLayout != null) {
+            // Lấy các tham số layout (LayoutParams) hiện tại của nó
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) rootLayout.getLayoutParams();
+
+            // **Thiết lập lại margin dưới cùng về 0 để không che các fragment khác**
+            params.bottomMargin = 0;
+
+            // Áp dụng lại các tham số layout đã thay đổi
+            rootLayout.setLayoutParams(params);
+        }
+    }
     private void setupPagination() {
         // Giả sử binding.recyclerView là RecyclerView của bạn
         LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
@@ -302,38 +324,19 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
     }
     @Override
     public void onItemClick(int stadiumId){
-//        Toast.makeText(getContext(), "Đặt sân: " , Toast.LENGTH_SHORT).show();
+        HomeFragmentDirections.ActionNavigationHomeToStadiumDetailFragment action =
+                HomeFragmentDirections.actionNavigationHomeToStadiumDetailFragment(stadiumId);
+        NavHostFragment.findNavController(HomeFragment.this).navigate(action);
+    }
 
-        // 1. Tạo Fragment Chi Tiết và truyền dữ liệu qua Bundle
-        StadiumDetailFragment stadiumDetailFragment = StadiumDetailFragment.newInstance(stadiumId);
+    @Override
+    public void onBookButtonClick(int stadiumId) {
+        // 1. Tạo action với stadiumId (đã định nghĩa trong nav_graph)
+        HomeFragmentDirections.ActionNavigationHomeToVisuallyBookingFragment action =
+                HomeFragmentDirections.actionNavigationHomeToVisuallyBookingFragment(stadiumId);
 
-
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-
-        // Ví dụ về tên animation:
-        // slide_in_right: Fragment mới trượt vào từ bên phải
-        // slide_out_left: Fragment hiện tại trượt ra bên trái
-        // slide_in_left: Fragment quay lại trượt vào từ bên trái (khi pop)
-        // slide_out_right: Fragment hiện tại trượt ra bên phải (khi pop)
-
-        fragmentTransaction.setCustomAnimations(
-                R.anim.slide_in_right, // enter
-                R.anim.slide_out_left,  // exit
-                R.anim.slide_in_left,  // popEnter
-                R.anim.slide_out_right // popExit
-        );
-
-        // 4. Thay thế Fragment
-        // !!! Giữ nguyên R.id.nav_host_fragment_activity_main hoặc kiểm tra lại ID chính xác
-        fragmentTransaction.replace(R.id.nav_host_fragment_activity_main, stadiumDetailFragment);
-
-        // 5. Thêm vào back stack
-        fragmentTransaction.addToBackStack("HomeFragment");
-
-        // 6. Hoàn tất giao dịch
-        fragmentTransaction.commit();
+        // 2. Dùng NavController để điều hướng
+        NavHostFragment.findNavController(HomeFragment.this).navigate(action);
     }
 
     @Override

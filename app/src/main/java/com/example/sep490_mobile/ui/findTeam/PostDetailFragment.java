@@ -320,4 +320,9 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
             acceptMember(id, postId);
         }
     }
+
+    @Override
+    public void onBookButtonClick(int stadiumId) {
+
+    }
 }

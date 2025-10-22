@@ -70,7 +70,7 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
             // Cập nhật UI với `item`
-            odataUrl.put("$filter", filter + item.get("$filter"));
+            odataUrl.replace("$filter", filter + item.get("$filter"));
             System.out.println("filter: " + odataUrl.get("$filter"));
             odataUrl.replace("$top", "10");
             odataUrl.replace("$skip", "0");
@@ -432,6 +432,12 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
     public void onItemClickRemoveMember(int id, int postId, String type) {
 
     }
+
+    @Override
+    public void onBookButtonClick(int stadiumId) {
+
+    }
+
     @Override
     public void onStop(){
         super.onStop();
