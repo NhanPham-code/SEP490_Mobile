@@ -1,5 +1,7 @@
 package com.example.sep490_mobile.adapter;
 
+//import static android.os.Build.VERSION_CODES.R;
+
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +16,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.fragment.app.FragmentActivity;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -22,7 +26,8 @@ import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.CourtsDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.StadiumImagesDTO;
-import com.example.sep490_mobile.ui.home.OnItemClickListener;
+import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.ui.home.BookingOptionsBottomSheet;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.ImageUtils;
 import com.google.firebase.database.DataSnapshot;
@@ -61,8 +66,8 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
 
         StadiumDTO stadiumDTO = stadiumDTOS.get(position);
         CourtsDTO[] courtsDTOS = stadiumDTO.courts.toArray(new CourtsDTO[0]);
-        String time = DurationConverter.convertDuration(String.valueOf(stadiumDTO.openTime).toString()) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime.toString());
-        String sportType = "";
+        // ✅ This is much cleaner and calls the new method directly
+        String time = DurationConverter.convertDuration(stadiumDTO.openTime) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime);        String sportType = "";
         StadiumImagesDTO[] stadiumImagesDTO = stadiumDTO.stadiumImages.toArray(new StadiumImagesDTO[0]);
         switch (courtsDTOS.length > 0 ? courtsDTOS[0].sportType : ""){
             case "Bóng đá sân 7":
@@ -84,11 +89,30 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         holder.stadiumSportType.setText(sportType);
         Glide.with(this.context).load(ImageUtils.getFullUrl(stadiumImagesDTO.length > 0 ? "img/" + stadiumImagesDTO[0].imageUrl : "")).centerCrop().into(holder.stadiumImages);
 
-        holder.book_button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int stadiumId = stadiumDTO.getId();
-                // Mở Activity mới
+        // nếu bị khóa hoặc chưa được chấp thuận thì không cho đặt sân
+        if(stadiumDTO.isApproved == false){
+            holder.listItem.setEnabled(false);
+            holder.book_button.setEnabled(false);
+            holder.book_button.setText("Sân chưa thể đặt");
+            holder.listItem.setBackgroundColor(context.getResources().getColor(R.color.accent_orange));
+        } else if (stadiumDTO.isLocked() == true) {
+            holder.listItem.setEnabled(false);
+            holder.book_button.setEnabled(false);
+            holder.book_button.setText("Sân đã bị khóa");
+            holder.listItem.setBackgroundColor(context.getResources().getColor(R.color.color_primary));
+        }else{
+            holder.listItem.setEnabled(true);
+            holder.book_button.setEnabled(true);
+            holder.book_button.setText("Đặt Sân");
+            holder.listItem.setBackgroundColor(context.getResources().getColor(R.color.white));
+        }
+
+        holder.book_button.setOnClickListener(v -> { // Changed from holder.bookButton
+            if (context instanceof FragmentActivity) {
+                FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
+                // SỬA LỖI 2: Use 'stadiumDTO' which holds the data for this item
+                BookingOptionsBottomSheet bottomSheet = BookingOptionsBottomSheet.newInstance(stadiumDTO.getId()); // Changed from stadium.getId()
+                bottomSheet.show(fragmentManager, bottomSheet.getTag());
             }
         });
 
@@ -102,12 +126,37 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
             }
         });
 
+
         // Xử lý sự kiện click cho nút bản đồ
         holder.map_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 int stadiumId = stadiumDTO.getId();
                 findPlaceAndOpenMap(stadiumId, stadiumDTO.getName());
+            }
+        });
+
+//        holder.book_button.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // Get the stadium ID for the current item
+//                int stadiumId = stadiumDTO.getId();
+//
+//                // ✨ Use the new interface method to notify the fragment
+//                if (listener != null) {
+//                    listener.onBookButtonClick(stadiumId);
+//                }
+//            }
+//        });
+
+        holder.listItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int stadiumId = stadiumDTO.getId();
+                if (listener != null) {
+                    // This remains unchanged for clicking the whole item
+                    listener.onItemClick(stadiumId);
+                }
             }
         });
     }

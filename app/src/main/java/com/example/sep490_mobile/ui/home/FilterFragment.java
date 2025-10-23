@@ -96,7 +96,9 @@ public class FilterFragment extends Fragment {
                 // Lấy FragmentManager và quay lại Fragment trước đó trong Back Stack
                 FragmentManager fragmentManager = getParentFragmentManager();
                 if (fragmentManager.getBackStackEntryCount() > 0) {
-                    fragmentManager.popBackStack();
+                    if (getParentFragmentManager() != null) {
+                        getParentFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    }
 
                 } else {
                     // Xử lý trường hợp không có gì trong back stack (hiếm)
@@ -302,7 +304,8 @@ public class FilterFragment extends Fragment {
                     model.select(odata);
 
 
-                fragmentManager.popBackStack();
+                getParentFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
 
             } else {
                 // Xử lý trường hợp không có gì trong back stack (hiếm)
@@ -386,5 +389,11 @@ public class FilterFragment extends Fragment {
         // In ra Console/Logcat để kiểm tra
 
         // Bạn sẽ truyền dữ liệu này cho Activity/ViewModel để thực hiện tìm kiếm
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+
     }
 }

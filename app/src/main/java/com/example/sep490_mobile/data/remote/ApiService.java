@@ -1,8 +1,18 @@
 package com.example.sep490_mobile.data.remote;
 
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
+import com.example.sep490_mobile.data.dto.BookingCreateDto;
+import com.example.sep490_mobile.data.dto.BookingReadDto;
+import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.CreateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.OdataHaveCountResponse;
+import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
+import com.example.sep490_mobile.data.dto.PublicProfileDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberForDetailDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamPostResponse;
 import com.example.sep490_mobile.data.dto.ScheduleBookingODataResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
@@ -17,6 +27,8 @@ import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
 import com.example.sep490_mobile.data.dto.ScheduleODataStadiumResponseDTO;
 import com.example.sep490_mobile.data.dto.SendOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
+import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.UpdateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
@@ -143,6 +155,7 @@ public interface ApiService {
             @Query("$top") int top
     );
 
+    // API lấy các gói đặt tháng
     @GET("monthlyBooking")
     Call<MonthlyBookingODataResponse> getMonthlyBookings(
             @Query("$filter") String filter,
@@ -154,6 +167,25 @@ public interface ApiService {
 
     @GET("discounts/{id}")
     Call<ReadDiscountDTO> getDiscountById(@Path("id") int discountId);
+
+    @PUT("UpdateTeamPost")
+    Call<ReadTeamPostDTO> updateTeamPost(@Body UpdateTeamPostDTO updateTeamPostDTO);
+
+    @PUT("UpdateTeamMember")
+    Call<ReadTeamMemberForDetailDTO> updateTeamMember(@Body UpdateTeamMemberDTO updateTeamMemberDTO);
+
+    @GET("GetAllTeamMember")
+    Call<List<ReadTeamMemberForDetailDTO>> getTeamMember(@Query("postId") int postId);
+
+    @GET("GetTeamMemberByPostIdAndId")
+    Call<ReadTeamMemberForDetailDTO> getTeamMemberByPostIdAndId(@Query("teamId") int teamId, @Query("postId") int postId);
+
+    @DELETE("DeleteTeamPost")
+    Call<Boolean> deleteTeamPost(@Query("postId") int postId);
+
+    @DELETE("DeleteTeamMember")
+    Call<Boolean> deleteTeamMember(@Query("teamMemberId") int teamMemberId, @Query("postId") int postId);
+
 
     @GET("odata/discounts")
     Call<OdataHaveCountResponse<ReadDiscountDTO>> getDiscounts(

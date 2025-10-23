@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item app:state_booked="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/legend_booked_red" />
+            <stroke android:width="0.5dp" android:color="#BDBDBD" />
+        </shape>
+    </item>
+
+    <item app:state_related="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/legend_related_pink" />
+            <stroke android:width="0.5dp" android:color="#BDBDBD" />
+        </shape>
+    </item>
+
+    <item android:state_selected="true">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/legend_selected_purple" />
+            <stroke android:width="1dp" android:color="#4A148C" />
+        </shape>
+    </item>
+
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <solid android:color="@color/legend_locked_gray" />
+            <stroke android:width="0.5dp" android:color="#BDBDBD" />
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white" />
+            <stroke android:width="0.5dp" android:color="#BDBDBD" />
+        </shape>
+    </item>
+</selector>
