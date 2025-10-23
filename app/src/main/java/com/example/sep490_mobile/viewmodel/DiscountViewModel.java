@@ -1,4 +1,4 @@
-package com.example.sep490_mobile.viewmodel;
+package com.example.sep490_mobile.viewmodel; // Đảm bảo đúng package name
 
 import android.app.Application;
 import android.content.Context;
@@ -14,9 +14,11 @@ import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
 import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
 import com.example.sep490_mobile.data.dto.ScheduleODataStadiumResponseDTO;
 import com.example.sep490_mobile.data.dto.ScheduleStadiumDTO;
-import com.example.sep490_mobile.data.repository.BookingRepository; // Needed for stadium names
+
+
+import com.example.sep490_mobile.data.repository.BookingRepository; // Cần để lấy tên sân
 import com.example.sep490_mobile.data.repository.DiscountRepository;
-import com.example.sep490_mobile.data.repository.FavoriteRepository; // New repository
+import com.example.sep490_mobile.data.repository.FavoriteRepository;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,21 +37,21 @@ public class DiscountViewModel extends AndroidViewModel {
 
     // --- Constants ---
     private static final String TAG = "DiscountViewModel_Log";
-    private static final int PAGE_SIZE = 10;
+    private static final int PAGE_SIZE = 5;
     public enum DiscountType { PERSONAL, FAVORITE }
 
     // --- Repositories and SharedPreferences ---
     private final DiscountRepository discountRepository;
     private final FavoriteRepository favoriteRepository;
-    private final BookingRepository bookingRepository; // Used for stadium names
+    private final BookingRepository bookingRepository; // Dùng để lấy tên sân
     private final SharedPreferences sharedPreferences;
 
     // --- LiveData ---
     private final MutableLiveData<List<ReadDiscountDTO>> personalDiscounts = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<ReadDiscountDTO>> favoriteStadiumDiscounts = new MutableLiveData<>(new ArrayList<>());
-    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false); // Controls MAIN progress bar
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isLastPage = new MutableLiveData<>(false); // Tracks if the current tab reached its end
+    private final MutableLiveData<Boolean> isLastPage = new MutableLiveData<>(false);
 
     // --- State Variables ---
     private int currentPersonalPage = 1;
@@ -57,15 +59,13 @@ public class DiscountViewModel extends AndroidViewModel {
     private boolean isFetchingPersonal = false;
 
     private int currentFavoritePage = 1;
-    private int totalFavoriteCount = 0; // Total count BEFORE client-side filtering
+    private int totalFavoriteCount = 0; // Count TRƯỚC khi lọc client-side
     private boolean isFetchingFavorite = false;
 
-    // Temporary storage for newly fetched items (used by Fragment for appendData)
     private List<ReadDiscountDTO> lastFetchedPersonal = null;
-    private List<ReadDiscountDTO> lastFetchedFavorite = null;
+    private List<ReadDiscountDTO> lastFetchedFavorite = null; // List đã lọc
 
-    // Favorite stadium IDs state
-    private Set<Integer> favoriteStadiumIds = null; // null means not loaded yet
+    private Set<Integer> favoriteStadiumIds = null;
     private boolean isLoadingFavorites = false;
 
 
@@ -76,8 +76,7 @@ public class DiscountViewModel extends AndroidViewModel {
         bookingRepository = new BookingRepository(application);
         sharedPreferences = application.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
         Log.d(TAG, "ViewModel initialized");
-        // Fetch favorite stadium IDs once when the ViewModel is created
-        fetchFavoriteStadiumIds();
+        fetchFavoriteStadiumIds(); // Lấy ID sân yêu thích khi khởi tạo
     }
 
     // --- Getters ---
@@ -89,93 +88,80 @@ public class DiscountViewModel extends AndroidViewModel {
     public List<ReadDiscountDTO> getLastFetchedPersonal() { return lastFetchedPersonal; }
     public List<ReadDiscountDTO> getLastFetchedFavorite() { return lastFetchedFavorite; }
 
+    // <<< THÊM: Getters cho trang hiện tại >>>
+    public int getCurrentPersonalPage() { return currentPersonalPage; }
+    public int getCurrentFavoritePage() { return currentFavoritePage; }
+    // <<< KẾT THÚC THÊM >>>
+
     // --- Fetching Favorite IDs ---
     private void fetchFavoriteStadiumIds() {
-        if (isLoadingFavorites || favoriteStadiumIds != null) {
-            Log.d(TAG, "fetchFavoriteStadiumIds: Skipping fetch. Loading=" + isLoadingFavorites + ", Loaded=" + (favoriteStadiumIds != null));
-            return;
-        }
+        if (isLoadingFavorites || favoriteStadiumIds != null) return;
         isLoadingFavorites = true;
         Log.i(TAG, "Fetching favorite stadium IDs...");
-        errorMessage.postValue(null); // Clear previous errors related to favorites
+        errorMessage.postValue(null);
 
         favoriteRepository.getMyFavoriteStadiums().enqueue(new Callback<List<ReadFavoriteDTO>>() {
             @Override
             public void onResponse(@NonNull Call<List<ReadFavoriteDTO>> call, @NonNull Response<List<ReadFavoriteDTO>> response) {
-                isLoadingFavorites = false; // Đặt lại cờ
+                isLoadingFavorites = false;
                 if (response.isSuccessful() && response.body() != null) {
-                    List<ReadFavoriteDTO> favoriteList = response.body(); // Lấy list gốc
-
-                    // Log kiểm tra list gốc
-                    Log.d(TAG, "fetchFavoriteStadiumIds: API Success! Raw response body size: " + favoriteList.size());
-                    for (ReadFavoriteDTO favorite : favoriteList) {
-                        Log.d(TAG, "Favorite Entry - FavoriteId: " + favorite.getFavoriteId() +
-                                ", UserId: " + favorite.getUserId() +
-                                ", StadiumId: " + favorite.getStadiumId()); // KIỂM TRA GIÁ TRỊ NÀY
-                    }
-
-                    // Xử lý stream
+                    List<ReadFavoriteDTO> favoriteList = response.body();
+                    Log.d(TAG, "fetchFavoriteStadiumIds: API Success! Raw size: " + favoriteList.size());
+                    favoriteList.forEach(f -> Log.d(TAG, "Favorite Entry - StadiumId: " + f.getStadiumId())); // Log ID gốc
                     favoriteStadiumIds = favoriteList.stream()
-                            .map(ReadFavoriteDTO::getStadiumId) // Lấy stadiumId
+                            .map(ReadFavoriteDTO::getStadiumId)
                             .collect(Collectors.toSet());
-                    Log.i(TAG, "fetchFavoriteStadiumIds: Processing finished. Final favoriteStadiumIds Set: " + favoriteStadiumIds);
+                    Log.i(TAG, "fetchFavoriteStadiumIds: Success! Final Set: " + favoriteStadiumIds);
                 } else {
                     Log.e(TAG, "fetchFavoriteStadiumIds: API Error! Code: " + response.code());
-                    errorMessage.postValue("Lỗi tải danh sách sân yêu thích: " + response.code());
-                    favoriteStadiumIds = new HashSet<>(); // Set empty on error to avoid null checks later
+                    errorMessage.postValue("Lỗi tải DS sân yêu thích: " + response.code());
+                    favoriteStadiumIds = new HashSet<>();
                 }
-                isLoadingFavorites = false;
-                // Consider triggering a fetch for the Favorite tab if it was waiting
-                // maybe check current tab and call fetchInitialDiscounts(FAVORITE) if needed?
             }
-
             @Override
             public void onFailure(@NonNull Call<List<ReadFavoriteDTO>> call, @NonNull Throwable t) {
+                isLoadingFavorites = false;
                 Log.e(TAG, "fetchFavoriteStadiumIds: Network Failure! Error: " + t.getMessage(), t);
                 errorMessage.postValue("Lỗi mạng khi tải sân yêu thích: " + t.getMessage());
-                favoriteStadiumIds = new HashSet<>(); // Set empty on error
-                isLoadingFavorites = false;
+                favoriteStadiumIds = new HashSet<>();
             }
         });
     }
 
-
-    // --- Public Methods for Fragment ---
+    // --- Public Methods ---
     public void fetchInitialDiscounts(DiscountType type) {
         Log.i(TAG, "fetchInitialDiscounts called for type: " + type);
-        isLoading.setValue(true); // Always show main loading for initial fetch
+        isLoading.setValue(true); // Luôn bật loading khi tải lại từ đầu
         errorMessage.setValue(null);
         isLastPage.setValue(false);
         lastFetchedPersonal = null;
         lastFetchedFavorite = null;
 
         if (type == DiscountType.PERSONAL) {
-            currentPersonalPage = 1;
+            currentPersonalPage = 1; // <<< Reset trang về 1
             totalPersonalCount = 0;
             isFetchingPersonal = false;
-            personalDiscounts.setValue(new ArrayList<>()); // Clear previous data
+            // Không xóa LiveData ở đây để tránh chớp
+            // personalDiscounts.setValue(new ArrayList<>());
             fetchPersonalDiscountsPage();
         } else { // FAVORITE
-            currentFavoritePage = 1;
+            currentFavoritePage = 1; // <<< Reset trang về 1
             totalFavoriteCount = 0;
             isFetchingFavorite = false;
-            favoriteStadiumDiscounts.setValue(new ArrayList<>()); // Clear previous data
+            // Không xóa LiveData ở đây
+            // favoriteStadiumDiscounts.setValue(new ArrayList<>());
 
-            // Ensure favorite IDs are loaded
             if (favoriteStadiumIds == null) {
-                Log.w(TAG, "fetchInitialDiscounts (Favorite): Favorite IDs not loaded yet. Trying to fetch them.");
-                if (!isLoadingFavorites) { // Only try fetching if not already in progress
-                    fetchFavoriteStadiumIds();
-                }
-                // Set error and stop loading for now. User might need to retry or wait.
-                isLoading.postValue(false);
-                errorMessage.postValue("Đang tải danh sách sân yêu thích...");
-                isLastPage.postValue(true); // Act as if it's the last page for now
+                Log.w(TAG, "fetchInitialDiscounts (Favorite): Favorite IDs not ready. Trying to fetch.");
+                if (!isLoadingFavorites) fetchFavoriteStadiumIds();
+                isLoading.postValue(false); // Tạm tắt loading chính
+                errorMessage.postValue("Đang tải DS sân yêu thích...");
+                isLastPage.postValue(true); // Tạm coi là hết trang
             } else if (favoriteStadiumIds.isEmpty()){
-                Log.i(TAG, "fetchInitialDiscounts (Favorite): No favorite stadiums. Finalizing with empty list.");
-                finalizeFavoriteUpdate(new ArrayList<>(), new HashMap<>()); // Post empty list and turn off loading
+                Log.i(TAG, "fetchInitialDiscounts (Favorite): No favorite stadiums.");
+                finalizeFavoriteUpdate(new ArrayList<>()); // Post list rỗng, tắt loading
             } else {
-                fetchFavoriteStadiumDiscountsPage(); // Favorite IDs ready, fetch discounts
+                fetchFavoriteStadiumDiscountsPage();
             }
         }
     }
@@ -188,24 +174,17 @@ public class DiscountViewModel extends AndroidViewModel {
 
         if (type == DiscountType.PERSONAL) {
             boolean canLoadMore = !isFetchingPersonal && (currentPersonalPage * PAGE_SIZE < totalPersonalCount);
-            if (!canLoadMore) {
-                Log.d(TAG, "fetchMoreDiscounts (Personal): Cannot load more."); return;
-            }
-            currentPersonalPage++;
-            // Don't set isLoading=true here, let fragment handle small progress bar
+            if (!canLoadMore) { Log.d(TAG, "fetchMoreDiscounts (Personal): Cannot load more."); return; }
+            currentPersonalPage++; // <<< Tăng trang
             fetchPersonalDiscountsPage();
         } else { // FAVORITE
             boolean canLoadMore = !isFetchingFavorite && (currentFavoritePage * PAGE_SIZE < totalFavoriteCount);
-            if (!canLoadMore) {
-                Log.d(TAG, "fetchMoreDiscounts (Favorite): Cannot load more based on pre-filter count."); return;
-            }
+            if (!canLoadMore) { Log.d(TAG, "fetchMoreDiscounts (Favorite): Cannot load more based on pre-filter count."); return; }
             if (favoriteStadiumIds == null || favoriteStadiumIds.isEmpty()) {
-                Log.w(TAG, "fetchMoreDiscounts (Favorite): Favorite IDs missing or empty.");
-                isLastPage.postValue(true); // Cannot load more without IDs
-                return;
+                Log.w(TAG, "fetchMoreDiscounts (Favorite): Favorite IDs missing.");
+                isLastPage.postValue(true); return;
             }
-            currentFavoritePage++;
-            // Don't set isLoading=true here
+            currentFavoritePage++; // <<< Tăng trang
             fetchFavoriteStadiumDiscountsPage();
         }
     }
@@ -214,112 +193,74 @@ public class DiscountViewModel extends AndroidViewModel {
     private void fetchPersonalDiscountsPage() {
         if (isFetchingPersonal) return;
         isFetchingPersonal = true;
-        // Only set global isLoading if it's the first page
-        if (currentPersonalPage == 1) isLoading.setValue(true);
+        // Chỉ bật isLoading chính nếu trang đầu tiên VÀ LiveData đang rỗng (tránh bật khi load more)
+        if (currentPersonalPage == 1 && (personalDiscounts.getValue() == null || personalDiscounts.getValue().isEmpty())) {
+            isLoading.setValue(true);
+        }
         Log.i(TAG, "Fetching PERSONAL discounts page: " + currentPersonalPage);
 
         String userIdStr = String.valueOf(sharedPreferences.getInt("user_id", -1));
-        if (userIdStr.equals("-1")) {
-            handleError("User ID không hợp lệ", DiscountType.PERSONAL);
-            isFetchingPersonal = false; // Reset flag
-            return;
-        }
+        if (userIdStr.equals("-1")) { handleError("User ID không hợp lệ", DiscountType.PERSONAL); isFetchingPersonal = false; return; }
 
         discountRepository.getDiscountsByType(userIdStr, "unique", currentPersonalPage, PAGE_SIZE)
                 .enqueue(new Callback<OdataHaveCountResponse<ReadDiscountDTO>>() {
                     @Override
                     public void onResponse(@NonNull Call<OdataHaveCountResponse<ReadDiscountDTO>> call, @NonNull Response<OdataHaveCountResponse<ReadDiscountDTO>> response) {
-                        Log.d(TAG, "fetchPersonalDiscountsPage: onResponse - Code: " + response.code() + " for page " + currentPersonalPage);
+                        Log.d(TAG, "fetchPersonalDiscountsPage: onResponse - Code: " + response.code() + " page " + currentPersonalPage);
                         if (response.isSuccessful() && response.body() != null && response.body().getValue() != null) {
                             List<ReadDiscountDTO> fetchedData = response.body().getValue();
                             totalPersonalCount = response.body().getCount();
-                            Log.i(TAG, "fetchPersonalDiscountsPage: Success! Fetched " + fetchedData.size() + ". Total personal: " + totalPersonalCount);
-
+                            Log.i(TAG, "fetchPersonalDiscountsPage: Success! Fetched " + fetchedData.size() + ". Total: " + totalPersonalCount);
                             boolean isLast = (currentPersonalPage * PAGE_SIZE >= totalPersonalCount);
-                            isLastPage.postValue(isLast); // Update LiveData
-                            Log.i(TAG, "fetchPersonalDiscountsPage: Is last page? " + isLast);
-
-                            finalizePersonalUpdate(fetchedData); // Finalize data (no stadium names needed)
-
+                            isLastPage.postValue(isLast);
+                            processStadiumNames(fetchedData, DiscountType.PERSONAL); // Gọi hàm xử lý tên sân chung
                         } else {
                             handleApiError("Lỗi tải mã cá nhân", response.code(), DiscountType.PERSONAL);
-                            isLastPage.postValue(true); // Assume last page on error
+                            isLastPage.postValue(true);
                         }
-                        // isLoading turned off in finalizePersonalUpdate
                     }
                     @Override
                     public void onFailure(@NonNull Call<OdataHaveCountResponse<ReadDiscountDTO>> call, @NonNull Throwable t) {
                         handleNetworkError("Lỗi mạng khi tải mã cá nhân", t, DiscountType.PERSONAL);
-                        isLastPage.postValue(true); // Assume last page on error
-                        // isLoading turned off in handleNetworkError
+                        isLastPage.postValue(true);
                     }
                 });
     }
 
     private void fetchFavoriteStadiumDiscountsPage() {
         if (isFetchingFavorite) return;
-        if (favoriteStadiumIds == null) { // Kiểm tra null trước
-            Log.e(TAG, "fetchFavoriteStadiumDiscountsPage: Cannot fetch, favoriteStadiumIds is NULL.");
-            handleError("Lỗi tải DS sân yêu thích", DiscountType.FAVORITE);
-            isLastPage.postValue(true);
-            isFetchingFavorite = false;
-            return;
-        }
-        // <<< THÊM LOG KIỂM TRA FAVORITE IDS >>>
-        Log.d(TAG, "fetchFavoriteStadiumDiscountsPage: Current favoriteStadiumIds before filtering: " + favoriteStadiumIds);
-        // ------------------------------------
-
-        if (favoriteStadiumIds.isEmpty()) { // Kiểm tra rỗng sau
-            Log.i(TAG, "fetchFavoriteStadiumDiscountsPage: favoriteStadiumIds is EMPTY. No discounts to show.");
-            handleError("Bạn chưa có sân yêu thích nào", DiscountType.FAVORITE); // Có thể dùng thông báo khác thay vì lỗi
-            isLastPage.postValue(true);
-            isFetchingFavorite = false;
-            // Gọi finalize với list rỗng để tắt loading và hiện empty state
-            finalizeFavoriteUpdate(new ArrayList<>(), new HashMap<>());
-            return;
-        }
-
+        if (favoriteStadiumIds == null || favoriteStadiumIds.isEmpty()) { handleError("Chưa có sân yêu thích", DiscountType.FAVORITE); isFetchingFavorite = false; return; }
         isFetchingFavorite = true;
-        if (currentFavoritePage == 1) isLoading.setValue(true);
+        // Chỉ bật isLoading chính nếu trang đầu tiên VÀ LiveData đang rỗng
+        if (currentFavoritePage == 1 && (favoriteStadiumDiscounts.getValue() == null || favoriteStadiumDiscounts.getValue().isEmpty())) {
+            isLoading.setValue(true);
+        }
         Log.i(TAG, "Fetching FAVORITE STADIUM discounts page: " + currentFavoritePage);
 
         discountRepository.getDiscountsByType("0", "stadium", currentFavoritePage, PAGE_SIZE)
                 .enqueue(new Callback<OdataHaveCountResponse<ReadDiscountDTO>>() {
                     @Override
                     public void onResponse(@NonNull Call<OdataHaveCountResponse<ReadDiscountDTO>> call, @NonNull Response<OdataHaveCountResponse<ReadDiscountDTO>> response) {
-                        Log.d(TAG, "fetchFavoriteStadiumDiscountsPage: onResponse - Code: " + response.code() + " for page " + currentFavoritePage);
+                        Log.d(TAG, "fetchFavoriteStadiumDiscountsPage: onResponse - Code: " + response.code() + " page " + currentFavoritePage);
                         if (response.isSuccessful() && response.body() != null && response.body().getValue() != null) {
                             List<ReadDiscountDTO> fetchedData = response.body().getValue();
                             totalFavoriteCount = response.body().getCount();
-                            Log.i(TAG, "fetchFavoriteStadiumDiscountsPage: Success! Fetched " + fetchedData.size() + " stadium codes (before filtering). Total stadium codes: " + totalFavoriteCount);
+                            Log.i(TAG, "fetchFavoriteStadiumDiscountsPage: Success! Fetched " + fetchedData.size() + " (before filter). Total: " + totalFavoriteCount);
 
-                            // <<< THÊM LOG KIỂM TRA DỮ LIỆU TRƯỚC KHI LỌC >>>
                             Log.d(TAG, "--- Checking fetched discounts before filtering ---");
-                            for (ReadDiscountDTO discount : fetchedData) {
-                                Log.d(TAG, "Discount Code: " + discount.getCode() + ", StadiumIds: " + discount.getStadiumIds());
-                            }
-                            Log.d(TAG, "--- Finished checking fetched discounts ---");
-                            // ----------------------------------------------
+                            fetchedData.forEach(d -> Log.d(TAG, "Code: " + d.getCode() + ", StadiumIds: " + d.getStadiumIds()));
+                            Log.d(TAG, "--- Finished checking ---");
 
-                            // <<< LỌC CLIENT-SIDE >>>
                             List<ReadDiscountDTO> filteredData = fetchedData.stream()
-                                    .filter(discount -> {
-                                        boolean hasStadiumIds = discount.getStadiumIds() != null;
-                                        boolean intersects = hasStadiumIds && !Collections.disjoint(discount.getStadiumIds(), favoriteStadiumIds);
-                                        // <<< THÊM LOG BÊN TRONG FILTER >>>
-                                        // Log.v(TAG, "Filtering Code: " + discount.getCode() + " - Has StadiumIds: " + hasStadiumIds + ", Intersects: " + intersects);
-                                        // --------------------------------
-                                        return intersects;
-                                    })
+                                    .filter(d -> d.getStadiumIds() != null && !Collections.disjoint(d.getStadiumIds(), favoriteStadiumIds))
                                     .collect(Collectors.toList());
                             Log.i(TAG, "fetchFavoriteStadiumDiscountsPage: Filtered down to " + filteredData.size() + " applicable discounts.");
 
                             boolean isLastBasedOnTotal = (currentFavoritePage * PAGE_SIZE >= totalFavoriteCount);
                             isLastPage.postValue(isLastBasedOnTotal);
-                            Log.i(TAG, "fetchFavoriteStadiumDiscountsPage: Is last page (based on pre-filter count)? " + isLastBasedOnTotal);
+                            Log.i(TAG, "fetchFavoriteStadiumDiscountsPage: Is last page (pre-filter)? " + isLastBasedOnTotal);
 
-                            processStadiumNamesForFavorite(filteredData);
-
+                            processStadiumNames(filteredData, DiscountType.FAVORITE); // Gọi hàm xử lý tên sân chung
                         } else {
                             handleApiError("Lỗi tải mã sân", response.code(), DiscountType.FAVORITE);
                             isLastPage.postValue(true);
@@ -333,128 +274,150 @@ public class DiscountViewModel extends AndroidViewModel {
                 });
     }
 
-    // --- Processing Names ---
-    private void processStadiumNamesForFavorite(List<ReadDiscountDTO> discounts) {
-        Log.d(TAG, "processStadiumNamesForFavorite: Processing " + discounts.size() + " discounts.");
+    // --- Hàm xử lý tên sân (Chung cho cả 2 loại) ---
+    private void processStadiumNames(List<ReadDiscountDTO> discounts, DiscountType type) {
+        Log.d(TAG, "processStadiumNames: Processing " + discounts.size() + " discounts for type: " + type);
         if (discounts.isEmpty()) {
-            finalizeFavoriteUpdate(discounts, new HashMap<>()); // Still need to call finalize to turn off loading/reset flags
+            if (type == DiscountType.PERSONAL) finalizePersonalUpdate(discounts);
+            else finalizeFavoriteUpdate(discounts);
             return;
         }
+
         Set<Integer> stadiumIdsToFetch = new HashSet<>();
-        for (ReadDiscountDTO discount : discounts) {
-            if (discount.getStadiumIds() != null) {
-                stadiumIdsToFetch.addAll(discount.getStadiumIds());
-            }
-        }
-        Log.d(TAG, "processStadiumNamesForFavorite: Stadium IDs to fetch names for: " + stadiumIdsToFetch);
+        discounts.forEach(d -> { if (d.getStadiumIds() != null) stadiumIdsToFetch.addAll(d.getStadiumIds()); });
+        Log.d(TAG, "processStadiumNames: Stadium IDs to fetch names: " + stadiumIdsToFetch);
+
         if (stadiumIdsToFetch.isEmpty()){
-            finalizeFavoriteUpdate(discounts, new HashMap<>());
+            if (type == DiscountType.PERSONAL) finalizePersonalUpdate(discounts);
+            else finalizeFavoriteUpdate(discounts);
             return;
         }
+
         Call<ScheduleODataStadiumResponseDTO> stadiumCall = bookingRepository.getStadiumsByIds(new ArrayList<>(stadiumIdsToFetch));
         if (stadiumCall == null) {
-            Log.w(TAG, "processStadiumNamesForFavorite: No valid stadium IDs to fetch names.");
-            finalizeFavoriteUpdate(discounts, new HashMap<>());
+            Log.w(TAG, "processStadiumNames: No valid stadium IDs to fetch names.");
+            if (type == DiscountType.PERSONAL) finalizePersonalUpdate(discounts);
+            else finalizeFavoriteUpdate(discounts);
             return;
         }
+
         stadiumCall.enqueue(new Callback<ScheduleODataStadiumResponseDTO>() {
             @Override
             public void onResponse(@NonNull Call<ScheduleODataStadiumResponseDTO> call, @NonNull Response<ScheduleODataStadiumResponseDTO> response) {
-                Log.d(TAG, "getStadiumsByIds (Favorite): onResponse - Code: " + response.code());
+                Log.d(TAG, "getStadiumsByIds (" + type + "): onResponse - Code: " + response.code());
                 Map<Integer, String> stadiumNameLookup = new HashMap<>();
                 if (response.isSuccessful() && response.body() != null && response.body().getValue() != null) {
-                    for (ScheduleStadiumDTO stadium : response.body().getValue()) {
-                        stadiumNameLookup.put(stadium.getId(), stadium.getName());
-                    }
-                    Log.d(TAG, "getStadiumsByIds (Favorite): Success! Stadium map size: " + stadiumNameLookup.size());
+                    response.body().getValue().forEach(s -> stadiumNameLookup.put(s.getId(), s.getName()));
+                    Log.d(TAG, "getStadiumsByIds (" + type + "): Success! Map size: " + stadiumNameLookup.size());
                 } else {
-                    Log.e(TAG, "getStadiumsByIds (Favorite): Error! Code: " + response.code());
+                    Log.e(TAG, "getStadiumsByIds (" + type + "): Error! Code: " + response.code());
                 }
-                finalizeFavoriteUpdate(discounts, stadiumNameLookup);
+
+                for (ReadDiscountDTO discount : discounts) {
+                    if (discount.getStadiumIds() != null && !discount.getStadiumIds().isEmpty()) {
+                        discount.setStadiumNames(discount.getStadiumIds().stream()
+                                .map(id -> stadiumNameLookup.getOrDefault(id, "Sân ID:" + id))
+                                .collect(Collectors.toList()));
+                    } else {
+                        discount.setStadiumNames(new ArrayList<>());
+                    }
+                }
+
+                if (type == DiscountType.PERSONAL) finalizePersonalUpdate(discounts);
+                else finalizeFavoriteUpdate(discounts);
             }
             @Override
             public void onFailure(@NonNull Call<ScheduleODataStadiumResponseDTO> call, @NonNull Throwable t) {
-                Log.e(TAG, "getStadiumsByIds (Favorite): onFailure - Error: " + t.getMessage());
-                finalizeFavoriteUpdate(discounts, new HashMap<>());
+                Log.e(TAG, "getStadiumsByIds (" + type + "): onFailure - Error: " + t.getMessage());
+                if (type == DiscountType.PERSONAL) finalizePersonalUpdate(discounts);
+                else finalizeFavoriteUpdate(discounts);
             }
         });
     }
 
 
-    // --- Finalize and Update LiveData ---
-    private void finalizePersonalUpdate(List<ReadDiscountDTO> newDiscountsFromApi) {
-        Log.i(TAG, "finalizePersonalUpdate: Adding " + newDiscountsFromApi.size() + " new personal discounts.");
-        // Personal discounts don't have stadium names applied here
+    // --- Finalize and Update (Đã sửa logic) ---
+    // Cập nhật LiveData cá nhân
+    private void finalizePersonalUpdate(List<ReadDiscountDTO> processedDiscounts) {
+        Log.i(TAG, "finalizePersonalUpdate: Processing " + processedDiscounts.size() + " new personal discounts (processed).");
+        lastFetchedPersonal = new ArrayList<>(processedDiscounts);
 
-        lastFetchedPersonal = new ArrayList<>(newDiscountsFromApi); // Store newly fetched items
-
-        List<ReadDiscountDTO> currentList = personalDiscounts.getValue();
-        if (currentList == null) currentList = new ArrayList<>();
-        currentList.addAll(lastFetchedPersonal); // Append new data
-
-        personalDiscounts.postValue(currentList); // Post the combined list
-        Log.i(TAG, "finalizePersonalUpdate: Posted COMBINED Personal discounts. New total size: " + currentList.size());
-
-        isLoading.postValue(false); // Turn off loading indicator
-        isFetchingPersonal = false;    // Reset fetching flag
-    }
-
-    private void finalizeFavoriteUpdate(List<ReadDiscountDTO> newFilteredDiscounts, Map<Integer, String> stadiumNameLookup) {
-        Log.i(TAG, "finalizeFavoriteUpdate: Adding " + newFilteredDiscounts.size() + " new favorite stadium discounts (after filtering).");
-        // Add stadium names to the filtered list
-        for (ReadDiscountDTO discount : newFilteredDiscounts) {
-            if (discount.getStadiumIds() != null && !discount.getStadiumIds().isEmpty()) {
-                List<String> names = discount.getStadiumIds().stream()
-                        .map(id -> stadiumNameLookup.getOrDefault(id, "Sân ID:" + id))
-                        .collect(Collectors.toList());
-                discount.setStadiumNames(names);
-            } else {
-                discount.setStadiumNames(new ArrayList<>());
-            }
+        List<ReadDiscountDTO> listToPost;
+        if (currentPersonalPage == 1) {
+            // Nếu là trang đầu tiên (fetchInitial) -> Dùng luôn list mới này
+            listToPost = lastFetchedPersonal;
+            Log.d(TAG, "finalizePersonalUpdate: Page 1, replacing LiveData.");
+        } else {
+            // Nếu là trang sau (fetchMore) -> Lấy list cũ và nối thêm
+            listToPost = personalDiscounts.getValue();
+            if (listToPost == null) listToPost = new ArrayList<>(); // Khởi tạo nếu null
+            listToPost.addAll(lastFetchedPersonal);
+            Log.d(TAG, "finalizePersonalUpdate: Page > 1, appending to LiveData.");
         }
 
-        lastFetchedFavorite = new ArrayList<>(newFilteredDiscounts); // Store newly fetched & processed items
+        personalDiscounts.postValue(listToPost); // Post danh sách cuối cùng
+        Log.i(TAG, "finalizePersonalUpdate: Posted Personal. Page: " + currentPersonalPage + ", New total size: " + (listToPost != null ? listToPost.size() : 0)); // Thêm kiểm tra null
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            isLoading.postValue(false); // Tắt loading sau 1 giây
+            isFetchingFavorite = false;
+            Log.d(TAG, "finalizeFavoriteUpdate: Delayed isLoading=false");
+        }, 300);
+    }
 
-        List<ReadDiscountDTO> currentList = favoriteStadiumDiscounts.getValue();
-        if (currentList == null) currentList = new ArrayList<>();
-        currentList.addAll(lastFetchedFavorite); // Append new data
+    // Cập nhật LiveData sân yêu thích
+    private void finalizeFavoriteUpdate(List<ReadDiscountDTO> processedFilteredDiscounts) {
+        Log.i(TAG, "finalizeFavoriteUpdate: Processing " + processedFilteredDiscounts.size() + " new favorite discounts (processed).");
+        lastFetchedFavorite = new ArrayList<>(processedFilteredDiscounts);
 
-        favoriteStadiumDiscounts.postValue(currentList); // Post the combined list
-        Log.i(TAG, "finalizeFavoriteUpdate: Posted COMBINED Favorite discounts. New total size: " + currentList.size());
+        List<ReadDiscountDTO> listToPost;
+        if (currentFavoritePage == 1) {
+            // Nếu là trang đầu tiên (fetchInitial) -> Dùng luôn list mới này
+            listToPost = lastFetchedFavorite;
+            Log.d(TAG, "finalizeFavoriteUpdate: Page 1, replacing LiveData.");
+        } else {
+            // Nếu là trang sau (fetchMore) -> Lấy list cũ và nối thêm
+            listToPost = favoriteStadiumDiscounts.getValue();
+            if (listToPost == null) listToPost = new ArrayList<>();
+            listToPost.addAll(lastFetchedFavorite);
+            Log.d(TAG, "finalizeFavoriteUpdate: Page > 1, appending to LiveData.");
+        }
 
-        isLoading.postValue(false); // Turn off loading indicator
-        isFetchingFavorite = false;  // Reset fetching flag
+        favoriteStadiumDiscounts.postValue(listToPost); // Post danh sách cuối cùng
+        Log.i(TAG, "finalizeFavoriteUpdate: Posted Favorite. Page: " + currentFavoritePage + ", New total size: " + (listToPost != null ? listToPost.size() : 0)); // Thêm kiểm tra null
+        new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
+            isLoading.postValue(false); // Tắt loading sau 1 giây
+            isFetchingFavorite = false;
+            Log.d(TAG, "finalizeFavoriteUpdate: Delayed isLoading=false");
+        }, 300);
+
     }
 
     // --- Utilities ---
     private boolean isValidUserId(int userId) {
         if (userId <= 0) {
-            Log.e(TAG, "Invalid User ID: " + userId + ". Cannot fetch.");
-            errorMessage.postValue("Không tìm thấy người dùng. Vui lòng đăng nhập lại.");
-            isLoading.postValue(false);
+            handleError("User ID không hợp lệ: " + userId, null);
             return false;
-        }
-        return true;
+        } return true;
     }
-    private void handleApiError(String contextMessage, int code, DiscountType type) {
-        Log.e(TAG, contextMessage + " - Code: " + code);
-        errorMessage.postValue(contextMessage + ": " + code);
+    private void handleApiError(String msg, int code, DiscountType type) {
+        Log.e(TAG, msg + " - Code: " + code);
+        errorMessage.postValue(msg + ": " + code);
         isLoading.postValue(false);
         if (type == DiscountType.PERSONAL) isFetchingPersonal = false;
         else isFetchingFavorite = false;
     }
-    private void handleNetworkError(String contextMessage, Throwable t, DiscountType type) {
-        Log.e(TAG, contextMessage + " - Error: " + t.getMessage(), t);
-        errorMessage.postValue(contextMessage + ": " + t.getMessage());
+    private void handleNetworkError(String msg, Throwable t, DiscountType type) {
+        Log.e(TAG, msg + " - Error: " + t.getMessage(), t);
+        errorMessage.postValue(msg + ": " + t.getMessage());
         isLoading.postValue(false);
         if (type == DiscountType.PERSONAL) isFetchingPersonal = false;
         else isFetchingFavorite = false;
     }
-    private void handleError(String message, DiscountType type) { // General error helper
-        Log.e(TAG, message);
-        errorMessage.postValue(message);
+    private void handleError(String msg, DiscountType type) {
+        Log.e(TAG, msg);
+        errorMessage.postValue(msg);
         isLoading.postValue(false);
         if (type == DiscountType.PERSONAL) isFetchingPersonal = false;
-        else isFetchingFavorite = false;
+        else if (type == DiscountType.FAVORITE) isFetchingFavorite = false;
     }
 }

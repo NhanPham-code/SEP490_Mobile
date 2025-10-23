@@ -50,4 +50,10 @@ public class BookingRepository {
                 .collect(Collectors.joining(" or "));
         return apiService.getStadiums(filter, "Courts");
     }
+
+    public Call<BookingHistoryODataResponse> getBookingsForMonthlyPlan(int monthlyBookingId) {
+        String filter = String.format(Locale.US, "MonthlyBookingId eq %d", monthlyBookingId);
+        String orderBy = "Date asc";
+        return apiService.getBookingsForMonthlyPlan(filter, orderBy);
+    }
 }

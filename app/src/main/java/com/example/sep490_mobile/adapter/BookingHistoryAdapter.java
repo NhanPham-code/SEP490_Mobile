@@ -18,7 +18,7 @@ import com.example.sep490_mobile.data.dto.booking.BookingReadDTO; // Import nế
 import com.example.sep490_mobile.data.dto.booking.DailyBookingDTO;
 import com.example.sep490_mobile.data.dto.booking.MonthlyBookingDTO;
 import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO; // Import nếu cần
-import com.example.sep490_mobile.ui.booking.BookingHistoryFragmentDirections;
+import com.example.sep490_mobile.ui.bookinghistory.BookingHistoryFragmentDirections;
 
 import java.text.DecimalFormat;
 import java.text.ParseException; // Import ParseException

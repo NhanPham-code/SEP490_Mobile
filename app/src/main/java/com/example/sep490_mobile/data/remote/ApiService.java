@@ -58,6 +58,7 @@ import retrofit2.http.QueryMap;
 public interface ApiService {
 
     // API Login
+    // API Login
     @POST("users/login")
     Call<LoginResponseDTO> login(@Body LoginRequestDTO body);
 
@@ -146,24 +147,41 @@ public interface ApiService {
             @Query("$expand") String expand
     );
 
-    @GET("bookings/history?$expand=BookingDetails")
-    Call<BookingHistoryODataResponse> getBookingsHistory(
+    @GET("bookings/booked")
+    Call<ODataResponse<BookingReadDto>> getBookedCourtsByDay(
             @Query("$filter") String filter,
-            @Query("$orderby") String orderBy,
-            @Query("$count") boolean count, // <<< THÊM
-            @Query("$skip") int skip,
-            @Query("$top") int top
+            @Query("$expand") String expand
     );
+
+    @GET("GetAllCourtRelationParent")
+    Call<List<ReadCourtRelationDTO>> getAllCourtRelationByParentId(@Query("parentId") int parentId);
+
+    @GET("GetAllCourtRelationChild")
+    Call<List<ReadCourtRelationDTO>> getAllCourtRelationByChildId(@Query("childId") int childId);
+
+    @POST("Bookings/add") // Match your API endpoint path
+    Call<BookingReadDto> createBooking(@Body BookingCreateDto bookingRequest);
+
+    // API get other profile
+    @GET("users/get")
+    Call<ODataResponse<PublicProfileDTO>> getPublicProfileByListId(@Query("$filter=UserId in ") String userId);
+
+    // API get Team post
+    @GET("odata/TeamPost")
+    Call<ODataResponse<ReadTeamPostDTO>> getTeamPost(@QueryMap Map<String, String> odataOptions);
+
+    @POST("CreateTeamPost")
+    Call<ReadTeamPostResponse> createTeamPost(@Body CreateTeamPostDTO createTeamPostDTO);
+
+    @POST("AddNewTeamMember")
+    Call<ReadTeamMemberDTO> createTeamMember(@Body CreateTeamMemberDTO createTeamMemberDTO);
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsHistory(@Query("$filter") String filter);
 
     // API lấy các gói đặt tháng
     @GET("monthlyBooking")
-    Call<MonthlyBookingODataResponse> getMonthlyBookings(
-            @Query("$filter") String filter,
-            @Query("$orderby") String orderBy,
-            @Query("$count") boolean count, // <<< THÊM
-            @Query("$skip") int skip,
-            @Query("$top") int top
-    );
+    Call<MonthlyBookingODataResponse> getMonthlyBookings(@Query("$filter") String filter);
 
     @GET("discounts/{id}")
     Call<ReadDiscountDTO> getDiscountById(@Path("id") int discountId);
@@ -186,6 +204,31 @@ public interface ApiService {
     @DELETE("DeleteTeamMember")
     Call<Boolean> deleteTeamMember(@Query("teamMemberId") int teamMemberId, @Query("postId") int postId);
 
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsHistory(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    // API lấy các gói đặt tháng
+    @GET("monthlyBooking")
+    Call<MonthlyBookingODataResponse> getMonthlyBookings(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsForMonthlyPlan(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy
+    );
 
     @GET("odata/discounts")
     Call<OdataHaveCountResponse<ReadDiscountDTO>> getDiscounts(

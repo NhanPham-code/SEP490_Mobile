@@ -1,4 +1,4 @@
-package com.example.sep490_mobile.ui.booking;
+package com.example.sep490_mobile.ui.bookinghistory;
 
 import android.os.Bundle;
 import android.util.Log;

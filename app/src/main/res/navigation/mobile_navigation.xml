@@ -149,7 +149,7 @@
     </fragment>
     <fragment
         android:id="@+id/bookingHistoryFragment"
-    android:name="com.example.sep490_mobile.ui.booking.BookingHistoryFragment"
+    android:name="com.example.sep490_mobile.ui.bookinghistory.BookingHistoryFragment"
     android:label="fragment_booking_history"
     tools:layout="@layout/fragment_booking_history" />
 </navigation>
