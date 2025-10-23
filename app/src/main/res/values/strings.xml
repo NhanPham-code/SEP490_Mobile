@@ -24,4 +24,12 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="booked_slot_indicator">Booked Slot Indicator</string>
     <string name="find_team">Tìm Nhóm Chơi</string>
+
+    <string name="no_booking_history">Bạn chưa đặt đơn nào.</string>
+    <string name="no_daily_booking_history">Bạn chưa có lịch đặt ngày nào.</string>
+    <string name="no_monthly_booking_history">Bạn chưa có lịch đặt tháng nào.</string>
+
+    <string name="no_personal_discounts">Bạn chưa có mã giảm giá cá nhân nào.</string>
+    <string name="no_favorite_discounts">Không tìm thấy mã giảm giá cho sân yêu thích.</string>
+    <string name="no_discounts_found">Bạn chưa có mã giảm giá nào.</string>
 </resources>

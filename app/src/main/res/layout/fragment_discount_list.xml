@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#F5F5F5"
-    tools:context=".ui.bookinghistory.BookingHistoryFragment">
+    tools:context=".ui.discount.DiscountListFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -30,14 +30,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:text="Lịch sử Đặt sân"
+            android:text="Mã giảm giá của bạn"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/deep_ocean" />
     </RelativeLayout>
 
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tab_layout_booking_type"
+        android:id="@+id/tab_layout_discount_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
@@ -53,12 +53,12 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lịch Ngày" />
+            android:text="Cá Nhân" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Lịch Tháng" />
+            android:text="Sân Yêu Thích" />
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -67,18 +67,17 @@
         android:layout_height="match_parent">
 
         <FrameLayout
-            android:id="@+id/content_frame"
+            android:id="@+id/content_frame_discount"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@id/btn_load_more_container">
-            <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_booking_history"
+            android:layout_above="@id/btn_load_more_discount_container"> <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view_discounts"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:clipToPadding="false"
             android:paddingTop="8dp"
-            android:paddingBottom="100dp"  android:visibility="gone"
-            tools:listitem="@layout/item_booking_daily"
+            android:paddingBottom="80dp" android:visibility="gone"
+            tools:listitem="@layout/item_discount"
             tools:visibility="visible"/>
 
             <ProgressBar
@@ -91,12 +90,12 @@
 
             <TextView
                 android:id="@+id/tv_empty_state"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:layout_gravity="center"
-                android:text="@string/no_booking_history"
+                android:text="@string/no_discounts_found"
                 android:textSize="18sp"
-                android:drawableTop="@drawable/ic_empty_box"
+                android:drawableTop="@drawable/ic_discount"
                 android:drawablePadding="16dp"
                 android:gravity="center"
                 android:visibility="gone"
@@ -115,7 +114,7 @@
         </FrameLayout>
 
         <LinearLayout
-            android:id="@+id/btn_load_more_container"
+            android:id="@+id/btn_load_more_discount_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -129,7 +128,7 @@
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Xem đơn cũ hơn" />
+                android:text="Xem mã cũ hơn" />
         </LinearLayout>
 
     </RelativeLayout>

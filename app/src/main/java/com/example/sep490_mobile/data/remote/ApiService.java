@@ -6,6 +6,7 @@ import com.example.sep490_mobile.data.dto.BookingReadDto;
 import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.CreateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.OdataHaveCountResponse;
 import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
 import com.example.sep490_mobile.data.dto.PublicProfileDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
@@ -35,6 +36,7 @@ import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
 import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
+import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -55,6 +57,7 @@ import retrofit2.http.QueryMap;
 
 public interface ApiService {
 
+    // API Login
     // API Login
     @POST("users/login")
     Call<LoginResponseDTO> login(@Body LoginRequestDTO body);
@@ -201,4 +204,41 @@ public interface ApiService {
     @DELETE("DeleteTeamMember")
     Call<Boolean> deleteTeamMember(@Query("teamMemberId") int teamMemberId, @Query("postId") int postId);
 
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsHistory(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    // API lấy các gói đặt tháng
+    @GET("monthlyBooking")
+    Call<MonthlyBookingODataResponse> getMonthlyBookings(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsForMonthlyPlan(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy
+    );
+
+    @GET("odata/discounts")
+    Call<OdataHaveCountResponse<ReadDiscountDTO>> getDiscounts(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy, // <<< ADD THIS PARAMETER
+            @Query("$count") boolean count,
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    @GET("myFavoriteStadium") // Hoặc endpoint đúng của bạn
+    Call<List<ReadFavoriteDTO>> getMyFavoriteStadiums();
 }

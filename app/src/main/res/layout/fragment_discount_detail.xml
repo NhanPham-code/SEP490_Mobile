@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F4F7FC"
+    android:clipToPadding="false"
+    tools:context=".ui.discount.DiscountDetailFragment">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="80dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <ImageButton
+                android:id="@+id/btn_back"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:src="@drawable/ic_arrow_back"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                app:tint="@color/deep_ocean"
+                android:contentDescription="Quay lại" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:id="@+id/tv_discount_code"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/deep_ocean"
+                        tools:text="BLACKFRIDAY25" />
+
+                    <TextView
+                        android:id="@+id/tv_code_type"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:textSize="14sp"
+                        android:textStyle="italic"
+                        tools:text="(Mã toàn hệ thống)" />
+
+                    <TextView
+                        android:id="@+id/tv_discount_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:textSize="16sp"
+                        tools:text="Giảm giá đặc biệt mùa lễ hội" />
+
+                    <com.google.android.material.divider.MaterialDivider
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:layout_marginBottom="16dp"/>
+
+                    <TextView style="@style/DiscountDetailLabel" android:text="Giá trị giảm:" />
+                    <TextView style="@style/DiscountDetailValue" android:id="@+id/tv_value" tools:text="20%" />
+
+                    <TextView style="@style/DiscountDetailLabel" android:text="Giảm tối đa:" />
+                    <TextView style="@style/DiscountDetailValue" android:id="@+id/tv_max_amount" tools:text="50,000đ" />
+
+                    <TextView style="@style/DiscountDetailLabel" android:text="Áp dụng cho đơn từ:" />
+                    <TextView style="@style/DiscountDetailValue" android:id="@+id/tv_min_amount" tools:text="100,000đ" />
+
+                    <TextView style="@style/DiscountDetailLabel" android:text="Thời gian áp dụng:" />
+                    <TextView style="@style/DiscountDetailValue" android:id="@+id/tv_date_range" tools:text="15/10/2025 - 30/11/2025" />
+
+                    <TextView style="@style/DiscountDetailLabel" android:text="Tình trạng:" />
+                    <TextView style="@style/DiscountDetailValue" android:id="@+id/tv_status" tools:text="Còn hiệu lực" />
+
+                    <TextView
+                        android:id="@+id/tv_stadiums_label"
+                        style="@style/DiscountDetailLabel"
+                        android:text="Sân áp dụng:"
+                        android:visibility="gone"
+                        tools:visibility="visible"/>
+                    <TextView
+                        android:id="@+id/tv_applicable_stadiums"
+                        style="@style/DiscountDetailValue"
+                        android:layout_marginBottom="0dp"
+                        tools:text="- Sân Thống Nhất\n- Sân Phú Thọ\n- Sân ABC"
+                        android:visibility="gone"
+                        tools:visibility="visible"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+    </FrameLayout>
+</ScrollView>
