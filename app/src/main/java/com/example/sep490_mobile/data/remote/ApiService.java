@@ -2,6 +2,7 @@ package com.example.sep490_mobile.data.remote;
 
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
 import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.OdataHaveCountResponse;
 import com.example.sep490_mobile.data.dto.ScheduleBookingODataResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
@@ -23,7 +24,9 @@ import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
 import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
+import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
 
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -132,12 +135,35 @@ public interface ApiService {
     );
 
     @GET("bookings/history?$expand=BookingDetails")
-    Call<BookingHistoryODataResponse> getBookingsHistory(@Query("$filter") String filter);
+    Call<BookingHistoryODataResponse> getBookingsHistory(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
 
-    // API lấy các gói đặt tháng
     @GET("monthlyBooking")
-    Call<MonthlyBookingODataResponse> getMonthlyBookings(@Query("$filter") String filter);
+    Call<MonthlyBookingODataResponse> getMonthlyBookings(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
 
     @GET("discounts/{id}")
     Call<ReadDiscountDTO> getDiscountById(@Path("id") int discountId);
+
+    @GET("odata/discounts")
+    Call<OdataHaveCountResponse<ReadDiscountDTO>> getDiscounts(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy, // <<< ADD THIS PARAMETER
+            @Query("$count") boolean count,
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    @GET("myFavoriteStadium") // Hoặc endpoint đúng của bạn
+    Call<List<ReadFavoriteDTO>> getMyFavoriteStadiums();
 }

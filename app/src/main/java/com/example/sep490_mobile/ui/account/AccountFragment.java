@@ -148,10 +148,13 @@ public class AccountFragment extends Fragment {
 
         binding.menuSubject.getRoot().setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(AccountFragment.this);
-
-
             navController.navigate(R.id.action_navigation_account_to_bookingHistoryFragment);
+        });binding.menuDiscount.getRoot().setOnClickListener(v -> {
+            NavController navController = NavHostFragment.findNavController(AccountFragment.this);
+            navController.navigate(R.id.action_navigation_account_to_discountListFragment);
         });
+
+
         // --- XỬ LÝ SWITCH BIOMETRIC ---
         binding.switchBiometric.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // Chỉ xử lý khi người dùng thực sự nhấn vào, không phải khi code tự set
