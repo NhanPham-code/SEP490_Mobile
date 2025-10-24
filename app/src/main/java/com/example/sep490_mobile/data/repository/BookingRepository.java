@@ -18,16 +18,29 @@ public class BookingRepository {
         this.apiService = ApiClient.getInstance(context).getApiService();
     }
 
-    // UserId là kiểu int, giống như trong ScheduleViewModel của bạn
-    public Call<BookingHistoryODataResponse> getBookingsHistory(int userId) {
-        String filter = String.format(Locale.US, "UserId eq %d", userId);
-        return apiService.getBookingsHistory(filter);
+    /**
+     * Lấy lịch sử đặt sân THEO NGÀY (không thuộc gói tháng) theo trang.
+     * @param userId ID người dùng
+     * @param page Trang hiện tại (bắt đầu từ 1)
+     * @param pageSize Số lượng item mỗi trang
+     * @return Call object
+     */
+    public Call<BookingHistoryODataResponse> getDailyBookingsHistory(int userId, int page, int pageSize) {
+        String filter = String.format(Locale.US, "UserId eq %d and MonthlyBookingId eq null", userId);
+        String orderBy = "Date desc";
+        int skip = (page - 1) * pageSize;
+        int top = pageSize;
+        // Truyền true cho count
+        return apiService.getBookingsHistory(filter, orderBy, true, skip, top);
     }
 
-    // UserId là kiểu int
-    public Call<MonthlyBookingODataResponse> getMonthlyBookings(int userId) {
+    public Call<MonthlyBookingODataResponse> getMonthlyBookingsHistory(int userId, int page, int pageSize) {
         String filter = String.format(Locale.US, "UserId eq %d", userId);
-        return apiService.getMonthlyBookings(filter);
+        String orderBy = "Year desc, Month desc";
+        int skip = (page - 1) * pageSize;
+        int top = pageSize;
+        // Truyền true cho count
+        return apiService.getMonthlyBookings(filter, orderBy, true, skip, top);
     }
 
     // Sử dụng lại DTO có sẵn cho Stadium
@@ -36,5 +49,11 @@ public class BookingRepository {
                 .map(id -> "Id eq " + id)
                 .collect(Collectors.joining(" or "));
         return apiService.getStadiums(filter, "Courts");
+    }
+
+    public Call<BookingHistoryODataResponse> getBookingsForMonthlyPlan(int monthlyBookingId) {
+        String filter = String.format(Locale.US, "MonthlyBookingId eq %d", monthlyBookingId);
+        String orderBy = "Date asc";
+        return apiService.getBookingsForMonthlyPlan(filter, orderBy);
     }
 }

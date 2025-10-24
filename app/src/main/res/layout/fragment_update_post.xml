@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:background="@drawable/bg_gradient"
+    tools:context=".ui.findTeam.CreatePostFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="20dp">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:drawablePadding="12dp"
+                    android:gravity="center_vertical"
+                    android:text="Thông Tin Cơ Bản"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textColor="?android:attr/textColorPrimary"
+                    app:drawableStartCompat="@drawable/ic_notifications_black_24dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+                    <TextView style="@style/InputLabelStyle" android:text="Tiêu đề bài đăng *" />
+                    <EditText
+                        android:id="@+id/updateTitleEditText"
+                        style="@style/StandardInputStyle"
+                        android:background="@drawable/bg_edittext"
+                        android:inputType="textCapSentences"
+                        android:paddingStart="10dp"
+                        android:drawableStart="@drawable/ic_edit_black_24dp" />
+                    <TextView style="@style/HelperTextStyle" android:text="Tiêu đề sẽ hiển thị công khai để thu hút thành viên" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+                    <TextView style="@style/InputLabelStyle" android:text="Địa điểm *" />
+                    <EditText
+                        android:id="@+id/updateLocationEditText"
+                        style="@style/StandardInputStyle"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:drawableStart="@drawable/outline_location_on_24" />
+                    <TextView style="@style/HelperTextStyle" android:text="Địa điểm sẽ được tự động điền từ booking đã chọn" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp"
+                    android:paddingTop="10dp"
+                    android:paddingBottom="10dp"
+                    android:paddingStart="10dp"
+                    android:background="@drawable/edittext_border">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Môn thể thao *"
+                        android:layout_marginStart="2dp"
+                        android:textSize="12sp"
+                        android:textColor="?android:attr/textColorSecondary"/>
+                    <TextView
+                        android:id="@+id/updateSport"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bóng đá 5 người"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"/>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Môn thể thao được xác định từ Booking"
+                        android:textSize="12sp"
+                        android:textColor="?android:attr/textColorTertiary"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+                    <TextView style="@style/InputLabelStyle"
+                        android:text="Giá mỗi người (VNĐ) *" />
+                    <EditText
+                        android:id="@+id/updatePricePerPersonEditText"
+                        style="@style/StandardInputStyle"
+                        android:background="@drawable/edittext_border"
+                        android:inputType="numberDecimal"
+                        android:paddingStart="10dp"
+                        android:drawableStart="@drawable/ic_money" />
+                    <TextView style="@style/HelperTextStyle" android:text="Chi phí mỗi người tham gia (để trống nếu miễn phí)" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <TextView style="@style/InputLabelStyle" android:text="Mô tả" />
+                    <EditText
+                        android:id="@+id/updateDescriptionEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="top"
+                        android:inputType="textMultiLine|textCapSentences"
+                        android:drawablePadding="8dp"
+                        android:background="@drawable/edittext_border"
+                        android:padding="12dp"/>
+                    <TextView style="@style/HelperTextStyle" android:text="Mô tả chi tiết giúp tìm được thành viên phù hợp" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <androidx.cardview.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="10dp"
+                android:layout_weight="1"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="6dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="16dp"
+                        android:drawablePadding="12dp"
+                        android:gravity="center_vertical"
+                        android:text="Thông Tin Đội"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:textColor="?android:attr/textColorPrimary"
+                        app:drawableStartCompat="@drawable/ic_team" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <TextView style="@style/InputLabelStyle" android:text="Số thành viên cần tìm *" />
+                        <EditText
+                            android:id="@+id/updateNeededPlayersEditText"
+                            style="@style/StandardInputStyle"
+                            android:hint="5"
+                            android:inputType="number"
+                            android:drawableStart="@drawable/ic_user_add" />
+                        <TextView style="@style/HelperTextStyle" android:text="Số lượng còn thiếu" />
+                    </LinearLayout>
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+        </LinearLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="6dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:drawablePadding="12dp"
+                    android:gravity="center_vertical"
+                    android:text="Lịch Trình"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                    android:textColor="?android:attr/textColorPrimary"
+                    app:drawableStartCompat="@drawable/ic_calendar_black_24dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:background="@drawable/edittext_border">
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Ngày chơi *"
+                        android:textSize="12sp"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:paddingTop="8dp"
+                        android:paddingStart="8dp"/>
+                    <TextView
+                        android:id="@+id/updatePlayDateEditText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:gravity="center_vertical"
+                        style="@style/Widget.AppCompat.ActionBar.TabText"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:paddingStart="4dp"
+                    android:paddingEnd="4dp"
+                    android:background="@drawable/edittext_border">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Thời gian chơi *"
+                        android:layout_marginStart="8dp"
+                        android:textSize="12sp"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:paddingTop="8dp"/>
+                    <TextView
+                        android:id="@+id/updateTimePlaySpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:minHeight="48dp"
+                        android:gravity="center_vertical"
+                        style="@style/Widget.AppCompat.ActionBar.TabText"/>
+                    <TextView style="@style/HelperTextStyle" android:text="Giờ bắt đầu chơi" android:paddingStart="8dp" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/submitButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:padding="10dp"
+                android:text="SỬA BÀI ĐĂNG"
+                android:textStyle="bold"
+                android:textSize="10sp"
+                android:backgroundTint="@color/colorPrimary"/>
+            <Button
+                android:id="@+id/back_button_update"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:padding="10dp"
+                android:text="HỦY"
+                android:textStyle="bold"
+                android:textSize="10sp"
+                android:backgroundTint="@color/grey_400"/>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

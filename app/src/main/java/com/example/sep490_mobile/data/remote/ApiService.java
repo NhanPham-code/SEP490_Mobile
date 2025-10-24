@@ -3,7 +3,18 @@ package com.example.sep490_mobile.data.remote;
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
 import com.example.sep490_mobile.data.dto.FeedbackDto;
 import com.example.sep490_mobile.data.dto.FeedbackRequestDto;
+import com.example.sep490_mobile.data.dto.BookingCreateDto;
+import com.example.sep490_mobile.data.dto.BookingReadDto;
+import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.CreateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.OdataHaveCountResponse;
+import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
+import com.example.sep490_mobile.data.dto.PublicProfileDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberForDetailDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamPostResponse;
 import com.example.sep490_mobile.data.dto.ScheduleBookingODataResponseDTO;
 import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
@@ -18,6 +29,8 @@ import com.example.sep490_mobile.data.dto.ResetPasswordResponseDTO;
 import com.example.sep490_mobile.data.dto.ScheduleODataStadiumResponseDTO;
 import com.example.sep490_mobile.data.dto.SendOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
+import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.UpdateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
@@ -25,7 +38,9 @@ import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
 import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
+import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
 
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MultipartBody;
@@ -133,6 +148,35 @@ public interface ApiService {
             @Query("$expand") String expand
     );
 
+    @GET("bookings/booked")
+    Call<ODataResponse<BookingReadDto>> getBookedCourtsByDay(
+            @Query("$filter") String filter,
+            @Query("$expand") String expand
+    );
+
+    @GET("GetAllCourtRelationParent")
+    Call<List<ReadCourtRelationDTO>> getAllCourtRelationByParentId(@Query("parentId") int parentId);
+
+    @GET("GetAllCourtRelationChild")
+    Call<List<ReadCourtRelationDTO>> getAllCourtRelationByChildId(@Query("childId") int childId);
+
+    @POST("Bookings/add") // Match your API endpoint path
+    Call<BookingReadDto> createBooking(@Body BookingCreateDto bookingRequest);
+
+    // API get other profile
+    @GET("users/get")
+    Call<ODataResponse<PublicProfileDTO>> getPublicProfileByListId(@Query("$filter=UserId in ") String userId);
+
+    // API get Team post
+    @GET("odata/TeamPost")
+    Call<ODataResponse<ReadTeamPostDTO>> getTeamPost(@QueryMap Map<String, String> odataOptions);
+
+    @POST("CreateTeamPost")
+    Call<ReadTeamPostResponse> createTeamPost(@Body CreateTeamPostDTO createTeamPostDTO);
+
+    @POST("AddNewTeamMember")
+    Call<ReadTeamMemberDTO> createTeamMember(@Body CreateTeamMemberDTO createTeamMemberDTO);
+
     @GET("odata/FeedbackOData")
     Call<ODataResponse<FeedbackDto>> getFeedbacksOdata(
             @QueryMap Map<String, String> odataOptions
@@ -177,4 +221,60 @@ public interface ApiService {
 
     @GET("discounts/{id}")
     Call<ReadDiscountDTO> getDiscountById(@Path("id") int discountId);
+
+    @PUT("UpdateTeamPost")
+    Call<ReadTeamPostDTO> updateTeamPost(@Body UpdateTeamPostDTO updateTeamPostDTO);
+
+    @PUT("UpdateTeamMember")
+    Call<ReadTeamMemberForDetailDTO> updateTeamMember(@Body UpdateTeamMemberDTO updateTeamMemberDTO);
+
+    @GET("GetAllTeamMember")
+    Call<List<ReadTeamMemberForDetailDTO>> getTeamMember(@Query("postId") int postId);
+
+    @GET("GetTeamMemberByPostIdAndId")
+    Call<ReadTeamMemberForDetailDTO> getTeamMemberByPostIdAndId(@Query("teamId") int teamId, @Query("postId") int postId);
+
+    @DELETE("DeleteTeamPost")
+    Call<Boolean> deleteTeamPost(@Query("postId") int postId);
+
+    @DELETE("DeleteTeamMember")
+    Call<Boolean> deleteTeamMember(@Query("teamMemberId") int teamMemberId, @Query("postId") int postId);
+
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsHistory(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    // API lấy các gói đặt tháng
+    @GET("monthlyBooking")
+    Call<MonthlyBookingODataResponse> getMonthlyBookings(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsForMonthlyPlan(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy
+    );
+
+    @GET("odata/discounts")
+    Call<OdataHaveCountResponse<ReadDiscountDTO>> getDiscounts(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy, // <<< ADD THIS PARAMETER
+            @Query("$count") boolean count,
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    @GET("myFavoriteStadium") // Hoặc endpoint đúng của bạn
+    Call<List<ReadFavoriteDTO>> getMyFavoriteStadiums();
 }
