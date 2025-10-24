@@ -38,8 +38,13 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="8dp"
+                android:isIndicator="false"
                 android:numStars="5"
-                android:stepSize="1" />
+                android:progressTint="@color/star_yellow"
+                android:progressTintMode="src_atop"
+                android:secondaryProgressTint="@color/star_yellow"
+                android:stepSize="1"
+                android:thumbTint="@color/star_yellow" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -55,17 +60,87 @@
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <Button
-                android:id="@+id/button_submit"
+            <!-- Image Preview -->
+            <ImageView
+                android:id="@+id/image_preview"
+                android:layout_width="120dp"
+                android:layout_height="120dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="12dp"
+                android:scaleType="centerCrop"
+                android:visibility="gone"
+                android:contentDescription="@string/feedback_image_description"
+                tools:src="@tools:sample/backgrounds/scenic"
+                tools:visibility="visible"/>
+
+            <!-- Bọc các nút ảnh vào một LinearLayout để căn chỉnh -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button_select_image"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Chọn ảnh"
+                    app:icon="@drawable/ic_add_photo" />
+
+                <!-- NÚT XÓA ẢNH -->
+                <Button
+                    android:id="@+id/button_remove_image"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="Xóa ảnh"
+                    android:textColor="?attr/colorError"
+                    android:visibility="gone"
+                    app:icon="@drawable/ic_delete"
+                    app:iconTint="?attr/colorError"
+                    tools:visibility="visible"/>
+
+            </LinearLayout>
+
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="Gửi đánh giá" />
+                android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/button_submit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Gửi đánh giá" />
+
+                <Space
+                    android:id="@+id/delete_button_space"
+                    android:layout_width="8dp"
+                    android:layout_height="wrap_content" />
+
+                <Button
+                    android:id="@+id/button_delete_my_feedback"
+                    style="?attr/materialButtonOutlinedStyle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Xóa"
+                    android:textColor="?attr/colorError"
+                    android:visibility="gone"
+                    app:strokeColor="?attr/colorError" />
+
+            </LinearLayout>
 
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>
 
-    <!-- Danh sách các feedback -->
+    <!-- RecyclerView để hiển thị danh sách feedback -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_feedbacks"
         android:layout_width="0dp"
@@ -79,7 +154,6 @@
         tools:itemCount="3"
         tools:listitem="@layout/item_feedback" />
 
-    <!-- ProgressBar cho trạng thái tải -->
     <ProgressBar
         android:id="@+id/feedback_progress_bar"
         android:layout_width="wrap_content"
@@ -90,5 +164,46 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@id/recycler_view_feedbacks"
         tools:visibility="visible" />
+
+    <!-- Các nút điều khiển phân trang -->
+    <LinearLayout
+        android:id="@+id/pagination_controls"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingBottom="16dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/recycler_view_feedbacks"
+        tools:visibility="visible">
+
+        <Button
+            android:id="@+id/button_prev_page"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Trước"
+            app:icon="@drawable/ic_chevron_left" />
+
+        <LinearLayout
+            android:id="@+id/pages_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:orientation="horizontal" />
+
+        <Button
+            android:id="@+id/button_next_page"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sau"
+            app:icon="@drawable/ic_chevron_right"
+            app:iconGravity="end" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

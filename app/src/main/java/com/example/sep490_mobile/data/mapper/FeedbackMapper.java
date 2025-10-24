@@ -13,22 +13,46 @@ import java.util.TimeZone;
 
 public class FeedbackMapper {
 
-    // Chuyển một DTO thành một Domain Model
     public static Feedback toDomain(FeedbackDto dto) {
         if (dto == null) {
             return null;
         }
 
-        // Định dạng này khớp với DateTime.UtcNow của .NET
-        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'", Locale.US);
-        format.setTimeZone(TimeZone.getTimeZone("UTC"));
+        Date createdAtDate = null;
+        String dateString = dto.getCreatedAt();
 
-        Date createdAtDate;
-        try {
-            createdAtDate = format.parse(dto.getCreatedAt());
-        } catch (ParseException e) {
-            e.printStackTrace();
-            createdAtDate = new Date(); // Giá trị mặc định nếu parse lỗi
+        if (dateString != null && !dateString.isEmpty()) {
+            // API trả về tới 7 chữ số cho phần thập phân, nhưng Java SimpleDateFormat chỉ xử lý được 3 (milliseconds).
+            // Chúng ta cần cắt chuỗi để lấy 3 chữ số đầu tiên sau dấu chấm.
+            if (dateString.contains(".")) {
+                int dotIndex = dateString.indexOf('.');
+                if (dateString.length() > dotIndex + 4) {
+                    dateString = dateString.substring(0, dotIndex + 4);
+                }
+            }
+
+            // Bỏ 'Z' ở cuối nếu có, vì TimeZone đã được set là UTC
+            if (dateString.endsWith("Z")) {
+                dateString = dateString.substring(0, dateString.length() - 1);
+            }
+
+            // Thử parse với định dạng có milliseconds
+            SimpleDateFormat formatWithMillis = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.US);
+            formatWithMillis.setTimeZone(TimeZone.getTimeZone("UTC"));
+
+            try {
+                createdAtDate = formatWithMillis.parse(dateString);
+            } catch (ParseException e) {
+                // Nếu lỗi, thử lại với định dạng không có milliseconds
+                try {
+                    SimpleDateFormat fallbackFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.US);
+                    fallbackFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                    createdAtDate = fallbackFormat.parse(dateString);
+                } catch (ParseException e2) {
+                    System.err.println("Error parsing date: " + dto.getCreatedAt());
+                    createdAtDate = null; // Tốt nhất là trả về null nếu không thể parse
+                }
+            }
         }
 
         return new Feedback(
@@ -42,14 +66,16 @@ public class FeedbackMapper {
         );
     }
 
-    // Chuyển một danh sách DTO thành danh sách Domain Model
     public static List<Feedback> toDomain(List<FeedbackDto> dtoList) {
         if (dtoList == null) {
             return new ArrayList<>();
         }
         List<Feedback> domainList = new ArrayList<>();
         for (FeedbackDto dto : dtoList) {
-            domainList.add(toDomain(dto));
+            Feedback feedback = toDomain(dto);
+            if (feedback != null) {
+                domainList.add(feedback);
+            }
         }
         return domainList;
     }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Đây là một hình chữ nhật màu xám nhạt, dùng làm ảnh giữ chỗ khi đang tải ảnh thật. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#EAEAEA" />
+</shape>

@@ -146,7 +146,7 @@ public interface ApiService {
             @Part("StadiumId") RequestBody stadiumId,
             @Part("Rating") RequestBody rating,
             @Part("Comment") RequestBody comment,
-            @Part MultipartBody.Part image // pass null nếu không có ảnh
+            @Part MultipartBody.Part Image // Use "Image" to match server DTO
     );
 
     @Multipart
@@ -157,7 +157,8 @@ public interface ApiService {
             @Part("StadiumId") RequestBody stadiumId,
             @Part("Rating") RequestBody rating,
             @Part("Comment") RequestBody comment,
-            @Part MultipartBody.Part image
+
+            @Part MultipartBody.Part Image // Use "Image" to match server DTO
     );
 
     @PUT("feedback/{id}")

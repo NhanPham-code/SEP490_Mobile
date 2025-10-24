@@ -2,12 +2,12 @@ package com.example.sep490_mobile.ui.feedback;
 
 import android.app.Application;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.sep490_mobile.data.dto.FeedbackDto;
-import com.example.sep490_mobile.data.dto.FeedbackRequestDto;
 import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.mapper.FeedbackMapper;
 import com.example.sep490_mobile.data.repository.FeedbackRepository;
@@ -26,52 +26,77 @@ public class FeedbackViewModel extends AndroidViewModel {
 
     private final FeedbackRepository feedbackRepository;
 
-    // LiveData cho trạng thái ĐANG TẢI
-    private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
     public final LiveData<Boolean> isLoading = _isLoading;
 
-    // LiveData cho DỮ LIỆU (danh sách feedback)
     private final MutableLiveData<List<Feedback>> _feedbacks = new MutableLiveData<>();
     public final LiveData<List<Feedback>> feedbacks = _feedbacks;
 
-    // LiveData cho THÔNG BÁO LỖI
     private final MutableLiveData<String> _error = new MutableLiveData<>();
     public final LiveData<String> error = _error;
 
-    // LiveData cho các SỰ KIỆN (tạo, xóa, cập nhật thành công)
+    // LiveData cho các SỰ KIỆN
     private final MutableLiveData<Boolean> _createSuccessEvent = new MutableLiveData<>();
     public final LiveData<Boolean> createSuccessEvent = _createSuccessEvent;
-
     private final MutableLiveData<Boolean> _deleteSuccessEvent = new MutableLiveData<>();
     public final LiveData<Boolean> deleteSuccessEvent = _deleteSuccessEvent;
-
-    // NEW: update success event
     private final MutableLiveData<Boolean> _updateSuccessEvent = new MutableLiveData<>();
     public final LiveData<Boolean> updateSuccessEvent = _updateSuccessEvent;
+    private final MutableLiveData<Boolean> _forceRefreshEvent = new MutableLiveData<>();
+    public final LiveData<Boolean> forceRefreshEvent = _forceRefreshEvent;
+
+    // LiveData để giữ feedback của user hiện tại
+    private final MutableLiveData<Feedback> _userFeedback = new MutableLiveData<>();
+    public final LiveData<Feedback> userFeedback = _userFeedback;
+
+    // Các biến quản lý phân trang
+    private int stadiumId;
+    public static final int PAGE_SIZE = 5;
+    private final MutableLiveData<Integer> _currentPage = new MutableLiveData<>(1);
+    public LiveData<Integer> currentPage = _currentPage;
+    private final MutableLiveData<Integer> _totalPages = new MutableLiveData<>(0);
+    public LiveData<Integer> totalPages = _totalPages;
 
     public FeedbackViewModel(@NonNull Application application) {
         super(application);
         this.feedbackRepository = new FeedbackRepository(application.getApplicationContext());
     }
 
-    public void loadFeedbacks(int stadiumId) {
+    public void setStadiumId(int stadiumId) {
+        this.stadiumId = stadiumId;
+    }
+
+    public void loadFeedbacksForPage(int page) {
+        if (_isLoading.getValue() != null && _isLoading.getValue()) return;
         _isLoading.setValue(true);
+        _currentPage.setValue(page);
+
+        int skip = (page - 1) * PAGE_SIZE;
 
         Map<String, String> options = new HashMap<>();
         options.put("$filter", "StadiumId eq " + stadiumId);
         options.put("$orderby", "CreatedAt desc");
+        options.put("$count", "true");
+        options.put("$top", String.valueOf(PAGE_SIZE));
+        options.put("$skip", String.valueOf(skip));
 
         feedbackRepository.getFeedbacks(options).enqueue(new Callback<ODataResponse<FeedbackDto>>() {
             @Override
             public void onResponse(@NonNull Call<ODataResponse<FeedbackDto>> call, @NonNull Response<ODataResponse<FeedbackDto>> response) {
-                _isLoading.setValue(false);
                 if (response.isSuccessful() && response.body() != null) {
-                    List<Feedback> domainList = FeedbackMapper.toDomain(response.body().getItems());
-                    _feedbacks.setValue(domainList);
+                    ODataResponse<FeedbackDto> odataResponse = response.body();
+                    int totalItems = odataResponse.getCount().intValue();
+                    _totalPages.setValue((int) Math.ceil((double) totalItems / PAGE_SIZE));
+
+                    List<Feedback> newFeedbacks = FeedbackMapper.toDomain(odataResponse.getItems());
+                    _feedbacks.setValue(newFeedbacks);
+
                 } else {
                     _error.setValue("Lỗi tải đánh giá: " + response.code());
                 }
+                _isLoading.setValue(false);
             }
+
             @Override
             public void onFailure(@NonNull Call<ODataResponse<FeedbackDto>> call, @NonNull Throwable t) {
                 _isLoading.setValue(false);
@@ -80,53 +105,72 @@ public class FeedbackViewModel extends AndroidViewModel {
         });
     }
 
-    public void createFeedback(int userId, int stadiumId, int rating, String comment) {
-        _isLoading.setValue(true);
+    // Hàm tìm feedback của user, bất kể trang nào
+    public void findUserFeedback(int stadiumId, int userId) {
+        if (userId == -1) {
+            _userFeedback.setValue(null);
+            return;
+        }
+        Map<String, String> options = new HashMap<>();
+        options.put("$filter", "StadiumId eq " + stadiumId + " and UserId eq " + userId);
+        options.put("$top", "1");
 
-        feedbackRepository.createFeedbackMultipart(userId, stadiumId, rating, comment, null)
-                .enqueue(new Callback<FeedbackDto>() {
-                    @Override
-                    public void onResponse(@NonNull Call<FeedbackDto> call, @NonNull Response<FeedbackDto> response) {
-                        _isLoading.setValue(false);
-                        if (response.isSuccessful()) {
-                            _createSuccessEvent.setValue(true);
-                        } else {
-                            String err = "Lỗi tạo đánh giá: " + response.code();
-                            _error.setValue(err);
-                        }
-                    }
+        feedbackRepository.getFeedbacks(options).enqueue(new Callback<ODataResponse<FeedbackDto>>() {
+            @Override
+            public void onResponse(@NonNull Call<ODataResponse<FeedbackDto>> call, @NonNull Response<ODataResponse<FeedbackDto>> response) {
+                if (response.isSuccessful() && response.body() != null && !response.body().getItems().isEmpty()) {
+                    Feedback feedback = FeedbackMapper.toDomain(response.body().getItems().get(0));
+                    _userFeedback.setValue(feedback);
+                } else {
+                    _userFeedback.setValue(null);
+                }
+            }
 
-                    @Override
-                    public void onFailure(@NonNull Call<FeedbackDto> call, @NonNull Throwable t) {
-                        _isLoading.setValue(false);
-                        _error.setValue(t.getMessage());
-                    }
-                });
+            @Override
+            public void onFailure(@NonNull Call<ODataResponse<FeedbackDto>> call, @NonNull Throwable t) {
+                _userFeedback.setValue(null);
+            }
+        });
     }
 
-    // NEW: update feedback
-    public void updateFeedback(int feedbackId, int userId, int stadiumId, int rating, String comment) {
+    private void triggerRefresh() {
+        _forceRefreshEvent.setValue(true);
+        _forceRefreshEvent.setValue(false);
+    }
+
+    public void createFeedback(int userId, int stadiumId, int rating, String comment, @Nullable File imageFile) {
         _isLoading.setValue(true);
+        feedbackRepository.createFeedbackMultipart(userId, stadiumId, rating, comment, imageFile)
+                .enqueue(createUpdateCallback(true));
+    }
 
-        // nếu muốn upload ảnh, truyền File thay null
-        feedbackRepository.updateFeedbackMultipart(feedbackId, userId, stadiumId, rating, comment, null)
-                .enqueue(new Callback<FeedbackDto>() {
-                    @Override
-                    public void onResponse(@NonNull Call<FeedbackDto> call, @NonNull Response<FeedbackDto> response) {
-                        _isLoading.setValue(false);
-                        if (response.isSuccessful()) {
-                            _updateSuccessEvent.setValue(true);
-                        } else {
-                            _error.setValue("Lỗi cập nhật đánh giá: " + response.code());
-                        }
-                    }
+    public void updateFeedback(int feedbackId, int userId, int stadiumId, int rating, String comment, @Nullable File imageFile) {
+        _isLoading.setValue(true);
+        feedbackRepository.updateFeedbackMultipart(feedbackId, userId, stadiumId, rating, comment, imageFile)
+                .enqueue(createUpdateCallback(false));
+    }
 
-                    @Override
-                    public void onFailure(@NonNull Call<FeedbackDto> call, @NonNull Throwable t) {
-                        _isLoading.setValue(false);
-                        _error.setValue(t.getMessage());
-                    }
-                });
+    private Callback<FeedbackDto> createUpdateCallback(boolean isCreate) {
+        return new Callback<FeedbackDto>() {
+            @Override
+            public void onResponse(@NonNull Call<FeedbackDto> call, @NonNull Response<FeedbackDto> response) {
+                _isLoading.setValue(false);
+                if (response.isSuccessful()) {
+                    if (isCreate) _createSuccessEvent.setValue(true);
+                    else _updateSuccessEvent.setValue(true);
+                    triggerRefresh();
+                } else {
+                    String errorMsg = (isCreate ? "Lỗi tạo đánh giá: " : "Lỗi cập nhật đánh giá: ") + response.code();
+                    _error.setValue(errorMsg);
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<FeedbackDto> call, @NonNull Throwable t) {
+                _isLoading.setValue(false);
+                _error.setValue(t.getMessage());
+            }
+        };
     }
 
     public void deleteFeedback(int feedbackId) {
@@ -137,6 +181,7 @@ public class FeedbackViewModel extends AndroidViewModel {
                 _isLoading.setValue(false);
                 if (response.isSuccessful()) {
                     _deleteSuccessEvent.setValue(true);
+                    triggerRefresh();
                 } else {
                     _error.setValue("Lỗi xóa đánh giá: " + response.code());
                 }

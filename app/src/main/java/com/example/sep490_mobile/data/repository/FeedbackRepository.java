@@ -27,13 +27,10 @@ public class FeedbackRepository {
         return apiService.getFeedbacksOdata(odataOptions);
     }
 
-
-
-
-    // NEW: multipart createFeedback để khớp controller [FromForm]
     private RequestBody textPart(String value) {
         return RequestBody.create(value == null ? "" : value, MultipartBody.FORM);
     }
+
     public Call<FeedbackDto> updateFeedbackMultipart(int id, int userId, int stadiumId, int rating, String comment, File imageFile) {
         RequestBody userIdPart = textPart(String.valueOf(userId));
         RequestBody stadiumIdPart = textPart(String.valueOf(stadiumId));
@@ -42,13 +39,14 @@ public class FeedbackRepository {
 
         MultipartBody.Part imagePart = null;
         if (imageFile != null && imageFile.exists()) {
-            MediaType mediaType = MediaType.parse("image/png");
+            MediaType mediaType = MediaType.parse("image/*");
             RequestBody fileReq = RequestBody.create(imageFile, mediaType);
             imagePart = MultipartBody.Part.createFormData("Image", imageFile.getName(), fileReq);
         }
 
         return apiService.updateFeedbackMultipart(id, userIdPart, stadiumIdPart, ratingPart, commentPart, imagePart);
     }
+
     public Call<FeedbackDto> createFeedbackMultipart(int userId, int stadiumId, int rating, String comment, File imageFile) {
         RequestBody userIdPart = textPart(String.valueOf(userId));
         RequestBody stadiumIdPart = textPart(String.valueOf(stadiumId));
@@ -57,7 +55,7 @@ public class FeedbackRepository {
 
         MultipartBody.Part imagePart = null;
         if (imageFile != null && imageFile.exists()) {
-            MediaType mediaType = MediaType.parse("image/png"); // or "image/jpeg"
+            MediaType mediaType = MediaType.parse("image/*");
             RequestBody fileReq = RequestBody.create(imageFile, mediaType);
             imagePart = MultipartBody.Part.createFormData("Image", imageFile.getName(), fileReq);
         }
