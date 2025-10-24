@@ -5,6 +5,7 @@ import android.content.Context;
 import com.example.sep490_mobile.data.dto.FeedbackDto;
 import com.example.sep490_mobile.data.dto.FeedbackRequestDto;
 import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.PublicProfileDTO;
 import com.example.sep490_mobile.data.remote.ApiClient;
 import com.example.sep490_mobile.data.remote.ApiService;
 
@@ -25,6 +26,11 @@ public class FeedbackRepository {
 
     public Call<ODataResponse<FeedbackDto>> getFeedbacks(Map<String, String> odataOptions) {
         return apiService.getFeedbacksOdata(odataOptions);
+    }
+
+    // Hàm lấy thông tin user profile theo danh sách userId (dạng chuỗi "1,2,3")
+    public Call<ODataResponse<PublicProfileDTO>> getUserProfilesByIds(String userIds) {
+        return apiService.getPublicProfileByListId(userIds);
     }
 
     private RequestBody textPart(String value) {

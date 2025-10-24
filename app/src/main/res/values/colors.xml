@@ -8,7 +8,7 @@
         <color name="black">#FF000000</color>
 
         <color name="ocean_blue_light_start">#48CAE4</color>
-
+        <color name="avatar_border">#FF9800</color>
         <color name="grey_400">#FFBDBDBD</color>
         <color name="grey_700">#FF616161</color>
         <color name="green_500">#FF4CAF50</color>

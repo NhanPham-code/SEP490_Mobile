@@ -11,23 +11,29 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.model.Feedback;
-import com.stfalcon.imageviewer.StfalconImageViewer; // ĐÃ SỬA LẠI IMPORT
+import com.example.sep490_mobile.data.dto.PublicProfileDTO;
+import com.example.sep490_mobile.utils.ImageUtils;
+import com.stfalcon.imageviewer.StfalconImageViewer;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.FeedbackViewHolder> {
 
     private final List<Feedback> feedbackList = new ArrayList<>();
     private final int currentUserId;
+    private Map<Integer, PublicProfileDTO> userProfiles = new HashMap<>();
 
     public FeedbackAdapter(int currentUserId) {
         this.currentUserId = currentUserId;
+    }
+
+    public void setUserProfiles(Map<Integer, PublicProfileDTO> userProfiles) {
+        this.userProfiles = userProfiles;
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -40,7 +46,7 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.Feedba
     @Override
     public void onBindViewHolder(@NonNull FeedbackViewHolder holder, int position) {
         Feedback feedback = feedbackList.get(position);
-        holder.bind(feedback);
+        holder.bind(feedback, userProfiles);
     }
 
     @Override
@@ -56,46 +62,45 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.Feedba
         notifyDataSetChanged();
     }
 
-    /**
-     * Lớp ViewHolder: Giữ các tham chiếu đến các View bên trong một item.
-     */
     static class FeedbackViewHolder extends RecyclerView.ViewHolder {
 
-        // === THÊM BASE_URL VÀO ĐÂY ===
-        // Địa chỉ IP này dùng cho máy ảo Android để kết nối đến server trên máy tính.
         private static final String BASE_URL = "https://10.0.2.2:7221";
-
-        private final TextView textViewUserId, textViewComment, textViewDate;
+        private final TextView textViewUserId, textViewUserName, textViewComment, textViewDate;
         private final RatingBar ratingBarDisplay;
-        private final ImageView imageViewFeedback;
+        private final ImageView imageViewFeedback, imageViewUserAvatar;
         private final Context context;
 
         public FeedbackViewHolder(@NonNull View itemView) {
             super(itemView);
             context = itemView.getContext();
             textViewUserId = itemView.findViewById(R.id.text_view_user_id);
+            textViewUserName = itemView.findViewById(R.id.text_view_user_name);
             textViewComment = itemView.findViewById(R.id.text_view_comment);
             textViewDate = itemView.findViewById(R.id.text_view_date);
             ratingBarDisplay = itemView.findViewById(R.id.rating_bar_display);
             imageViewFeedback = itemView.findViewById(R.id.image_view_feedback);
+            imageViewUserAvatar = itemView.findViewById(R.id.image_view_user_avatar);
         }
 
-        /**
-         * Hàm tiện ích để tạo URL đầy đủ, giống như trong ImageUtils.
-         */
-        private String getFullUrl(String relativePath) {
-            if (relativePath == null || relativePath.isEmpty()) {
-                return null;
-            }
-            if (relativePath.startsWith("/")) {
-                return BASE_URL + relativePath;
-            }
-            return BASE_URL + "/" + relativePath;
-        }
-
-        public void bind(final Feedback feedback) {
+        public void bind(final Feedback feedback, Map<Integer, PublicProfileDTO> userProfiles) {
             textViewUserId.setText("User ID: " + feedback.getUserId());
             ratingBarDisplay.setRating(feedback.getRating());
+
+            // Lấy thông tin user (name, avatar)
+            PublicProfileDTO profile = userProfiles != null ? userProfiles.get(feedback.getUserId()) : null;
+            if (profile != null) {
+                textViewUserName.setText(profile.getFullName());
+                String avatarUrl = profile.getAvatarUrl();
+                Glide.with(context)
+                        .load(ImageUtils.getFullUrl(avatarUrl != null && avatarUrl.length() > 0 ? avatarUrl : ""))
+                        .placeholder(R.drawable.ic_default_avatar)
+                        .error(R.drawable.ic_default_avatar)
+                        .transform(new CircleCrop())
+                        .into(imageViewUserAvatar);
+            } else {
+                textViewUserName.setText("Unknown User");
+                imageViewUserAvatar.setImageResource(R.drawable.ic_default_avatar);
+            }
 
             // Xử lý bình luận
             if (feedback.getComment() != null && !feedback.getComment().trim().isEmpty()) {
@@ -105,12 +110,10 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.Feedba
                 textViewComment.setVisibility(View.GONE);
             }
 
-            // === LOGIC XỬ LÝ ẢNH (ĐÃ CẬP NHẬT) ===
+            // Xử lý ảnh feedback
             String imagePath = feedback.getImagePath();
             if (imagePath != null && !imagePath.isEmpty()) {
                 imageViewFeedback.setVisibility(View.VISIBLE);
-
-                // Sử dụng hàm getFullUrl() ngay trong ViewHolder này
                 String fullImageUrl = getFullUrl(imagePath);
 
                 Glide.with(context)
@@ -119,7 +122,6 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.Feedba
                         .error(R.drawable.ic_image_error)
                         .into(imageViewFeedback);
 
-                // === THÊM CHỨC NĂNG PHÓNG TO ẢNH KHI CLICK ===
                 imageViewFeedback.setOnClickListener(v -> {
                     new StfalconImageViewer.Builder<>(context, Collections.singletonList(fullImageUrl), (imageView, url) -> {
                         Glide.with(context)
@@ -129,10 +131,8 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.Feedba
                                 .into(imageView);
                     }).show();
                 });
-
             } else {
                 imageViewFeedback.setVisibility(View.GONE);
-                // Bỏ OnClickListener nếu không có ảnh
                 imageViewFeedback.setOnClickListener(null);
             }
 
@@ -144,6 +144,16 @@ public class FeedbackAdapter extends RecyclerView.Adapter<FeedbackAdapter.Feedba
             } else {
                 textViewDate.setVisibility(View.GONE);
             }
+        }
+
+        private String getFullUrl(String relativePath) {
+            if (relativePath == null || relativePath.isEmpty()) {
+                return null;
+            }
+            if (relativePath.startsWith("/")) {
+                return BASE_URL + relativePath;
+            }
+            return BASE_URL + "/" + relativePath;
         }
     }
 }

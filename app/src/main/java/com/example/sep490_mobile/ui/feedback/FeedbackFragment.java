@@ -7,15 +7,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
-import android.widget.RatingBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -25,19 +17,21 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.adapter.FeedbackAdapter;
+import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.PublicProfileDTO;
+import com.example.sep490_mobile.data.repository.FeedbackRepository;
 import com.example.sep490_mobile.model.Feedback;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.Objects;
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class FeedbackFragment extends Fragment {
 
@@ -69,8 +63,7 @@ public class FeedbackFragment extends Fragment {
     private Button buttonSelectImage;
     private ActivityResultLauncher<String> imagePickerLauncher;
     private Uri selectedImageUri = null;
-    // LƯU Ý: Sửa lại IP này thành 10.0.2.2 nếu bạn dùng máy ảo Android
-    private static final String BASE_URL = "https://localhost:7136";
+    private static final String BASE_URL = "https://10.0.2.2:7221";
 
     public static FeedbackFragment newInstance(int stadiumId, int currentUserId) {
         FeedbackFragment fragment = new FeedbackFragment();
@@ -186,7 +179,36 @@ public class FeedbackFragment extends Fragment {
             buttonDeleteMyFeedback.setEnabled(!loading);
         });
 
-        viewModel.feedbacks.observe(getViewLifecycleOwner(), feedbacks -> adapter.submitList(feedbacks));
+        // === SỬA ĐOẠN NÀY: LẤY USER PROFILE VÀ TRUYỀN VÀO ADAPTER ===
+        viewModel.feedbacks.observe(getViewLifecycleOwner(), feedbacks -> {
+            adapter.submitList(feedbacks);
+
+            // 1. Lấy tất cả userId từ danh sách feedback
+            Set<Integer> userIds = new HashSet<>();
+            for (Feedback fb : feedbacks) {
+                userIds.add(fb.getUserId());
+            }
+            if (!userIds.isEmpty()) {
+                String userIdStr = userIds.stream().map(String::valueOf)
+                        .collect(Collectors.joining(","));
+                FeedbackRepository repo = new FeedbackRepository(requireContext());
+                repo.getUserProfilesByIds(userIdStr).enqueue(new Callback<ODataResponse<PublicProfileDTO>>() {
+                    @Override
+                    public void onResponse(Call<ODataResponse<PublicProfileDTO>> call, Response<ODataResponse<PublicProfileDTO>> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            Map<Integer, PublicProfileDTO> map = new HashMap<>();
+                            for (PublicProfileDTO dto : response.body().getItems()) {
+                                map.put(dto.getId(), dto); // CHỈNH ĐÚNG LÀ getId()!
+                            }
+                            adapter.setUserProfiles(map);
+                        }
+                    }
+                    @Override
+                    public void onFailure(Call<ODataResponse<PublicProfileDTO>> call, Throwable t) { }
+                });
+            }
+        });
+        // === HẾT ĐOẠN SỬA ===
 
         viewModel.error.observe(getViewLifecycleOwner(), errorMessage -> {
             if (errorMessage != null && !errorMessage.isEmpty()) {
