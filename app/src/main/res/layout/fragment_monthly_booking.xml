@@ -4,10 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/calendar_background_light"
     tools:context=".ui.booking.MonthlyBookingFragment"
     android:paddingBottom="50dp"
-    android:clipToPadding="false">
+    android:clipToPadding="false"
+    android:background="@drawable/bg_gradient">
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nested_scroll_view"
