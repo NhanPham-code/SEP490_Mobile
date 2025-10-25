@@ -123,4 +123,61 @@
         <color name="chip_text_green">#1B5E20</color>
         <color name="design_default_color_primary">#6200EE</color>
         <color name="design_default_color_secondary">#03DAC5</color>
+        <color name="md_theme_primary">#0061a4</color>
+        <color name="md_theme_onSurface">#1A1C1E</color>
+        <color name="md_theme_error">#BA1A1A</color>
+        <color name="md_theme_surface">#FDFCFF</color> <color name="md_theme_outline">#72777F</color>
+        <color name="calendar_selected_green">#198754</color>
+        <color name="calendar_selected_text_white">#FFFFFF</color>
+        <color name="calendar_weekday_selected_border">#0D6EFD</color>
+        <color name="calendar_weekday_selected_text">#0D6EFD</color>
+        <color name="calendar_green_selected">#16A34A</color>
+        <color name="calendar_blue_header_selected">#3B82F6</color>
+        <color name="calendar_disabled_bg">#F3F4F6</color>
+        <color name="calendar_disabled_text">#9CA3AF</color>
+        <color name="calendar_weekday_selected_bg">#DBEAFE</color>
+        <!-- Day Header Colors -->
+        <color name="calendar_header_normal">#6B7280</color>
+        <color name="calendar_header_selected">#3B82F6</color>
+        <color name="calendar_header_bg_selected">#E0F2FE</color>
+        <color name="calendar_day_bg_normal">#FFFFFF</color>
+        <color name="calendar_day_bg_selected">#4F7C54</color>
+        <color name="calendar_day_bg_weekday_selected">#E0F2FE</color>
+        <color name="calendar_day_bg_disabled">#F9FAFB</color>
+        <!-- Calendar Colors -->
+        <color name="calendar_background">#F5F5F5</color>
+        <color name="calendar_card_background">#FFFFFF</color>
+        <!-- Day Header Colors -->
+        <color name="calendar_header_text_normal">#666666</color>
+        <color name="calendar_header_text_selected">#4A90E2</color>
+        <color name="calendar_header_background_selected">#E3F2FD</color>
+        <color name="calendar_header_background_normal">#FFFFFF</color>
+        <!-- Day Cell Colors -->
+        <color name="calendar_day_text_normal">#333333</color>
+        <color name="calendar_day_text_selected">#FFFFFF</color>
+        <color name="calendar_day_text_disabled">#CCCCCC</color>
+        <color name="calendar_day_background_normal">#FFFFFF</color>
+        <color name="calendar_day_background_selected">#5A7F5F</color>
+        <color name="calendar_day_background_weekday_selected">#E3F2FD</color>
+        <color name="calendar_day_background_disabled">#F5F5F5</color>
+        <!-- Border Colors -->
+        <color name="calendar_border">#E0E0E0</color>
+        <!-- Button Colors -->
+        <color name="button_delete_background">#E57373</color>
+        <color name="button_filter_background">#7986CB</color>
+        <color name="calendar_background_light">#F4F7FC</color>
+        <color name="calendar_card_background_white">#FFFFFF</color>
+        <color name="calendar_text_primary">#2C3E50</color>
+        <color name="calendar_text_secondary">#7F8C8D</color>
+        <color name="calendar_accent_color">#3498DB</color>
+        <color name="calendar_weekday_header_background">#EBF5FB</color>
+        <color name="button_delete_background_light">#E74C3C</color>
+        <color name="button_filter_background_light">#3498DB</color>
+        <color name="status_text_available">#2E7D32</color>
+        <color name="status_text_unavailable">#8D8D8D</color>
+        <color name="material_on_surface_disabled">#BDBDBD</color>
+        <!-- Màu cho trạng thái sân đã đặt -->
+        <color name="status_text_booked">#E53935</color>
+        <color name="status_text_related">#FFA000</color>
+        <color name="status_text_selected">#1976D2</color>
 </resources>

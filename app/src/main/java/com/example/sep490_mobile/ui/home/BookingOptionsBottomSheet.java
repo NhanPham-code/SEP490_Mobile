@@ -62,8 +62,11 @@ public class BookingOptionsBottomSheet extends BottomSheetDialogFragment {
         });
 
         binding.optionMonthlyBooking.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Đặt sân theo tháng (chưa triển khai)", Toast.LENGTH_SHORT).show();
-            // dismiss();
+            // Navigate using the action defined in nav_graph
+            HomeFragmentDirections.ActionNavigationHomeToMonthlyBookingFragment action =
+                    HomeFragmentDirections.actionNavigationHomeToMonthlyBookingFragment(stadiumId);
+            NavHostFragment.findNavController(this).navigate(action);
+            dismiss(); // Close the bottom sheet
         });
 
         // Cancel button
