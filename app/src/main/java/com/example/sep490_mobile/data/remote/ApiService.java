@@ -1,6 +1,8 @@
 package com.example.sep490_mobile.data.remote;
 
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
+import com.example.sep490_mobile.data.dto.FeedbackDto;
+import com.example.sep490_mobile.data.dto.FeedbackRequestDto;
 import com.example.sep490_mobile.data.dto.BookingCreateDto;
 import com.example.sep490_mobile.data.dto.BookingReadDto;
 import com.example.sep490_mobile.data.dto.BookingSlotRequest;
@@ -8,6 +10,7 @@ import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.CreateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.MonthlyBookingCreateDto;
 import com.example.sep490_mobile.data.dto.ODataResponse;
+import com.example.sep490_mobile.data.dto.OdataHaveCountResponse;
 import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
 import com.example.sep490_mobile.data.dto.PublicProfileDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
@@ -36,6 +39,7 @@ import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
 import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
+import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -174,6 +178,41 @@ public interface ApiService {
     @POST("AddNewTeamMember")
     Call<ReadTeamMemberDTO> createTeamMember(@Body CreateTeamMemberDTO createTeamMemberDTO);
 
+    @GET("odata/FeedbackOData")
+    Call<ODataResponse<FeedbackDto>> getFeedbacksOdata(
+            @QueryMap Map<String, String> odataOptions
+    );
+
+
+    @Multipart
+    @POST("feedback")
+    Call<FeedbackDto> createFeedbackMultipart(
+            @Part("UserId") RequestBody userId,
+            @Part("StadiumId") RequestBody stadiumId,
+            @Part("Rating") RequestBody rating,
+            @Part("Comment") RequestBody comment,
+            @Part MultipartBody.Part Image // Use "Image" to match server DTO
+    );
+
+    @Multipart
+    @PUT("feedback/{id}")
+    Call<FeedbackDto> updateFeedbackMultipart(
+            @Path("id") int id,
+            @Part("UserId") RequestBody userId,
+            @Part("StadiumId") RequestBody stadiumId,
+            @Part("Rating") RequestBody rating,
+            @Part("Comment") RequestBody comment,
+
+            @Part MultipartBody.Part Image // Use "Image" to match server DTO
+    );
+
+    @PUT("feedback/{id}")
+    Call<FeedbackDto> updateFeedback(@Path("id") int feedbackId, @Body FeedbackRequestDto request);
+
+
+    @DELETE("feedback/{id}")
+    Call<Void> deleteFeedback(@Path("id") int feedbackId);
+
     @GET("bookings/history?$expand=BookingDetails")
     Call<BookingHistoryODataResponse> getBookingsHistory(@Query("$filter") String filter);
 
@@ -226,4 +265,41 @@ public interface ApiService {
 
     @POST("bookings/checkAvailability")
     Call<Void> checkSlotsAvailability(@Body List<BookingSlotRequest> requestedSlots);
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsHistory(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    // API lấy các gói đặt tháng
+    @GET("monthlyBooking")
+    Call<MonthlyBookingODataResponse> getMonthlyBookings(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy,
+            @Query("$count") boolean count, // <<< THÊM
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    @GET("bookings/history?$expand=BookingDetails")
+    Call<BookingHistoryODataResponse> getBookingsForMonthlyPlan(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy
+    );
+
+    @GET("odata/discounts")
+    Call<OdataHaveCountResponse<ReadDiscountDTO>> getDiscounts(
+            @Query("$filter") String filter,
+            @Query("$orderby") String orderBy, // <<< ADD THIS PARAMETER
+            @Query("$count") boolean count,
+            @Query("$skip") int skip,
+            @Query("$top") int top
+    );
+
+    @GET("myFavoriteStadium") // Hoặc endpoint đúng của bạn
+    Call<List<ReadFavoriteDTO>> getMyFavoriteStadiums();
 }

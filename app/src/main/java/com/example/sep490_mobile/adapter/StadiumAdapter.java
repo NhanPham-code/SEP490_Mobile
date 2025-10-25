@@ -89,6 +89,24 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         holder.stadiumSportType.setText(sportType);
         Glide.with(this.context).load(ImageUtils.getFullUrl(stadiumImagesDTO.length > 0 ? "img/" + stadiumImagesDTO[0].imageUrl : "")).centerCrop().into(holder.stadiumImages);
 
+        // nếu bị khóa hoặc chưa được chấp thuận thì không cho đặt sân
+        if(stadiumDTO.isApproved == false){
+            holder.listItem.setEnabled(false);
+            holder.book_button.setEnabled(false);
+            holder.book_button.setText("Sân chưa thể đặt");
+            holder.listItem.setBackgroundColor(context.getResources().getColor(R.color.accent_orange));
+        } else if (stadiumDTO.isLocked() == true) {
+            holder.listItem.setEnabled(false);
+            holder.book_button.setEnabled(false);
+            holder.book_button.setText("Sân đã bị khóa");
+            holder.listItem.setBackgroundColor(context.getResources().getColor(R.color.color_primary));
+        }else{
+            holder.listItem.setEnabled(true);
+            holder.book_button.setEnabled(true);
+            holder.book_button.setText("Đặt Sân");
+            holder.listItem.setBackgroundColor(context.getResources().getColor(R.color.white));
+        }
+
         holder.book_button.setOnClickListener(v -> { // Changed from holder.bookButton
             if (context instanceof FragmentActivity) {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();

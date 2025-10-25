@@ -166,6 +166,29 @@
     <action
         android:id="@+id/action_bookingHistoryFragment_to_bookingHistoryDetailFragment"
         app:destination="@id/bookingHistoryDetailFragment" />
+
+    <fragment
+        android:id="@+id/discountListFragment"
+        android:name="com.example.sep490_mobile.ui.discount.DiscountListFragment"
+        android:label="Mã giảm giá"
+        tools:layout="@layout/fragment_discount_list" >
+        <action
+            android:id="@+id/action_discountListFragment_to_discountDetailFragment"
+            app:destination="@id/discountDetailFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/discountDetailFragment"
+        android:name="com.example.sep490_mobile.ui.discount.DiscountDetailFragment"
+        android:label="Chi tiết Mã giảm giá"
+        tools:layout="@layout/fragment_discount_detail">
+        <argument
+            android:name="discount"
+            app:argType="com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO" />
+    </fragment>
+    <action
+        android:id="@+id/action_navigation_account_to_discountListFragment"
+        app:destination="@id/discountListFragment" />
     <!-- ĐÃ THÊM: Khai báo ChatListActivity là một đích đến -->
     <activity
         android:id="@+id/navigation_chat"
@@ -192,7 +215,7 @@
     </fragment>
     <fragment
         android:id="@+id/bookingHistoryFragment"
-    android:name="com.example.sep490_mobile.ui.booking.BookingHistoryFragment"
+    android:name="com.example.sep490_mobile.ui.bookinghistory.BookingHistoryFragment"
     android:label="fragment_booking_history"
     tools:layout="@layout/fragment_booking_history" />
 </navigation>
