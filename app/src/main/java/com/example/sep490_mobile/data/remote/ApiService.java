@@ -1,6 +1,8 @@
 package com.example.sep490_mobile.data.remote;
 
 import com.example.sep490_mobile.data.dto.BiometricTokenResponseDTO;
+import com.example.sep490_mobile.data.dto.FeedbackDto;
+import com.example.sep490_mobile.data.dto.FeedbackRequestDto;
 import com.example.sep490_mobile.data.dto.BookingCreateDto;
 import com.example.sep490_mobile.data.dto.BookingReadDto;
 import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
@@ -57,7 +59,6 @@ import retrofit2.http.QueryMap;
 
 public interface ApiService {
 
-    // API Login
     // API Login
     @POST("users/login")
     Call<LoginResponseDTO> login(@Body LoginRequestDTO body);
@@ -175,6 +176,41 @@ public interface ApiService {
 
     @POST("AddNewTeamMember")
     Call<ReadTeamMemberDTO> createTeamMember(@Body CreateTeamMemberDTO createTeamMemberDTO);
+
+    @GET("odata/FeedbackOData")
+    Call<ODataResponse<FeedbackDto>> getFeedbacksOdata(
+            @QueryMap Map<String, String> odataOptions
+    );
+
+
+    @Multipart
+    @POST("feedback")
+    Call<FeedbackDto> createFeedbackMultipart(
+            @Part("UserId") RequestBody userId,
+            @Part("StadiumId") RequestBody stadiumId,
+            @Part("Rating") RequestBody rating,
+            @Part("Comment") RequestBody comment,
+            @Part MultipartBody.Part Image // Use "Image" to match server DTO
+    );
+
+    @Multipart
+    @PUT("feedback/{id}")
+    Call<FeedbackDto> updateFeedbackMultipart(
+            @Path("id") int id,
+            @Part("UserId") RequestBody userId,
+            @Part("StadiumId") RequestBody stadiumId,
+            @Part("Rating") RequestBody rating,
+            @Part("Comment") RequestBody comment,
+
+            @Part MultipartBody.Part Image // Use "Image" to match server DTO
+    );
+
+    @PUT("feedback/{id}")
+    Call<FeedbackDto> updateFeedback(@Path("id") int feedbackId, @Body FeedbackRequestDto request);
+
+
+    @DELETE("feedback/{id}")
+    Call<Void> deleteFeedback(@Path("id") int feedbackId);
 
     @GET("bookings/history?$expand=BookingDetails")
     Call<BookingHistoryODataResponse> getBookingsHistory(@Query("$filter") String filter);

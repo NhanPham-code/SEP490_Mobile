@@ -32,4 +32,6 @@
     <string name="no_personal_discounts">Bạn chưa có mã giảm giá cá nhân nào.</string>
     <string name="no_favorite_discounts">Không tìm thấy mã giảm giá cho sân yêu thích.</string>
     <string name="no_discounts_found">Bạn chưa có mã giảm giá nào.</string>
+
+    <string name="feedback_image_description">Ảnh của feedback</string>
 </resources>

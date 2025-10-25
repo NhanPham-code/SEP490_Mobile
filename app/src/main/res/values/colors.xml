@@ -8,7 +8,7 @@
         <color name="black">#FF000000</color>
 
         <color name="ocean_blue_light_start">#48CAE4</color>
-
+        <color name="avatar_border">#FF9800</color>
         <color name="grey_400">#FFBDBDBD</color>
         <color name="grey_700">#FF616161</color>
         <color name="green_500">#FF4CAF50</color>
@@ -115,6 +115,8 @@
         <color name="status_completed">#28A745</color>
         <color name="status_cancelled">#DC3545</color>
         <color name="status_payfail">#FFC107</color>
+
+        <color name="star_yellow">#FFD700</color> <!-- gold / vàng -->
         <color name="light_blue_background">#E3F2FD</color>
         <color name="light_green_background">#E8F5E9</color>
         <color name="chip_background_blue">#D1E9FF</color>

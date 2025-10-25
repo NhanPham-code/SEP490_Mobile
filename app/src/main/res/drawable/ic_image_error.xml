@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+Đây là một hình chữ nhật màu xám nhạt với một icon hình ảnh bị lỗi ở giữa.
+Nó sẽ hiển thị khi Glide không thể tải được ảnh từ URL.
+-->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Lớp nền màu xám -->
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#EAEAEA" />
+        </shape>
+    </item>
+
+    <!-- Lớp icon ở trên -->
+    <item
+        android:width="48dp"
+        android:height="48dp"
+        android:gravity="center">
+        <bitmap
+            android:src="@android:drawable/ic_menu_gallery"
+            android:tint="#BDBDBD" />
+    </item>
+
+</layer-list>
