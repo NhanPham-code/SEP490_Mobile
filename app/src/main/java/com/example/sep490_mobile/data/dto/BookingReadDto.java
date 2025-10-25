@@ -17,7 +17,7 @@ public class BookingReadDto {
     @SerializedName("Status")
     private String status;
 
-    @SerializedName("Date")
+    @SerializedName("date")
     private String date;
 
     @SerializedName("TotalPrice")
@@ -39,7 +39,7 @@ public class BookingReadDto {
     private String updatedAt;
 
     // Key này cũng cần là PascalCase
-    @SerializedName("BookingDetails")
+    @SerializedName("bookingDetails")
     private List<BookingDetailDTO> bookingDetails;
 
     @SerializedName("StadiumId")

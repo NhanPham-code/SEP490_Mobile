@@ -1,6 +1,7 @@
 package com.example.sep490_mobile.viewmodel;
 
 import android.app.Application;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -10,17 +11,29 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.example.sep490_mobile.data.dto.BookingCreateDto;
 import com.example.sep490_mobile.data.dto.BookingReadDto;
+import com.example.sep490_mobile.data.dto.BookingSlotRequest;
+import com.example.sep490_mobile.data.dto.MonthlyBookingCreateDto;
 import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.PrivateUserProfileDTO;
+import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
 import com.example.sep490_mobile.data.remote.ApiClient;
+import com.example.sep490_mobile.data.remote.ApiService;
 import com.example.sep490_mobile.data.repository.UserRepository;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -47,10 +60,17 @@ public class BookingViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> _isLoadingBooking = new MutableLiveData<>(false);
     public final LiveData<Boolean> isLoadingBooking = _isLoadingBooking;
 
+    private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
+    public LiveData<Boolean> isLoading = _isLoading;
+    private final MutableLiveData<Boolean> _bookingSuccess = new MutableLiveData<>(false);
+    public LiveData<Boolean> bookingSuccess = _bookingSuccess;
+    private final ApiService apiService;
+
     public BookingViewModel(@NonNull Application application) {
         super(application);
         // Khởi tạo UserRepository để có thể gọi API user
         this.userRepository = new UserRepository(application);
+        this.apiService = ApiClient.getInstance(application).getApiService();
     }
 
     /**
@@ -104,9 +124,11 @@ public class BookingViewModel extends AndroidViewModel {
      * Lấy thông tin cá nhân của người dùng đang đăng nhập.
      */
     public void fetchUserProfile() {
+        _isLoading.setValue(true);
         userRepository.getUserInfo().enqueue(new Callback<PrivateUserProfileDTO>() {
             @Override
             public void onResponse(@NonNull Call<PrivateUserProfileDTO> call, @NonNull Response<PrivateUserProfileDTO> response) {
+                _isLoading.postValue(false);
                 if (response.isSuccessful()) {
                     _userProfile.postValue(response.body());
                 } else {
@@ -116,6 +138,7 @@ public class BookingViewModel extends AndroidViewModel {
 
             @Override
             public void onFailure(@NonNull Call<PrivateUserProfileDTO> call, @NonNull Throwable t) {
+                _isLoading.postValue(false);
                 _error.postValue("Lỗi mạng khi tải thông tin người dùng: " + t.getMessage());
             }
         });
@@ -153,5 +176,185 @@ public class BookingViewModel extends AndroidViewModel {
                     }
                 });
 
+    }
+
+    public void createMonthlyBooking(Bundle args) {
+        if (args == null) {
+            _error.postValue("Lỗi: Không có dữ liệu đặt sân.");
+            return;
+        }
+        _isLoading.setValue(true);
+
+        // 1. Lấy tất cả các sân liên quan
+        int[] selectedCourtIds = args.getIntArray("COURT_IDS");
+        if (selectedCourtIds == null || selectedCourtIds.length == 0) {
+            _error.postValue("Lỗi: Không có sân nào được chọn.");
+            _isLoading.postValue(false);
+            return;
+        }
+
+        getAllInvolvedCourts(Arrays.stream(selectedCourtIds).boxed().collect(Collectors.toList()), allInvolvedIds -> {
+            // 2. Sau khi có tất cả sân liên quan, tạo danh sách slot để kiểm tra
+            List<BookingSlotRequest> slotsToCheck = buildSlotRequests(args, allInvolvedIds);
+            if (slotsToCheck.isEmpty()) {
+                _error.postValue("Không có ngày hợp lệ để kiểm tra.");
+                _isLoading.postValue(false);
+                return;
+            }
+
+            // 3. Gọi API checkAvailability
+            checkAvailabilityAndProceed(slotsToCheck, args);
+        });
+    }
+
+    public void onBookingSuccessNavigated() {
+        _bookingSuccess.setValue(false);
+    }
+
+    private void getAllInvolvedCourts(List<Integer> selectedCourtIds, final OnInvolvedCourtsReady callback) {
+        Set<Integer> allInvolvedIds = new HashSet<>(selectedCourtIds);
+        AtomicInteger pendingCalls = new AtomicInteger(selectedCourtIds.size() * 2);
+
+        if (pendingCalls.get() == 0) {
+            callback.onReady(new ArrayList<>(allInvolvedIds));
+            return;
+        }
+
+        for (int courtId : selectedCourtIds) {
+            // Lấy sân cha
+            apiService.getAllCourtRelationByChildId(courtId).enqueue(new Callback<List<ReadCourtRelationDTO>>() {
+                @Override
+                public void onResponse(Call<List<ReadCourtRelationDTO>> call, Response<List<ReadCourtRelationDTO>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        for (ReadCourtRelationDTO relation : response.body()) {
+                            allInvolvedIds.add(relation.getParentCourtId());
+                        }
+                    }
+                    if (pendingCalls.decrementAndGet() == 0) {
+                        callback.onReady(new ArrayList<>(allInvolvedIds));
+                    }
+                }
+                @Override
+                public void onFailure(Call<List<ReadCourtRelationDTO>> call, Throwable t) {
+                    if (pendingCalls.decrementAndGet() == 0) {
+                        callback.onReady(new ArrayList<>(allInvolvedIds));
+                    }
+                }
+            });
+
+            // Lấy sân con
+            apiService.getAllCourtRelationByParentId(courtId).enqueue(new Callback<List<ReadCourtRelationDTO>>() {
+                @Override
+                public void onResponse(Call<List<ReadCourtRelationDTO>> call, Response<List<ReadCourtRelationDTO>> response) {
+                    if (response.isSuccessful() && response.body() != null) {
+                        for (ReadCourtRelationDTO relation : response.body()) {
+                            allInvolvedIds.add(relation.getChildCourtId());
+                        }
+                    }
+                    if (pendingCalls.decrementAndGet() == 0) {
+                        callback.onReady(new ArrayList<>(allInvolvedIds));
+                    }
+                }
+                @Override
+                public void onFailure(Call<List<ReadCourtRelationDTO>> call, Throwable t) {
+                    if (pendingCalls.decrementAndGet() == 0) {
+                        callback.onReady(new ArrayList<>(allInvolvedIds));
+                    }
+                }
+            });
+        }
+    }
+
+    private List<BookingSlotRequest> buildSlotRequests(Bundle args, List<Integer> allInvolvedIds) {
+        List<BookingSlotRequest> slots = new ArrayList<>();
+        int year = args.getInt("YEAR");
+        int month = args.getInt("MONTH");
+        int startHour = args.getInt("START_TIME");
+        int endHour = args.getInt("END_TIME");
+
+        String[] dateStrings = args.getStringArray("BOOKABLE_DATES");
+        if (dateStrings == null) return slots;
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
+        for (String dateStr : dateStrings) {
+            LocalDate date = LocalDate.parse(dateStr);
+            LocalDateTime startTime = date.atTime(startHour, 0);
+            LocalDateTime endTime = date.atTime(endHour, 0);
+
+            for (int courtId : allInvolvedIds) {
+                slots.add(new BookingSlotRequest(courtId, startTime.format(formatter), endTime.format(formatter)));
+            }
+        }
+        return slots;
+    }
+
+    private void checkAvailabilityAndProceed(List<BookingSlotRequest> slotsToCheck, Bundle args) {
+        apiService.checkSlotsAvailability(slotsToCheck).enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (response.isSuccessful()) {
+                    // Sân trống, tiến hành tạo booking
+                    proceedToCreateBooking(args);
+                } else {
+                    _isLoading.postValue(false);
+                    _error.postValue("Rất tiếc, một trong các ngày bạn chọn đã có người khác đặt.");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                _isLoading.postValue(false);
+                _error.postValue("Lỗi mạng khi kiểm tra lịch: " + t.getMessage());
+            }
+        });
+    }
+
+    private void proceedToCreateBooking(Bundle args) {
+        int stadiumId = args.getInt("stadiumId", 0);
+        float totalPrice = args.getFloat("TOTAL_PRICE", 0f);
+        String startTimeStr = String.format(Locale.US, "%02d:00", args.getInt("START_TIME"));
+        String endTimeStr = String.format(Locale.US, "%02d:00", args.getInt("END_TIME"));
+        int month = args.getInt("MONTH");
+        int year = args.getInt("YEAR");
+
+        int[] courtIds = args.getIntArray("COURT_IDS");
+        List<Integer> courtIdList = (courtIds != null) ? Arrays.stream(courtIds).boxed().collect(Collectors.toList()) : new ArrayList<>();
+
+        String[] dateStrings = args.getStringArray("BOOKABLE_DATES");
+        List<Integer> dayList = new ArrayList<>();
+        if (dateStrings != null) {
+            for (String dateStr : dateStrings) {
+                dayList.add(LocalDate.parse(dateStr).getDayOfMonth());
+            }
+        }
+
+        MonthlyBookingCreateDto dto = new MonthlyBookingCreateDto(
+                stadiumId, totalPrice, totalPrice, "cod",
+                startTimeStr, endTimeStr, month, year, dayList, courtIdList
+        );
+
+        apiService.createMonthlyBooking(dto).enqueue(new Callback<BookingReadDto>() {
+            @Override
+            public void onResponse(Call<BookingReadDto> call, Response<BookingReadDto> response) {
+                _isLoading.postValue(false);
+                if (response.isSuccessful() && response.body() != null) {
+                    _error.postValue("Đặt sân hàng tháng thành công!");
+                    _bookingSuccess.postValue(true);
+                } else {
+                    _error.postValue("Tạo đơn đặt sân thất bại. Vui lòng thử lại.");
+                }
+            }
+            @Override
+            public void onFailure(Call<BookingReadDto> call, Throwable t) {
+                _isLoading.postValue(false);
+                _error.postValue("Lỗi mạng khi tạo đơn: " + t.getMessage());
+            }
+        });
+    }
+
+    // Interface để xử lý callback bất đồng bộ
+    interface OnInvolvedCourtsReady {
+        void onReady(List<Integer> allInvolvedIds);
     }
 }
