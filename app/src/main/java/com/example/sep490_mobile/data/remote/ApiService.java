@@ -302,4 +302,12 @@ public interface ApiService {
 
     @GET("myFavoriteStadium") // Hoặc endpoint đúng của bạn
     Call<List<ReadFavoriteDTO>> getMyFavoriteStadiums();
+
+    @GET("Booking/GetBookedCourts")
+    Call<List<BookingReadDto>> filterBySingleDateAndHour(
+            @Query("stadiumId") int stadiumId,
+            @Query("date") String date, // Format "YYYY-MM-DD"
+            @Query("startHour") int startHour,
+            @Query("endHour") int endHour
+    );
 }

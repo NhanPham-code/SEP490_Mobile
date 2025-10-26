@@ -16,6 +16,7 @@ import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.adapter.CellAdapter;
 import com.example.sep490_mobile.adapter.CourtHeaderAdapter;
 import com.example.sep490_mobile.adapter.ScheduleRowAdapter;
@@ -32,6 +33,9 @@ import com.example.sep490_mobile.viewmodel.BookingViewModel;
 import com.example.sep490_mobile.viewmodel.StadiumViewModel;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -62,14 +66,6 @@ public class VisuallyBookingFragment extends Fragment implements CellAdapter.OnC
 
     private boolean isInteractionAllowed = false;
     private final Map<Integer, List<Integer>> selectedSlots = new HashMap<>();
-
-    public static VisuallyBookingFragment newInstance(int stadiumId) {
-        VisuallyBookingFragment fragment = new VisuallyBookingFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_STADIUM_ID, stadiumId);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -122,7 +118,15 @@ public class VisuallyBookingFragment extends Fragment implements CellAdapter.OnC
             if (response != null && response.getItems() != null && !response.getItems().isEmpty()) {
                 StadiumDTO stadium = response.getItems().get(0);
                 setupScheduleUI(stadium);
-                bookingViewModel.fetchBookingsForDay(stadiumId, selectedDate);
+
+                // SỬA ĐỔI: Gọi phương thức mới với đủ tham số
+                LocalDate localDate = selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                int openHour = DurationConverter.parseHour(stadium.openTime);
+                int closeHour = DurationConverter.parseHour(stadium.closeTime);
+                LocalTime startTime = LocalTime.of(openHour, 0);
+                LocalTime endTime = LocalTime.of(closeHour, 0);
+                bookingViewModel.fetchBookingsForDay(stadiumId, localDate, startTime, endTime);
+
                 if (stadium.courts != null && !stadium.courts.isEmpty()) {
                     stadiumViewModel.fetchCourtRelations(new ArrayList<>(stadium.courts));
                 }
@@ -147,7 +151,22 @@ public class VisuallyBookingFragment extends Fragment implements CellAdapter.OnC
                 updateStats();
 
                 showLoading(true);
-                bookingViewModel.fetchBookingsForDay(stadiumId, selectedDate);
+
+                // SỬA ĐỔI: Gọi phương thức mới với đủ tham số
+                StadiumDTO currentStadium = stadiumViewModel.stadiums.getValue() != null ? stadiumViewModel.stadiums.getValue().getItems().get(0) : null;
+                if (currentStadium != null) {
+                    LocalDate localDate = selectedDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                    int openHour = DurationConverter.parseHour(currentStadium.openTime);
+                    int closeHour = DurationConverter.parseHour(currentStadium.closeTime);
+                    LocalTime startTime = LocalTime.of(openHour, 0);
+                    LocalTime endTime = LocalTime.of(closeHour, 0);
+                    bookingViewModel.fetchBookingsForDay(stadiumId, localDate, startTime, endTime);
+                } else {
+                    // Fallback hoặc xử lý lỗi nếu không có dữ liệu sân
+                    Toast.makeText(getContext(), "Lỗi: Dữ liệu sân không có sẵn.", Toast.LENGTH_SHORT).show();
+                    showLoading(false);
+                }
+
 
                 if (scheduleRowAdapter != null) {
                     scheduleRowAdapter.setSelectedDate(selectedDate);
@@ -391,19 +410,48 @@ public class VisuallyBookingFragment extends Fragment implements CellAdapter.OnC
         return result;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
+
+    public static VisuallyBookingFragment newInstance(int stadiumId) {
+        VisuallyBookingFragment fragment = new VisuallyBookingFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_STADIUM_ID, stadiumId);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
     private void navigateToCheckout() {
+        // ===> BƯỚC 1: KIỂM TRA LOGIN TRƯỚC TIÊN <===
+        // Sử dụng bookingViewModel đã được khởi tạo ở onViewCreated
+        if (bookingViewModel == null || !bookingViewModel.isLoggedIn()) {
+            Toast.makeText(getContext(), "Vui lòng đăng nhập để tiếp tục", Toast.LENGTH_SHORT).show();
+            // Điều hướng đến trang đăng nhập (navigation_account)
+            NavHostFragment.findNavController(this).navigate(R.id.navigation_account);
+            return; // Dừng thực thi
+        }
+        // ===========================================
+
+        // BƯỚC 2: Validate dữ liệu (logic cũ)
         ArrayList<SelectedCourtInfo> groupedData = getSelectedCourtsGrouped();
         if (groupedData.isEmpty()) {
             Toast.makeText(getContext(), "Vui lòng chọn ít nhất một khung giờ", Toast.LENGTH_SHORT).show();
             return;
         }
 
+        // ... (Phần còn lại của hàm giữ nguyên) ...
         String dateString = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(selectedDate.getTime());
         float totalPrice = 0;
         try {
             totalPrice = Float.parseFloat(binding.tvTotalPrice.getText().toString().replaceAll("[^\\d]", ""));
         } catch (NumberFormatException e) {
             // Xử lý lỗi nếu không parse được
+            Log.e("VisuallyBooking", "Error parsing total price", e);
+            Toast.makeText(getContext(), "Lỗi tính tổng tiền", Toast.LENGTH_SHORT).show();
+            return; // Dừng lại nếu không lấy được giá
         }
 
         VisuallyBookingFragmentDirections.ActionVisuallyBookingFragmentToCheckoutFragment action =
@@ -415,11 +463,5 @@ public class VisuallyBookingFragment extends Fragment implements CellAdapter.OnC
                 );
 
         NavHostFragment.findNavController(this).navigate(action);
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 }

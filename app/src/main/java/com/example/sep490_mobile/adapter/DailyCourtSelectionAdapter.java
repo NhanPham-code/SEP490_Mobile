@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-public class CourtSelectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class DailyCourtSelectionAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final List<CourtDisplayItem> items;
     private final Context context;
@@ -29,7 +29,7 @@ public class CourtSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private Set<Integer> selectedCourtIds = new HashSet<>();
     private Set<Integer> selectedCourtRelationIds = new HashSet<>();
 
-    public CourtSelectionAdapter(Context context, List<CourtDisplayItem> items, OnCourtClickListener listener) {
+    public DailyCourtSelectionAdapter(Context context, List<CourtDisplayItem> items, OnCourtClickListener listener) {
         this.context = context;
         this.items = items;
         this.listener = listener;
@@ -43,7 +43,7 @@ public class CourtSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.bookedCourtIds = bookedCourtIds != null ? bookedCourtIds : new HashSet<>();
         notifyDataSetChanged();
     }
-    public void setBookedCourtRelationIds(Set<Integer> relationIds) {
+    public void setBookedRelationCourtIds(Set<Integer> relationIds) {
         this.bookedCourtRelationIds = relationIds != null ? relationIds : new HashSet<>();
         notifyDataSetChanged();
     }
@@ -51,7 +51,7 @@ public class CourtSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         this.selectedCourtIds = selectedIds != null ? selectedIds : new HashSet<>();
         notifyDataSetChanged();
     }
-    public void setSelectedCourtRelationIds(Set<Integer> relationIds) {
+    public void setSelectedRelationCourtIds(Set<Integer> relationIds) {
         this.selectedCourtRelationIds = relationIds != null ? relationIds : new HashSet<>();
         notifyDataSetChanged();
     }
@@ -132,33 +132,29 @@ public class CourtSelectionAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             NumberFormat currencyFormat = NumberFormat.getCurrencyInstance(new Locale("vi", "VN"));
             tvCourtPrice.setText(currencyFormat.format(court.getPricePerHour()));
 
-            // Xác định các trạng thái
             boolean isBlockedBySystem = !court.isAvailable();
             boolean isBookedByOther = bookedCourtIds.contains(court.getId());
             boolean isRelatedToBooked = bookedCourtRelationIds.contains(court.getId());
             boolean isSelectedByMe = selectedCourtIds.contains(court.getId());
             boolean isRelatedToSelected = selectedCourtRelationIds.contains(court.getId());
 
-            // Mặc định view có thể tương tác
             itemView.setAlpha(1.0f);
             itemView.setClickable(true);
 
-            // SỬA ĐỔI: Logic ưu tiên mới
             if (isBlockedBySystem) {
                 setStatus("Bảo trì", R.drawable.bg_status_unavailable, R.color.status_text_unavailable);
+                itemView.setClickable(false);
+            } else if (isBookedByOther) {
+                setStatus("Đã đặt", R.drawable.bg_status_booked, R.color.status_text_booked);
+                itemView.setClickable(false);
+            } else if (isRelatedToBooked) {
+                setStatus("Liên quan", R.drawable.bg_status_related, R.color.status_text_related);
                 itemView.setClickable(false);
             } else if (isSelectedByMe) {
                 setStatus("Đã chọn", R.drawable.bg_status_selected, R.color.status_text_selected);
             } else if (isRelatedToSelected) {
-                // Chỉ vô hiệu hóa click cho sân liên quan đến sân ĐÃ CHỌN
                 setStatus("Liên quan", R.drawable.bg_status_related, R.color.status_text_related);
                 itemView.setClickable(false);
-            } else if (isBookedByOther) {
-                setStatus("Đã đặt", R.drawable.bg_status_booked, R.color.status_text_booked);
-                // VẪN CHO PHÉP CLICK
-            } else if (isRelatedToBooked) {
-                setStatus("Liên quan", R.drawable.bg_status_related, R.color.status_text_related);
-                // VẪN CHO PHÉP CLICK
             } else {
                 setStatus("Có thể đặt", R.drawable.bg_status_available, R.color.status_text_available);
             }

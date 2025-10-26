@@ -19,6 +19,9 @@
         <action
             android:id="@+id/action_navigation_home_to_monthlyBookingFragment"
             app:destination="@id/monthlyBookingFragment" />
+        <action
+            android:id="@+id/action_navigation_home_to_dailyBookingFragment"
+            app:destination="@id/dailyBookingFragment" />
     </fragment>
 
     <fragment
@@ -213,9 +216,53 @@
             android:name="booking"
             app:argType="com.example.sep490_mobile.data.dto.ScheduleBookingDTO" />
     </fragment>
+
     <fragment
         android:id="@+id/bookingHistoryFragment"
     android:name="com.example.sep490_mobile.ui.bookinghistory.BookingHistoryFragment"
     android:label="fragment_booking_history"
     tools:layout="@layout/fragment_booking_history" />
+
+    <fragment
+        android:id="@+id/dailyBookingFragment"
+        android:name="com.example.sep490_mobile.ui.booking.DailyBookingFragment"
+        android:label="Đặt sân theo danh sách"
+        tools:layout="@layout/fragment_daily_booking">
+        <argument
+            android:name="stadiumId"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_dailyBookingFragment_to_checkoutTimeZoneFragment"
+            app:destination="@id/checkoutTimeZoneFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkoutTimeZoneFragment"
+        android:name="com.example.sep490_mobile.ui.booking.CheckoutTimeZoneFragment"
+        android:label="Thông Tin Đặt Sân"
+        tools:layout="@layout/fragment_checkout_time_zone"> <argument
+        android:name="stadiumId"
+        app:argType="integer" />
+        <argument
+            android:name="stadiumName"
+            app:argType="string" />
+        <argument
+            android:name="courtIds"
+            app:argType="integer[]" />
+        <argument
+            android:name="courtNames"
+            app:argType="string[]" />
+        <argument
+            android:name="date"
+            app:argType="string" />
+        <argument
+            android:name="startTime"
+            app:argType="integer" />
+        <argument
+            android:name="endTime"
+            app:argType="integer" />
+        <argument
+            android:name="totalPrice"
+            app:argType="float" />
+    </fragment>
 </navigation>

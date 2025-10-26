@@ -182,4 +182,7 @@
         <color name="status_text_booked">#E53935</color>
         <color name="status_text_related">#FFA000</color>
         <color name="status_text_selected">#1976D2</color>
+        <color name="amber_dark">#FFB300</color>
+        <color name="chip_background_orange">#FFE0B2</color> <!-- Amber 200 -->
+        <color name="chip_text_orange">#FF8F00</color> <!-- Amber 800 -->
 </resources>

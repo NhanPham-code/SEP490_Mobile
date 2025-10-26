@@ -3,21 +3,22 @@ package com.example.sep490_mobile.data.dto;
 import com.google.gson.annotations.SerializedName;
 
 public class BookingDetailDTO {
-    @SerializedName("Id")
+    @SerializedName(value = "id", alternate = "Id")
     private int id;
 
-    @SerializedName("BookingId")
+    @SerializedName(value = "bookingId", alternate = "BookingId")
     private int bookingId;
 
-    @SerializedName("courtId")
+    @SerializedName(value = "courtId", alternate = "CourtId")
     private int courtId;
 
-    @SerializedName("StartTime")
+    @SerializedName(value = "startTime", alternate = "StartTime")
     private String startTime;
 
-    @SerializedName("EndTime")
+    @SerializedName(value = "endTime", alternate = "EndTime")
     private String endTime;
 
+    // Constructor và Getters/Setters không thay đổi
     public BookingDetailDTO(int id, int bookingId, int courtId, String startTime, String endTime) {
         this.id = id;
         this.bookingId = bookingId;

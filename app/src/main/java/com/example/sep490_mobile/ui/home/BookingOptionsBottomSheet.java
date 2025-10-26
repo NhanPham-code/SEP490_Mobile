@@ -55,10 +55,12 @@ public class BookingOptionsBottomSheet extends BottomSheetDialogFragment {
             dismiss(); // Close the bottom sheet after navigation
         });
 
-        // Click listeners for other options (show a simple message for now)
         binding.optionListBooking.setOnClickListener(v -> {
-            Toast.makeText(getContext(), "Đặt sân theo danh sách (chưa triển khai)", Toast.LENGTH_SHORT).show();
-            // dismiss();
+            // Sử dụng action an toàn kiểu từ HomeFragmentDirections
+            HomeFragmentDirections.ActionNavigationHomeToDailyBookingFragment action =
+                    HomeFragmentDirections.actionNavigationHomeToDailyBookingFragment(stadiumId);
+            NavHostFragment.findNavController(this).navigate(action);
+            dismiss();
         });
 
         binding.optionMonthlyBooking.setOnClickListener(v -> {

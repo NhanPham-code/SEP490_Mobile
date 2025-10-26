@@ -195,6 +195,14 @@ public class MonthlyBookingFragment extends Fragment implements CalendarClickLis
                 viewModel.onCheckoutNavigated(); // Reset trạng thái để không bị navigate lại
             }
         });
+
+        viewModel.navigateToLogin.observe(getViewLifecycleOwner(), shouldNavigate -> {
+            if (shouldNavigate != null && shouldNavigate) {
+                // Điều hướng đến fragment/màn hình Đăng nhập (navigation_account)
+                NavHostFragment.findNavController(this).navigate(R.id.navigation_account);
+                viewModel.onLoginNavigated(); // Reset trigger
+            }
+        });
     }
 
     @Override

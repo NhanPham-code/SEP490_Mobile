@@ -1,6 +1,8 @@
 package com.example.sep490_mobile.viewmodel;
 
 import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,10 +28,12 @@ import com.example.sep490_mobile.data.model.TimeSlot;
 import com.example.sep490_mobile.data.remote.ApiClient;
 import com.example.sep490_mobile.data.remote.ApiService;
 import com.example.sep490_mobile.model.BookingSummary;
+import com.example.sep490_mobile.model.TimeZone;
 
 import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
@@ -92,6 +96,8 @@ public class BookingCalendarViewModel extends AndroidViewModel {
     public LiveData<Bundle> navigateToCheckout = _navigateToCheckout;
     private final MediatorLiveData<BookingSummary> _bookingSummary = new MediatorLiveData<>();
     public LiveData<BookingSummary> bookingSummary = _bookingSummary;
+    private final MutableLiveData<Boolean> _navigateToLogin = new MutableLiveData<>(false);
+    public LiveData<Boolean> navigateToLogin = _navigateToLogin;
 
     public LiveData<String> monthYearText = Transformations.map(_currentYearMonth, yearMonth -> {
         if (yearMonth == null) return "";
@@ -543,7 +549,29 @@ public class BookingCalendarViewModel extends AndroidViewModel {
         _bookingSummary.postValue(new BookingSummary(numberOfCourts, numberOfDays, duration, totalCost));
     }
 
+    private boolean isLoggedIn() {
+        // Sử dụng đúng tên SharedPreferences và key bạn cung cấp
+        SharedPreferences prefs = getApplication().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+        int currentUserId = prefs.getInt("user_id", -1);
+
+        // Nếu userId khác -1 (giá trị default), nghĩa là người dùng đã đăng nhập
+        return currentUserId != -1;
+    }
+
+    public void onLoginNavigated() {
+        _navigateToLogin.setValue(false);
+    }
+
     public void onContinueClicked() {
+        // ===> BƯỚC 1: KIỂM TRA LOGIN TRƯỚC TIÊN <===
+        if (!isLoggedIn()) {
+            _toastMessage.postValue("Vui lòng đăng nhập để tiếp tục");
+            _navigateToLogin.postValue(true);
+            return; // Dừng thực thi
+        }
+        // ===========================================
+
+        // BƯỚC 2: Validate dữ liệu (logic cũ)
         Set<LocalDate> currentSelectedDates = _selectedDates.getValue();
         Integer start = _startTime.getValue();
         Integer end = _endTime.getValue();
@@ -568,6 +596,7 @@ public class BookingCalendarViewModel extends AndroidViewModel {
             return;
         }
 
+        // ... (Phần còn lại của hàm giữ nguyên) ...
         Set<LocalDate> actualBookableDates = new HashSet<>();
         if (currentBookedDays != null) {
             for (LocalDate date : currentSelectedDates) {
