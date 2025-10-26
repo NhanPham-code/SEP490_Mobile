@@ -45,24 +45,28 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <!-- Nút Yêu thích - Phong cách Tonal -->
             <ImageButton
                 android:id="@+id/favorite_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
                 android:background="@drawable/circle_border_ocean"
-                android:contentDescription="Favorite"
+                android:contentDescription="Yêu thích"
+                android:padding="12dp"
                 android:src="@drawable/ic_heart"
-                app:tint="@android:color/black" />
+                app:tint="@color/secondary_green_dark" /> <!-- Màu xanh chính, đậm hơn nền -->
 
+            <!-- Nút Bản đồ - Phong cách Tonal -->
             <ImageButton
                 android:id="@+id/map_button"
-                android:layout_width="40dp"
-                android:layout_height="40dp"
-                android:layout_marginStart="8dp"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginStart="12dp"
                 android:background="@drawable/circle_border_ocean"
-                android:contentDescription="Map"
+                android:contentDescription="Bản đồ"
+                android:padding="12dp"
                 android:src="@drawable/ic_map_black_24dp"
-                app:tint="@android:color/black" />
+                app:tint="@color/secondary_green_dark" />
         </LinearLayout>
 
 

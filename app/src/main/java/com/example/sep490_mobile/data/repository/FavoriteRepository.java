@@ -1,6 +1,8 @@
 package com.example.sep490_mobile.data.repository;
 
 import android.content.Context;
+
+import com.example.sep490_mobile.data.dto.favorite.CreateFavoriteDTO;
 import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
 import com.example.sep490_mobile.data.remote.ApiClient;
 import com.example.sep490_mobile.data.remote.ApiService;
@@ -25,4 +27,15 @@ public class FavoriteRepository {
         // Make sure the ApiService interface has the getMyFavoriteStadiums method defined
         return apiService.getMyFavoriteStadiums();
     }
+
+    public Call<Void> addFavoriteStadium(CreateFavoriteDTO createFavoriteDTO) {
+        return apiService.addFavorite(createFavoriteDTO);
+    }
+
+    public Call<Void> removeFavoriteStadium(int userId, int stadiumId) {
+        return apiService.removeFavorite(userId, stadiumId);
+    }
+
+
+
 }

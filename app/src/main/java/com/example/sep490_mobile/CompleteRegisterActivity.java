@@ -174,7 +174,7 @@ public class CompleteRegisterActivity extends AppCompatActivity {
         viewModel.getRegisterSuccess().observe(this, isSuccess -> {
             if (isSuccess) {
                 Toast.makeText(this, "Đăng ký tài khoản thành công!", Toast.LENGTH_LONG).show();
-                Intent intent = new Intent(this, LoginActivity.class);
+                Intent intent = new Intent(this, MainActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
             }

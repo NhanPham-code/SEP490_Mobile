@@ -29,18 +29,32 @@
         android:textColorHint="#9E9E9E"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/filter_button"
-        app:layout_constraintHorizontal_weight="1"
+        app:layout_constraintEnd_toStartOf="@+id/favorite_list_button"
         android:layout_marginEnd="12dp" android:elevation="4dp" />
 
     <ImageButton
-        android:id="@+id/filter_button"
-        android:layout_marginRight="5dp"
+        android:id="@+id/favorite_list_button"
         android:layout_width="48dp"
-        android:layout_height="48dp" android:src="@drawable/ic_filter_list"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_favorite_border"
+        android:contentDescription="Danh sách yêu thích"
+        android:background="@drawable/rounded_filter_background"
+        app:tint="@color/secondary_green_dark"
+        app:layout_constraintTop_toTopOf="@+id/search_edit_text"
+        app:layout_constraintBottom_toBottomOf="@+id/search_edit_text"
+        app:layout_constraintEnd_toStartOf="@+id/filter_button"
+        android:layout_marginEnd="8dp"
+        android:elevation="4dp" />
+
+    <ImageButton
+        android:id="@+id/filter_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_filter_list"
         android:contentDescription="Lọc danh sách"
         android:background="@drawable/rounded_filter_background"
-        app:tint="@color/secondary_green_dark" app:layout_constraintTop_toTopOf="@+id/search_edit_text"
+        app:tint="@color/secondary_green_dark"
+        app:layout_constraintTop_toTopOf="@+id/search_edit_text"
         app:layout_constraintBottom_toBottomOf="@+id/search_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
         android:elevation="4dp" />

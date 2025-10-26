@@ -24,7 +24,7 @@ import com.example.sep490_mobile.data.dto.PublicProfileDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.HtmlConverter;
 import com.example.sep490_mobile.utils.ImageUtils;
