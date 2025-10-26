@@ -4,11 +4,7 @@
     <style name="StadiumDetail" />
 
     <!-- Header Styles -->
-    <style name="StadiumDetail.BackButton">
-        <item name="android:background">@drawable/circle_background_mint</item>
-        <item name="android:src">@drawable/ic_arrow_back_48dp</item>
-        <item name="tint">@android:color/white</item>
-    </style>
+
 
     <style name="StadiumDetail.Title">
 

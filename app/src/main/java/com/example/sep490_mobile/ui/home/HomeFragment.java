@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +25,7 @@ import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentHomeBinding;
 import com.example.sep490_mobile.interfaces.OnFavoriteClickListener;
+import com.example.sep490_mobile.ui.stadiumDetail.StadiumDetailFragment;
 import com.example.sep490_mobile.utils.removeVietnameseSigns;
 import com.example.sep490_mobile.viewmodel.FavoriteViewModel;
 import com.example.sep490_mobile.viewmodel.StadiumViewModel;
@@ -79,8 +81,20 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         stadiumViewModel.fetchStadium(odataUrl); // Tải dữ liệu ban đầu
         favoriteViewModel.fetchFavoriteStadiums(); // Tải danh sách yêu thích ban đầu
 
+        filterStadiums();
         setupObservers();
         setupPagination();
+    }
+
+    private void filterStadiums() {
+        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+        model.getSelected().observe(getViewLifecycleOwner(), stringStringMap -> {
+            if (stringStringMap != null) {
+                odataUrl.put("$filter", stringStringMap.get("$filter"));
+                performSearch();
+            }
+        });
     }
 
     private void initViewModels() {
@@ -250,20 +264,38 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
     }
 
     private void setupPagination() {
+        // Giả sử binding.recyclerView là RecyclerView của bạn
         LinearLayoutManager layoutManager = (LinearLayoutManager) binding.myRecyclerView.getLayoutManager();
+
         binding.myRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                // Không phân trang khi đang ở chế độ xem yêu thích
-                if (layoutManager == null || isFavoriteMode) return;
 
+                if (layoutManager == null) return;
+
+                // Số lượng mục hiện tại
                 int visibleItemCount = layoutManager.getChildCount();
+                // Số lượng mục đã tải
                 int totalItemCount = layoutManager.getItemCount();
+                // Vị trí của mục đầu tiên đang thấy
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
 
+                System.out.println("test visibleItemCount: " + visibleItemCount);
+                System.out.println("test totalItemCount: " + totalItemCount);
+                System.out.println("test firstVisibleItemPosition: " + firstVisibleItemPosition);
+                System.out.println("test skip: " + skip);
+
+
+                // Kiểm tra điều kiện để tải thêm:
+                // 1. Không đang tải (isLoading == false)
+                // 2. Chưa phải trang cuối (isLastPage == false)
+                // 3. Đã cuộn gần đến cuối (firstVisibleItemPosition + visibleItemCount >= totalItemCount - THRESHOLD)
                 if (!isLoading && !isLastPage) {
-                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount && firstVisibleItemPosition >= 0 && totalItemCount < count) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount
+                            && firstVisibleItemPosition >= 0
+                            && totalItemCount < count) { // Đảm bảo đã tải ít nhất 1 trang đầy đủ
+
                         loadMoreItems();
                     }
                 }
@@ -273,10 +305,46 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
 
     private void loadMoreItems() {
         isLoading = true;
-        skip += PAGE_SIZE;
-        odataUrl.put("$skip", String.valueOf(skip));
-        // Gọi phương thức loadMore từ ViewModel
+
+
+        if(count - (skip + 10) <= 0){
+            if(count - (skip + 10) <= -10){
+                isLastPage = true;
+            }else{
+                skip += 10;
+                isLastPage = true;
+
+                int take = count - skip;
+                odataUrl.replace("$top", take + "");
+                odataUrl.replace("$skip", skip + "");
+                callApiForNextPage();
+
+            }
+        }else{
+
+
+            isLastPage = false;
+            skip += 10;
+            odataUrl.replace("$skip", skip + "");
+            callApiForNextPage();
+        }
+
+        // 1. Hiển thị ProgressBar (tùy chọn)
+        // binding.progressBar.setVisibility(View.VISIBLE);
+
+        // 2. Gọi API để tải trang mới
+
+    }
+
+
+    private void callApiForNextPage() {
+        isLoading = true; // Đặt ở đây để đảm bảo
+
         stadiumViewModel.loadMore(odataUrl);
+        isLoading = false;
+        if (count < PAGE_SIZE) {
+            isLastPage = true;
+        }
     }
 
     private void showLoading() {
@@ -296,12 +364,18 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         fragmentTransaction.addToBackStack("HomeFragment");
         fragmentTransaction.commit();
     }
-
+    private void navigateToDetailFragment(int stadiumId) {
+        StadiumDetailFragment stadiumDetailFragment = new StadiumDetailFragment().newInstance(stadiumId);
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+        fragmentTransaction.replace(R.id.nav_host_fragment_activity_main, stadiumDetailFragment);
+        fragmentTransaction.addToBackStack("HomeFragment");
+        fragmentTransaction.commit();
+    }
     @Override
     public void onItemClick(int stadiumId) {
-        HomeFragmentDirections.ActionNavigationHomeToStadiumDetailFragment action =
-                HomeFragmentDirections.actionNavigationHomeToStadiumDetailFragment(stadiumId);
-        NavHostFragment.findNavController(this).navigate(action);
+        navigateToDetailFragment(stadiumId);
     }
 
     @Override
@@ -319,5 +393,18 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
     public void onDestroyView() {
         super.onDestroyView();
         binding = null; // Tránh memory leak
+    }
+
+    @Override
+    public void onDailyBookButtonClick(int stadiumId) {
+        // Lấy NavController
+        NavController navController = NavHostFragment.findNavController(HomeFragment.this);
+
+        // Tạo Bundle để truyền stadiumId
+        Bundle bundle = new Bundle();
+        bundle.putInt("stadiumId", stadiumId);
+
+        // Điều hướng đến dailyBookingFragment
+        navController.navigate(R.id.action_navigation_home_to_dailyBookingFragment, bundle);
     }
 }

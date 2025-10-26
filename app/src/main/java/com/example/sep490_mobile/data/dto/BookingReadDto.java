@@ -5,46 +5,47 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 public class BookingReadDto {
-    @SerializedName("Id")
+    @SerializedName(value = "id", alternate = "Id")
     private int id;
 
-    @SerializedName("UserId")
+    @SerializedName(value = "userId", alternate = "UserId")
     private int userId;
 
-    @SerializedName("CreatedById")
+    @SerializedName(value = "createdById", alternate = "CreatedById")
     private int createdById;
 
-    @SerializedName("Status")
+    @SerializedName(value = "status", alternate = "Status")
     private String status;
 
-    @SerializedName("date")
+    // "date" (thường) là ưu tiên, "Date" (hoa) là dự phòng
+    @SerializedName(value = "date", alternate = "Date")
     private String date;
 
-    @SerializedName("TotalPrice")
+    @SerializedName(value = "totalPrice", alternate = "TotalPrice")
     private double totalPrice;
 
-    @SerializedName("OriginalPrice")
+    @SerializedName(value = "originalPrice", alternate = "OriginalPrice")
     private double originalPrice;
 
-    @SerializedName("Note")
+    @SerializedName(value = "note", alternate = "Note")
     private String note;
 
-    @SerializedName("PaymentMethod")
+    @SerializedName(value = "paymentMethod", alternate = "PaymentMethod")
     private String paymentMethod;
 
-    @SerializedName("CreatedAt")
+    @SerializedName(value = "createdAt", alternate = "CreatedAt")
     private String createdAt;
 
-    @SerializedName("UpdatedAt")
+    @SerializedName(value = "updatedAt", alternate = "UpdatedAt")
     private String updatedAt;
 
-    // Key này cũng cần là PascalCase
-    @SerializedName("bookingDetails")
+    @SerializedName(value = "bookingDetails", alternate = "BookingDetails")
     private List<BookingDetailDTO> bookingDetails;
 
-    @SerializedName("StadiumId")
+    @SerializedName(value = "stadiumId", alternate = "StadiumId")
     private int stadiumId;
 
+    // Constructor và Getters/Setters không thay đổi
     public BookingReadDto(int id, int userId, int createdById, String status, String date, double totalPrice, double originalPrice, String note, String paymentMethod, String createdAt, String updatedAt, List<BookingDetailDTO> bookingDetails, int stadiumId) {
         this.id = id;
         this.userId = userId;
@@ -80,6 +81,8 @@ public class BookingReadDto {
     public int getCreatedById() {
         return createdById;
     }
+
+
 
     public void setCreatedById(int createdById) {
         this.createdById = createdById;

@@ -322,4 +322,9 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
     public void onBookButtonClick(int stadiumId) {
 
     }
+
+    @Override
+    public void onDailyBookButtonClick(int stadiumId) {
+
+    }
 }

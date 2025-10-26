@@ -88,7 +88,9 @@
         app:cardElevation="2dp"
         android:layout_marginBottom="16dp"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        app:strokeColor="@color/amber_dark"
+        app:strokeWidth="1dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -100,10 +102,10 @@
             <ImageView
                 android:layout_width="48dp"
                 android:layout_height="48dp"
-                android:src="@drawable/ic_list_alt"
-                android:background="@drawable/circle_background_light_green"
+                android:src="@drawable/ic_date_range"
+                android:background="@drawable/circle_background_light_orange"
                 android:padding="8dp"
-                app:tint="@color/design_default_color_secondary"
+                app:tint="@color/amber_dark"
                 android:layout_marginEnd="16dp"/>
 
             <LinearLayout
@@ -128,8 +130,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Ổn định"
-                    app:chipBackgroundColor="@color/chip_background_green"
-                    android:textColor="@color/chip_text_green"
+                    app:chipBackgroundColor="@color/chip_background_orange"
+                    android:textColor="@color/chip_text_orange"
                     style="@style/Widget.MaterialComponents.Chip.Action"
                     android:layout_marginTop="8dp"/>
             </LinearLayout>
@@ -144,7 +146,9 @@
         app:cardElevation="2dp"
         android:layout_marginBottom="16dp"
         android:clickable="true"
-        android:focusable="true">
+        android:focusable="true"
+        app:strokeColor="@color/amber_dark"
+        app:strokeWidth="1dp">
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -156,9 +160,9 @@
                 android:layout_width="48dp"
                 android:layout_height="48dp"
                 android:src="@drawable/ic_date_range"
-                android:background="@drawable/circle_background_light_green"
+                android:background="@drawable/circle_background_light_orange"
                 android:padding="8dp"
-                app:tint="@color/design_default_color_secondary"
+                app:tint="@color/amber_dark"
                 android:layout_marginEnd="16dp"/>
 
             <LinearLayout
@@ -183,8 +187,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Ổn định"
-                    app:chipBackgroundColor="@color/chip_background_green"
-                    android:textColor="@color/chip_text_green"
+                    app:chipBackgroundColor="@color/chip_background_orange"
+                    android:textColor="@color/chip_text_orange"
                     style="@style/Widget.MaterialComponents.Chip.Action"
                     android:layout_marginTop="8dp"/>
             </LinearLayout>

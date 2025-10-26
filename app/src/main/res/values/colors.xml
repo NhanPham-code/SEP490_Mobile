@@ -115,7 +115,12 @@
         <color name="status_completed">#28A745</color>
         <color name="status_cancelled">#DC3545</color>
         <color name="status_payfail">#FFC107</color>
-
+        <color name="your_primary_color">#6200EE</color>
+        <color name="your_primary_dark_color">#3700B3</color>
+        <color name="your_secondary_color">#03DAC5</color>
+        <color name="your_secondary_dark_color">#018786</color>
+        <color name="grey_200">#EEEEEE</color>
+        <color name="blue_700">#1976D2</color>
         <color name="star_yellow">#FFD700</color> <!-- gold / vàng -->
         <color name="light_blue_background">#E3F2FD</color>
         <color name="light_green_background">#E8F5E9</color>
@@ -182,4 +187,7 @@
         <color name="status_text_booked">#E53935</color>
         <color name="status_text_related">#FFA000</color>
         <color name="status_text_selected">#1976D2</color>
+        <color name="amber_dark">#FFB300</color>
+        <color name="chip_background_orange">#FFE0B2</color> <!-- Amber 200 -->
+        <color name="chip_text_orange">#FF8F00</color> <!-- Amber 800 -->
 </resources>

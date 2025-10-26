@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 // 👇 THÊM DÒNG NÀY VÀO
 import com.example.sep490_mobile.ui.feedback.FeedbackFragment;
@@ -39,6 +40,7 @@ import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.StadiumImagesDTO;
 import com.example.sep490_mobile.data.dto.StadiumVideosDTO;
 import com.example.sep490_mobile.databinding.FragmentStadiumDetailBinding;
+import com.example.sep490_mobile.ui.home.FilterFragment;
 import com.example.sep490_mobile.utils.ImageUtils;
 import com.example.sep490_mobile.utils.PriceFormatter;
 import com.example.sep490_mobile.viewmodel.StadiumViewModel;
@@ -224,14 +226,15 @@ public class StadiumDetailFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 FragmentManager fragmentManager = getParentFragmentManager();
-                if (fragmentManager.getBackStackEntryCount() > 0) {
-                    getParentFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
 
 
-                } else {
-                    // Xử lý trường hợp không có gì trong back stack (hiếm)
-                    Toast.makeText(getContext(), "Không thể đóng Fragment", Toast.LENGTH_SHORT).show();
-                }
+                    // Xóa tất cả các fragment cho đến và bao gồm HomeFragment (để quay về Activity)
+                    // HOẶC, nếu HomeFragment là fragment gốc, dùng tên của nó để pop về.
+                System.out.println("backtohome: " + 1111);
+                    // Dòng code này sẽ pop tất cả các fragment cho đến fragment được đặt tên là "HomeFragment" (và bao gồm nó).
+                    // Nếu HomeFragment là màn hình chính, nó sẽ đóng fragment hiện tại và quay về màn hình trước đó của Activity.
+                    fragmentManager.popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
             }
         });
 
