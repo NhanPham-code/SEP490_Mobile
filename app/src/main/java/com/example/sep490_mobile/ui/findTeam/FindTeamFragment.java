@@ -175,7 +175,7 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         fragmentTransaction.commit();
     }
     private void navigateToCreatePostFragment(){
-        SelectBookingFragment filterFragment = new SelectBookingFragment().newInstance("FindTeamFragment", "");
+    SelectBookingFragment filterFragment = new SelectBookingFragment().newInstance("FindTeamFragment", "");
 
         // 2. Lấy FragmentManager
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
