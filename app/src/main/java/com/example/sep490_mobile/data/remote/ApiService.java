@@ -39,6 +39,7 @@ import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
 import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
+import com.example.sep490_mobile.data.dto.favorite.CreateFavoriteDTO;
 import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
 
 import java.util.List;
@@ -310,4 +311,22 @@ public interface ApiService {
             @Query("startHour") int startHour,
             @Query("endHour") int endHour
     );
+
+    @POST("favoriteStadium")
+    Call<Void> addFavorite(@Body CreateFavoriteDTO body);
+
+    // Get favorites (ODataFavorites mapped to /favoriteStadium GET)
+    @GET("favoriteStadium")
+    Call<List<ReadFavoriteDTO>> getFavoriteStadiums();
+
+    @GET("favoriteStadium/exists")
+    Call<Boolean> favoriteExists(@Query("userId") int userId, @Query("stadiumId") int stadiumId);
+
+    // Delete favorite by userId & stadiumId
+    @DELETE("favoriteStadium/{userId}/{stadiumId}")
+    Call<Void> removeFavorite(@Path("userId") int userId, @Path("stadiumId") int stadiumId);
+
+    // Get favorites for a stadium
+    @GET("favorite/stadium/{stadiumId}")
+    Call<List<ReadFavoriteDTO>> getFavoritesByStadium(@Path("stadiumId") int stadiumId);
 }

@@ -1,6 +1,7 @@
 package com.example.sep490_mobile.viewmodel;
 
 import android.app.Application;
+import android.content.Context;
 import android.net.Uri;
 import android.util.Log;
 
@@ -9,6 +10,8 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.example.sep490_mobile.data.dto.LoginRequestDTO;
+import com.example.sep490_mobile.data.dto.LoginResponseDTO;
 import com.example.sep490_mobile.data.dto.RegisterResponseDTO;
 import com.example.sep490_mobile.data.repository.UserRepository;
 
@@ -56,8 +59,8 @@ public class CompleteRegisterViewModel extends AndroidViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     // Đăng ký thành công!
                     Log.i(TAG, "Registration successful: " + response.body().getMessage());
-                    registerSuccess.postValue(true);
-                    // Bạn không cần làm gì với response.body().getUser() nếu không muốn
+                    // Auto login sau khi đăng ký thành công
+                    autoLogin(email, password);
                 } else {
                     // Xử lý lỗi
                     String errorMsg = "Đăng ký thất bại.";
@@ -80,6 +83,46 @@ public class CompleteRegisterViewModel extends AndroidViewModel {
                 errorMessage.postValue("Lỗi mạng: " + t.getMessage());
             }
         });
+    }
+
+    // --- PHƯƠNG THỨC MỚI ĐỂ ĐĂNG NHẬP TỰ ĐỘNG ---
+    private void autoLogin(String email, String password) {
+        LoginRequestDTO loginRequest = new LoginRequestDTO(email, password);
+        userRepository.login(loginRequest).enqueue(new Callback<LoginResponseDTO>() {
+            @Override
+            public void onResponse(@NonNull Call<LoginResponseDTO> call, @NonNull Response<LoginResponseDTO> response) {
+                isLoading.postValue(false); // Kết thúc loading tại đây
+                if (response.isSuccessful() && response.body() != null && response.body().isValid()) {
+                    // Đăng nhập thành công, lưu dữ liệu
+                    saveLoginData(response.body());
+                    Log.i(TAG, "Auto-login successful.");
+                    registerSuccess.postValue(true); // Phát tín hiệu thành công cuối cùng
+                } else {
+                    // Lỗi đăng nhập tự động (hiếm khi xảy ra nếu đăng ký thành công)
+                    Log.e(TAG, "Auto-login failed after registration.");
+                    errorMessage.postValue("Đăng ký thành công nhưng không thể tự động đăng nhập.");
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<LoginResponseDTO> call, @NonNull Throwable t) {
+                isLoading.postValue(false);
+                Log.e(TAG, "Auto-login network failure: " + t.getMessage(), t);
+                errorMessage.postValue("Đăng ký thành công. Lỗi mạng khi tự động đăng nhập.");
+            }
+        });
+    }
+
+    private void saveLoginData(LoginResponseDTO response) {
+        Context context = getApplication().getApplicationContext();
+        context.getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE)
+                .edit()
+                .putString("access_token", response.getAccessToken())
+                .putString("refresh_token", response.getRefreshToken())
+                .putInt("user_id", response.getUserId())
+                .putString("full_name", response.getFullName())
+                .putString("avatar_url", response.getAvatarUrl())
+                .apply();
     }
 
     // Các getter để UI có thể observe (theo dõi) sự thay đổi của LiveData

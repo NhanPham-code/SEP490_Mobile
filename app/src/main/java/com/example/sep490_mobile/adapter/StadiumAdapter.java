@@ -26,7 +26,8 @@ import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.CourtsDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.StadiumImagesDTO;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnFavoriteClickListener;
 import com.example.sep490_mobile.ui.home.BookingOptionsBottomSheet;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.ImageUtils;
@@ -37,19 +38,44 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumViewHolder> {
 
-    private List<StadiumDTO> stadiumDTOS;
+    private List<StadiumDTO> stadiumDTOS = new ArrayList<>();
     private Context context;
     public StadiumAdapter(Context context){
         this.context = context;
     }
     private OnItemClickListener listener;
+
+    private Set<Integer> favoriteIds = new HashSet<>();
+    private OnFavoriteClickListener favoriteClickListener;
+
+    public StadiumAdapter(Context context, OnItemClickListener listener, OnFavoriteClickListener favoriteClickListener) {
+        this.context = context;
+        this.listener = listener;
+        this.favoriteClickListener = favoriteClickListener;
+    }
+
     public void setStadiumDTOS(List<StadiumDTO> stadiumDTOS, OnItemClickListener listener){
         this.stadiumDTOS = stadiumDTOS;
         this.listener = listener;
+        notifyDataSetChanged();
+    }
+
+    public void setData(List<StadiumDTO> newStadiums, Set<Integer> newFavoriteIds) {
+        this.stadiumDTOS.clear();
+        this.stadiumDTOS.addAll(newStadiums);
+        this.favoriteIds = newFavoriteIds;
+        notifyDataSetChanged();
+    }
+
+    public void updateFavoriteIds(Set<Integer> newFavoriteIds) {
+        this.favoriteIds = newFavoriteIds;
         notifyDataSetChanged();
     }
 
@@ -88,6 +114,21 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         holder.stadiumTime.setText(time);
         holder.stadiumSportType.setText(sportType);
         Glide.with(this.context).load(ImageUtils.getFullUrl(stadiumImagesDTO.length > 0 ? "img/" + stadiumImagesDTO[0].imageUrl : "")).centerCrop().into(holder.stadiumImages);
+
+        // Xử lý icon trái tim yêu thích
+        // 1. Đồng bộ hóa trạng thái icon trái tim
+        if (favoriteIds.contains(stadiumDTO.getId())) {
+            holder.favorite_icon.setImageResource(R.drawable.ic_favorite_filled);
+        } else {
+            holder.favorite_icon.setImageResource(R.drawable.ic_favorite_border);
+        }
+
+        // 2. Bắt sự kiện click vào icon trái tim
+        holder.favorite_icon.setOnClickListener(v -> {
+            if (favoriteClickListener != null) {
+                favoriteClickListener.onFavoriteClick(stadiumDTO.getId());
+            }
+        });
 
         // nếu bị khóa hoặc chưa được chấp thuận thì không cho đặt sân
         if(stadiumDTO.isApproved == false){
@@ -221,6 +262,8 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         public ImageButton map_button; // Thêm ImageButton cho bản đồ
         public ConstraintLayout listItem;
 
+        public ImageButton favorite_icon; // Thêm ImageButton cho biểu tượng yêu thích
+
         public StadiumViewHolder(@NonNull View itemView) {
             super(itemView);
 
@@ -233,6 +276,7 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
             map_button = itemView.findViewById(R.id.map_button); // Ánh xạ view
             listItem = itemView.findViewById(R.id.list_item);
 
+            favorite_icon = itemView.findViewById(R.id.favorite_button); // Ánh xạ view
         }
     }
 }

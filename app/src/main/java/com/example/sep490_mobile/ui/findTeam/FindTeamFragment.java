@@ -23,7 +23,7 @@ import com.example.sep490_mobile.adapter.FindTeamAdapter;
 import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.FindTeamDTO;
 import com.example.sep490_mobile.databinding.FragmentFindTeamBinding;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
 

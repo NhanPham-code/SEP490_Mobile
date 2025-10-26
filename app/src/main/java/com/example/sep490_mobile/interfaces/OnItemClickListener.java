@@ -1,4 +1,4 @@
-package com.example.sep490_mobile.data.remote;
+package com.example.sep490_mobile.interfaces;
 
 public interface OnItemClickListener {
     // Phương thức sẽ được gọi khi một item trong Adapter được nhấn
