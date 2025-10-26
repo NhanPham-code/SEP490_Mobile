@@ -21,7 +21,7 @@ import com.google.android.material.button.MaterialButton;
 import android.widget.TextView;
 
 import com.example.sep490_mobile.R; // Assuming your resources are in the default R class
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 
 import java.util.Dictionary;
 import java.util.List;

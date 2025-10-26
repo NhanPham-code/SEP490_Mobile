@@ -1,8 +1,6 @@
 package com.example.sep490_mobile.adapter;
 
 //import static com.example.sep490_mobile.utils.DurationConverter.convertIsoPlayDate;
-import static com.example.sep490_mobile.utils.DurationConverter.convertTimeToIsoDuration;
-import static com.example.sep490_mobile.utils.DurationConverter.formatJoinDateFindTeam;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -20,16 +18,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.PublicProfileDTO;
-import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberForDetailDTO;
 import com.example.sep490_mobile.data.dto.TeamMemberDetailDTO;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.ImageUtils;
 import com.google.android.material.imageview.ShapeableImageView;
 
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.util.Dictionary;
 import java.util.List;
 

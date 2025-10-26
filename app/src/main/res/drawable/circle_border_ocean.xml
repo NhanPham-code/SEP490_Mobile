@@ -1,8 +1,9 @@
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape android:shape="oval">
-            <stroke android:width="2dp" android:color="@color/ocean_blue" />
-            <solid android:color="@color/white" />
-        </shape>
-    </item>
-</layer-list>
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval">
+    <!--
+      Màu nền là một màu xanh rất nhạt.
+      Đây là màu "tonal" của màu xanh chính (#0D6EFD).
+    -->
+    <solid android:color="#E7F0FF" />
+</shape>

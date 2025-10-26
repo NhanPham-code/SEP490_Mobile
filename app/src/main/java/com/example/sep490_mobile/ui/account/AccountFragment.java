@@ -148,10 +148,13 @@ public class AccountFragment extends Fragment {
 
         binding.menuSubject.getRoot().setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(AccountFragment.this);
-
-
             navController.navigate(R.id.action_navigation_account_to_bookingHistoryFragment);
+        });binding.menuDiscount.getRoot().setOnClickListener(v -> {
+            NavController navController = NavHostFragment.findNavController(AccountFragment.this);
+            navController.navigate(R.id.action_navigation_account_to_discountListFragment);
         });
+
+
         // --- XỬ LÝ SWITCH BIOMETRIC ---
         binding.switchBiometric.setOnCheckedChangeListener((buttonView, isChecked) -> {
             // Chỉ xử lý khi người dùng thực sự nhấn vào, không phải khi code tự set
@@ -182,9 +185,6 @@ public class AccountFragment extends Fragment {
             if (Boolean.TRUE.equals(success)) {
                 binding.layoutLoggedIn.setVisibility(View.GONE);
                 binding.layoutLoggedOut.setVisibility(View.VISIBLE);
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
             }
         });
 
