@@ -185,9 +185,6 @@ public class AccountFragment extends Fragment {
             if (Boolean.TRUE.equals(success)) {
                 binding.layoutLoggedIn.setVisibility(View.GONE);
                 binding.layoutLoggedOut.setVisibility(View.VISIBLE);
-                Intent intent = new Intent(getActivity(), MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
             }
         });
 

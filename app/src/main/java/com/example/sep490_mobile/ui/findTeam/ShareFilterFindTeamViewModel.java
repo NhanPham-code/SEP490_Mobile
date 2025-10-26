@@ -17,8 +17,8 @@ public class ShareFilterFindTeamViewModel extends ViewModel {
     private MutableLiveData<String> address = new MutableLiveData<String>();
     private MutableLiveData<BookingReadDTO> booking= new MutableLiveData<BookingReadDTO>();
     private MutableLiveData<StadiumDTO> stadium = new MutableLiveData<StadiumDTO>();
-    private MutableLiveData<String> playDate = new MutableLiveData<String>(getCurrentDateString());
-    private MutableLiveData<String> playTime = new MutableLiveData<String>("15:00");
+    private MutableLiveData<String> playDate = new MutableLiveData<String>();
+    private MutableLiveData<String> playTime = new MutableLiveData<String>();
     private MutableLiveData<Integer> needPlayer = new MutableLiveData<Integer>(1);
     private MutableLiveData<Integer> minPlayer = new MutableLiveData<Integer>(1);
     private MutableLiveData<Integer> maxPlayer = new MutableLiveData<Integer>(10);

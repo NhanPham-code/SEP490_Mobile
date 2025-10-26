@@ -79,11 +79,11 @@ public class CreatePostFragment extends Fragment {
                 model.created.observe(getViewLifecycleOwner(), aBoolean -> {
                     if (aBoolean) {
                         Toast.makeText(getContext(), "Tạo bài viết thành công", Toast.LENGTH_SHORT).show();
-                        getParentFragmentManager().popBackStack();
                     }
                     else {
                         Toast.makeText(getContext(), "Tạo bài viết thất bại", Toast.LENGTH_SHORT).show();
                     }
+                    getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 });
 
             }

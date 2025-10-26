@@ -20,9 +20,8 @@ import com.example.sep490_mobile.adapter.PostManagerAdapter;
 import com.example.sep490_mobile.data.dto.FindTeamDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentJoinedPostBinding;
-import com.example.sep490_mobile.databinding.FragmentMyPostManagerBinding;
 import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
 
 import java.util.HashMap;
@@ -330,6 +329,11 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
 
     @Override
     public void onBookButtonClick(int stadiumId) {
+
+    }
+
+    @Override
+    public void onDailyBookButtonClick(int stadiumId) {
 
     }
 

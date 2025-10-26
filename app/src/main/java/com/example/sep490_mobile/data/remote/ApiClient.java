@@ -29,7 +29,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
     // QUAN TRỌNG: Đối với localhost trên trình giả lập Android, sử dụng 10.0.2.2
     // Đối với thiết bị thực, sử dụng địa chỉ IP của máy tính của bạn trong mạng cục bộ
-    private static final String BASE_URL = "https://localhost:7136/"; // Giữ nguyên HTTPS nếu bạn chọn giải pháp này
+    private static final String BASE_URL = "https://localhost:7136/"; // Sửa thành 10.0.2.2 cho emulator
     private static ApiClient instance;
     private ApiService apiService;
     // Khai báo một ApiService KHÔNG CÓ token để sử dụng cho Authenticator
@@ -37,10 +37,13 @@ public class ApiClient {
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private ApiClient(Context context) {
-        Gson gson = new GsonBuilder()
-                // Đăng ký bộ chuyển đổi tùy chỉnh cho BigDecimal
-                .registerTypeAdapter(Duration.class, new DurationTypeAdapter())
-                .create();
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        // Đăng ký bộ chuyển đổi tùy chỉnh cho Duration
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            gsonBuilder.registerTypeAdapter(Duration.class, new DurationTypeAdapter());
+        }
+        Gson gson = gsonBuilder.create();
+
         // ... (Giữ nguyên phần khởi tạo loggingInterceptor) ...
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor();
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -75,7 +78,9 @@ public class ApiClient {
 
     public static synchronized ApiClient getInstance(Context context) {
         if (instance == null) {
-            instance = new ApiClient(context);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                instance = new ApiClient(context);
+            }
         }
         return instance;
     }

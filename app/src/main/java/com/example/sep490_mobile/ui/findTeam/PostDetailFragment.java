@@ -4,14 +4,12 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,9 +26,8 @@ import com.example.sep490_mobile.data.dto.PublicProfileDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
-import com.example.sep490_mobile.data.dto.TeamMemberDetailDTO;
 import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentPostDetailBinding;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.HtmlConverter;
@@ -323,6 +320,11 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
 
     @Override
     public void onBookButtonClick(int stadiumId) {
+
+    }
+
+    @Override
+    public void onDailyBookButtonClick(int stadiumId) {
 
     }
 }

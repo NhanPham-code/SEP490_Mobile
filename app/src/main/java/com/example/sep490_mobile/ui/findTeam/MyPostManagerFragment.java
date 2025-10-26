@@ -16,12 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.sep490_mobile.R;
-import com.example.sep490_mobile.adapter.ListMemberAdapter;
 import com.example.sep490_mobile.adapter.PostManagerAdapter;
 import com.example.sep490_mobile.data.dto.FindTeamDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentMyPostManagerBinding;
 import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
 
@@ -349,6 +348,11 @@ public class MyPostManagerFragment extends Fragment implements OnItemClickListen
 
     @Override
     public void onBookButtonClick(int stadiumId) {
+
+    }
+
+    @Override
+    public void onDailyBookButtonClick(int stadiumId) {
 
     }
 

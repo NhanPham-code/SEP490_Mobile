@@ -4,25 +4,62 @@ import android.os.Build;
 
 import androidx.annotation.RequiresApi;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
+import com.google.gson.TypeAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonToken;
+import com.google.gson.stream.JsonWriter;
 
-import java.lang.reflect.Type;
+import java.io.IOException;
 import java.time.Duration;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class DurationTypeAdapter implements JsonDeserializer<Duration> {
+@RequiresApi(api = Build.VERSION_CODES.O)
+public class DurationTypeAdapter extends TypeAdapter<Duration> {
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
+    // Pattern để tìm số giờ trong chuỗi "PT<số>H"
+    private static final Pattern DURATION_PATTERN = Pattern.compile("PT(\\d+)H");
+
     @Override
-    public Duration deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        // Đảm bảo lấy chuỗi (STRING) trước khi gọi parse
-        String durationString = json.getAsString();
+    public void write(JsonWriter out, Duration value) throws IOException {
+        if (value == null) {
+            out.nullValue();
+        } else {
+            out.value(value.toString());
+        }
+    }
 
-        // Sử dụng phương thức chuẩn của Java Time API để phân tích chuỗi ISO 8601
+    @Override
+    public Duration read(JsonReader in) throws IOException {
+        if (in.peek() == JsonToken.NULL) {
+            in.nextNull();
+            return null;
+        }
+        String durationString = in.nextString(); // Ví dụ: "PT6H"
 
-        return Duration.parse(durationString);
+        if (durationString == null || durationString.isEmpty()) {
+            return null;
+        }
 
+        // SỬA LỖI: Phân tích chuỗi "PT...H" thủ công để đảm bảo hoạt động
+        Matcher matcher = DURATION_PATTERN.matcher(durationString);
+        if (matcher.matches()) {
+            try {
+                // Lấy ra nhóm số (ví dụ: "6" từ "PT6H")
+                String hoursString = matcher.group(1);
+                if (hoursString != null) {
+                    long hours = Long.parseLong(hoursString);
+                    return Duration.ofHours(hours);
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Lỗi NumberFormatException khi parse duration: " + durationString);
+                e.printStackTrace();
+                return null; // Trả về null nếu số không hợp lệ
+            }
+        }
+
+        // Nếu không khớp pattern, ghi log và trả về null
+        System.err.println("Chuỗi duration không khớp pattern 'PT<n>H': " + durationString);
+        return null;
     }
 }

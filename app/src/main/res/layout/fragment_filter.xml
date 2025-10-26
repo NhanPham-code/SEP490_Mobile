@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="@android:color/white">
+    android:layout_marginBottom="50dp"
+    android:background="@color/white"
+    android:clipToPadding="false"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,162 +18,301 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="16dp">
+            android:layout_marginBottom="8dp">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Bộ Lọc"
-                android:textSize="20sp"
+                android:textSize="22sp"
                 android:textStyle="bold"
+                android:textColor="@color/text_primary"
+                android:layout_alignParentStart="true"
                 android:layout_centerVertical="true"/>
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_clear_all"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Xóa Tất Cả"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_toStartOf="@id/btn_close_filter"/>
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:textColor="@color/primary_blue"
+                android:layout_toStartOf="@id/btn_close_filter"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="8dp"/>
 
             <ImageButton
                 android:id="@+id/btn_close_filter"
-                android:layout_marginTop="10dp"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:src="@drawable/ic_close_24"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Đóng bộ lọc"
-                android:layout_alignParentEnd="true"/>
+                app:tint="@color/text_secondary"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"/>
         </RelativeLayout>
 
-        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#E0E0E0" android:layout_marginBottom="16dp"/>
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" android:layout_marginBottom="24dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Loại Thể Thao"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:paddingBottom="8dp"/>
-        <GridLayout
-            android:id="@+id/gl_sport_filter"
+            android:textSize="17sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="12dp"/>
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/cg_sport_filter"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:columnCount="2"
-            android:useDefaultMargins="true"
-            android:layout_marginBottom="16dp">
-            <CheckBox android:id="@+id/cb_bongda11" android:text="Bóng đá sân 11"/>
-            <CheckBox android:id="@+id/cb_bongda7" android:text="Bóng đá sân 7"/>
-            <CheckBox android:id="@+id/cb_bongda5" android:text="Bóng đá sân 5"/>
-            <CheckBox android:id="@+id/cb_bongro" android:text="Bóng rổ"/>
-            <CheckBox android:id="@+id/cb_tennis" android:text="Tennis"/>
-            <CheckBox android:id="@+id/cb_bongchuyen" android:text="Bóng chuyền"/>
+            app:chipSpacingVertical="8dp"
+            android:layout_marginBottom="24dp">
 
-        </GridLayout>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_bongda11"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bóng đá sân 11"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                android:textColor="@color/chip_text_selector"
+                app:chipStrokeColor="@color/chip_stroke_selector"
+                app:chipStrokeWidth="1dp"/>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp"/>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_bongda7"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bóng đá sân 7"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                android:textColor="@color/chip_text_selector"
+                app:chipStrokeColor="@color/chip_stroke_selector"
+                app:chipStrokeWidth="1dp"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_bongda5"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bóng đá sân 5"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                android:textColor="@color/chip_text_selector"
+                app:chipStrokeColor="@color/chip_stroke_selector"
+                app:chipStrokeWidth="1dp"/>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_bongro"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bóng rổ"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                android:textColor="@color/chip_text_selector"
+                app:chipStrokeColor="@color/chip_stroke_selector"
+                app:chipStrokeWidth="1dp"/>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_tennis"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tennis"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                android:textColor="@color/chip_text_selector"
+                app:chipStrokeColor="@color/chip_stroke_selector"
+                app:chipStrokeWidth="1dp"/>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_bongchuyen"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bóng chuyền"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                android:textColor="@color/chip_text_selector"
+                app:chipStrokeColor="@color/chip_stroke_selector"
+                app:chipStrokeWidth="1dp"/>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_caulong"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cầu lông"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                android:textColor="@color/chip_text_selector"
+                app:chipStrokeColor="@color/chip_stroke_selector"
+                app:chipStrokeWidth="1dp"/>
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip_pickleball"
+                style="@style/Widget.MaterialComponents.Chip.Filter"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Pickleball"
+                app:chipBackgroundColor="@color/chip_background_selector"
+                android:textColor="@color/chip_text_selector"
+                app:chipStrokeColor="@color/chip_stroke_selector"
+                app:chipStrokeWidth="1dp"/>
+
+        </com.google.android.material.chip.ChipGroup>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Thời Gian Chơi (Từ - Đến)"
+            android:text="Thời Gian Chơi"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:paddingBottom="8dp"/>
+            android:textSize="17sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="12dp"/>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:weightSum="2"
-            android:layout_marginBottom="16dp">
+            android:baselineAligned="false"
+            android:layout_marginBottom="24dp">
 
-            <TextView
-                android:id="@+id/tv_start_time"
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_start_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="09:00" android:gravity="center"
-                android:padding="16dp"
-                android:textSize="18sp"
-                android:background="?attr/selectableItemBackground" />
-            <TextView
-                android:id="@+id/tv_end_time"
+                android:hint="Từ"
+                app:startIconDrawable="@drawable/baseline_access_time_24"
+                app:startIconTint="@color/primary_blue"
+                app:hintTextColor="@color/primary_blue"
+                app:boxStrokeColor="@color/text_input_layout_stroke_color"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_start_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="09:00"
+                    android:textAlignment="center"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:textColor="@color/text_primary"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <View
+                android:layout_width="16dp"
+                android:layout_height="0dp"/>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/til_end_time"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="15:00" android:gravity="center"
-                android:padding="16dp"
-                android:textSize="18sp"
-                android:background="?attr/selectableItemBackground" />
+                android:hint="Đến"
+                app:startIconDrawable="@drawable/baseline_access_time_24"
+                app:startIconTint="@color/primary_blue"
+                app:hintTextColor="@color/primary_blue"
+                app:boxStrokeColor="@color/text_input_layout_stroke_color"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/et_end_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="15:00"
+                    android:textAlignment="center"
+                    android:focusable="false"
+                    android:clickable="true"
+                    android:cursorVisible="false"
+                    android:textColor="@color/text_primary"/>
+            </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
 
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Khoảng Giá (VNĐ/giờ)"
+            android:text="Khoảng Giá (Tối đa VNĐ/giờ)"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:paddingBottom="8dp"/>
-        <SeekBar
-            android:id="@+id/price_seekbar"
+            android:textSize="17sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="8dp"/>
+        <com.google.android.material.slider.Slider
+            android:id="@+id/price_slider"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:max="500"
-            android:progress="250"
-            android:layout_marginBottom="8dp"/>
+            android:valueFrom="0"
+            android:valueTo="500"
+            android:value="250"
+            android:stepSize="10"
+            app:thumbColor="@color/primary_blue"
+            app:trackColorActive="@color/primary_blue"
+            app:trackColorInactive="@color/grey_200"
+            app:haloColor="@color/chip_background_blue"
+            android:layout_marginBottom="4dp"/>
         <TextView
             android:id="@+id/tv_current_price"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Giá tối đa: 250.000đ/giờ"
+            android:text="250.000đ/giờ"
             android:layout_gravity="center_horizontal"
             android:textStyle="bold"
-            android:layout_marginBottom="16dp"/>
+            android:textSize="16sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="24dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Địa Điểm"
             android:textStyle="bold"
-            android:textSize="16sp"
-            android:paddingBottom="8dp"/>
-        <EditText
-            android:id="@+id/et_location_search"
+            android:textSize="17sp"
+            android:textColor="@color/text_primary"
+            android:layout_marginBottom="12dp"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_location_search"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Nhập địa điểm"
-            android:drawableStart="@drawable/outline_location_on_24"
-            android:drawablePadding="8dp"
-            android:layout_marginBottom="8dp"/>
+            android:hint="Nhập quận, huyện hoặc tên sân"
+            app:startIconDrawable="@drawable/outline_location_on_24"
+            app:startIconTint="@color/primary_blue"
+            app:hintTextColor="@color/primary_blue"
+            app:boxStrokeColor="@color/text_input_layout_stroke_color"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_marginBottom="32dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/et_location_search"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1"
+                android:textColor="@color/text_primary"/>
+        </com.google.android.material.textfield.TextInputLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="127dp"
-            android:orientation="horizontal"
-            android:padding="8dp">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/btn_apply_filters"
-                style="@style/Widget.AppCompat.Button.Colored"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="4dp"
-                android:layout_weight="1"
-                android:text="ÁP DỤNG BỘ LỌC" />
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_reset_filters"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
                 android:layout_weight="1"
-                android:text="ĐẶT LẠI" />
+                android:text="ĐẶT LẠI"
+                android:minHeight="56dp"
+                android:layout_marginEnd="8dp"
+                app:strokeColor="@color/primary_blue"
+                android:textColor="@color/primary_blue" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_apply_filters"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ÁP DỤNG"
+                android:minHeight="56dp"
+                android:layout_marginStart="8dp"
+                app:backgroundTint="@color/primary_blue"
+                android:textColor="@color/text_on_primary" />
+
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

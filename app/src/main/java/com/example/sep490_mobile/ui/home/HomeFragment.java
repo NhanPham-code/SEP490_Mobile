@@ -1,129 +1,273 @@
 package com.example.sep490_mobile.ui.home;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText; // Đã đổi sang EditText để phù hợp với thanh search
-import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sep490_mobile.adapter.StadiumAdapter;
 import com.example.sep490_mobile.R;
-import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentHomeBinding;
-import com.example.sep490_mobile.ui.booking.VisuallyBookingFragment;
+import com.example.sep490_mobile.interfaces.OnFavoriteClickListener;
 import com.example.sep490_mobile.ui.stadiumDetail.StadiumDetailFragment;
 import com.example.sep490_mobile.utils.removeVietnameseSigns;
+import com.example.sep490_mobile.viewmodel.FavoriteViewModel;
 import com.example.sep490_mobile.viewmodel.StadiumViewModel;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import androidx.annotation.Nullable;
 
-public class HomeFragment extends Fragment implements OnItemClickListener {
+public class HomeFragment extends Fragment implements OnItemClickListener, OnFavoriteClickListener {
 
-    private RecyclerView recyclerView;
-    // Đã đổi kiểu từ TextView sang EditText, vì nó hoạt động như thanh tìm kiếm
-    private EditText searchEditText;
-    private Map<String, String> odataUrl = new HashMap<>();
-    private ImageButton filterButton; // Thêm ImageButton
-    private StadiumAdapter adapter;
-    private StadiumViewModel viewModel;
-    private ODataResponse<StadiumDTO> stadiumList;
     private FragmentHomeBinding binding;
+    private StadiumAdapter adapter;
+    private StadiumViewModel stadiumViewModel;
+    private FavoriteViewModel favoriteViewModel;
+
+    // Data sources
+    private List<StadiumDTO> fullStadiumList = new ArrayList<>();
+    private Set<Integer> favoriteIdsSet = new HashSet<>();
+
+    // State management
+    private boolean isFavoriteMode = false;
+
+    // Pagination and Search
+    private Map<String, String> odataUrl = new HashMap<>();
     private int skip = 0;
     private int count = 0;
     private boolean isLoading = false;
     private boolean isLastPage = false;
-    private final int PAGE_SIZE = 10; // Số lượng mục mỗi trang
-    private final int THRESHOLD = 5; // Số lượng mục còn lại trước khi tải thêm
+    private final int PAGE_SIZE = 10;
 
-    // --- Constructor và Lifecycle ---
-
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        getParentFragmentManager().clearBackStack("FindTeamFragment");
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-        showLoading();
-        odataUrl.put("$expand", "Courts,StadiumImages,StadiumVideos");
-        odataUrl.put("$count", "true");
-        odataUrl.put("$top", "10");
-        odataUrl.put("$skip", skip + "");
-        viewModel = new ViewModelProvider(this).get(StadiumViewModel.class);
-
-        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        model.getSelected().observe(getViewLifecycleOwner(), item -> {
-            // Cập nhật UI với `item`
-            if(item.isEmpty() == false){
-                odataUrl.put("$filter", item.get("$filter"));
-                performSearch();
-            }
-        });
-
-
-
-        // 1. Ánh xạ các Views (Đã thêm filterButton)
-        recyclerView = root.findViewById(R.id.my_recycler_view);
-        // Lưu ý: Đảm bảo layout XML của bạn sử dụng android:id="@+id/search_edit_text"
-        searchEditText = root.findViewById(R.id.search_edit_text);
-        // Ánh xạ nút lọc
-        filterButton = root.findViewById(R.id.filter_button);
-
-        // 2. Thiết lập sự kiện cho Nút Lọc
-        setupFilterButton();
-
-        // 3. Logic gọi API (Giữ nguyên)
-
-
-        performSearch();
-
-
-        observeStadiumListResponse();
-
-        setupPagination();
-        return root;
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Lấy view gốc của fragment bằng ID đã đặt trong XML
-        // (ID của ConstraintLayout gốc trong fragment_home.xml)
-        ConstraintLayout rootLayout = view.findViewById(R.id.home_fragment_constraint_layout);
+        initViewModels();
+        initRecyclerView();
+        initListeners();
 
-        if (rootLayout != null) {
-            // Lấy các tham số layout (LayoutParams) hiện tại của nó
-            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) rootLayout.getLayoutParams();
+        showLoading();
+        setupInitialOdataUrl();
+        stadiumViewModel.fetchStadium(odataUrl); // Tải dữ liệu ban đầu
+        favoriteViewModel.fetchFavoriteStadiums(); // Tải danh sách yêu thích ban đầu
 
-            // **Thiết lập lại margin dưới cùng về 0 để không che các fragment khác**
-            params.bottomMargin = 0;
+        filterStadiums();
+        setupObservers();
+        setupPagination();
+    }
 
-            // Áp dụng lại các tham số layout đã thay đổi
-            rootLayout.setLayoutParams(params);
+    private void filterStadiums() {
+        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+
+        model.getSelected().observe(getViewLifecycleOwner(), stringStringMap -> {
+            if (stringStringMap != null) {
+                odataUrl.put("$filter", stringStringMap.get("$filter"));
+                performSearch();
+            }
+        });
+    }
+
+    private void initViewModels() {
+        stadiumViewModel = new ViewModelProvider(this).get(StadiumViewModel.class);
+        favoriteViewModel = new ViewModelProvider(this).get(FavoriteViewModel.class);
+    }
+
+    private void initRecyclerView() {
+        // Khởi tạo Adapter và truyền các listener cần thiết
+        adapter = new StadiumAdapter(getContext(), this, this);
+        binding.myRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        binding.myRecyclerView.setAdapter(adapter);
+    }
+
+    private void initListeners() {
+        binding.filterButton.setOnClickListener(v -> navigateToFilterFragment());
+        binding.favoriteListButton.setOnClickListener(v -> toggleFavoriteMode());
+        setupSearchListener();
+    }
+
+    private void setupInitialOdataUrl() {
+        odataUrl.put("$expand", "Courts,StadiumImages,StadiumVideos");
+        odataUrl.put("$count", "true");
+        odataUrl.put("$top", String.valueOf(PAGE_SIZE));
+        odataUrl.put("$skip", "0");
+    }
+
+    private void setupObservers() {
+        // 1. Lắng nghe danh sách sân vận động từ server
+        stadiumViewModel.stadiums.observe(getViewLifecycleOwner(), response -> {
+            hideLoading();
+            if (response != null && response.getItems() != null) {
+                count = Integer.parseInt(response.getCount() + "");
+                fullStadiumList.clear(); // Xóa dữ liệu cũ khi có tìm kiếm hoặc filter mới
+                fullStadiumList.addAll(response.getItems());
+                updateAdapterData();
+            }
+        });
+
+        // 2. Lắng nghe danh sách sân được load thêm (phân trang)
+        stadiumViewModel.newStadiums.observe(getViewLifecycleOwner(), newItemsResponse -> {
+            isLoading = false;
+            if (newItemsResponse != null && newItemsResponse.getItems() != null) {
+                fullStadiumList.addAll(newItemsResponse.getItems());
+                updateAdapterData();
+            }
+        });
+
+        // 3. Lắng nghe danh sách ID sân yêu thích
+        favoriteViewModel.favoriteStadiumIds.observe(getViewLifecycleOwner(), favoriteIds -> {
+            if (favoriteIds != null) {
+                this.favoriteIdsSet = favoriteIds;
+                // Cập nhật lại adapter để vẽ lại icon trái tim và lọc danh sách nếu cần
+                updateAdapterData();
+            }
+        });
+
+        // 4. Lắng nghe thông báo (Toast) từ FavoriteViewModel
+        favoriteViewModel.toastMessage.observe(getViewLifecycleOwner(), message -> {
+            if (message != null && !message.isEmpty()) {
+                Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+                favoriteViewModel.onToastMessageShown(); // Reset để không hiển thị lại
+            }
+        });
+
+        // 5. Lắng nghe trạng thái loading từ cả hai viewmodel
+        stadiumViewModel.isLoading.observe(getViewLifecycleOwner(), loading -> {
+            if(loading) showLoading(); else hideLoading();
+        });
+        favoriteViewModel.isLoading.observe(getViewLifecycleOwner(), loading -> {
+            if(loading) showLoading(); else hideLoading();
+        });
+    }
+
+    /**
+     * Chuyển đổi giữa chế độ xem tất cả sân và chỉ xem sân yêu thích.
+     */
+    private void toggleFavoriteMode() {
+        if(requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE).getInt("user_id", -1) == -1) {
+            Toast.makeText(getContext(), "Vui lòng đăng nhập để xem sân yêu thích", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        isFavoriteMode = !isFavoriteMode;
+        if (isFavoriteMode) {
+            binding.favoriteListButton.setImageResource(R.drawable.ic_favorite_filled);
+            Toast.makeText(getContext(), "Các sân yêu thích", Toast.LENGTH_SHORT).show();
+        } else {
+            binding.favoriteListButton.setImageResource(R.drawable.ic_favorite_border);
+            Toast.makeText(getContext(), "Tất cả sân", Toast.LENGTH_SHORT).show();
+        }
+        // Cập nhật lại dữ liệu hiển thị trên RecyclerView
+        updateAdapterData();
+    }
+
+    /**
+     * Phương thức trung tâm: quyết định danh sách nào sẽ được hiển thị và cập nhật adapter.
+     */
+    private void updateAdapterData() {
+        if (fullStadiumList == null) return;
+
+        List<StadiumDTO> listToShow;
+        if (isFavoriteMode) {
+            // Chế độ yêu thích: Lọc danh sách đầy đủ để chỉ lấy các sân có ID trong favoriteIdsSet
+            listToShow = fullStadiumList.stream()
+                    .filter(stadium -> favoriteIdsSet.contains(stadium.getId()))
+                    .collect(Collectors.toList());
+        } else {
+            // Chế độ bình thường: Hiển thị toàn bộ danh sách đã tải
+            listToShow = fullStadiumList;
+        }
+        // Cập nhật cả danh sách sân và danh sách ID yêu thích cho adapter
+        adapter.setData(listToShow, favoriteIdsSet);
+    }
+
+    /**
+     * Được gọi khi người dùng click vào icon trái tim trên một sân.
+     * @param stadiumId ID của sân được click.
+     */
+    @Override
+    public void onFavoriteClick(int stadiumId) {
+        // Lấy userId hiện tại từ lớp quản lý đăng nhập của bạn
+        int userId = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE).getInt("user_id", -1);
+        if (userId != -1) {
+            favoriteViewModel.toggleFavoriteStatus(stadiumId, userId);
+        } else {
+            // Có thể điều hướng đến màn hình đăng nhập nếu người dùng chưa đăng nhập
+            Toast.makeText(getContext(), "Vui lòng đăng nhập để sử dụng chức năng này", Toast.LENGTH_SHORT).show();
         }
     }
+
+    // --- CÁC PHƯƠNG THỨC CHO TÌM KIẾM, PHÂN TRANG, ĐIỀU HƯỚNG ---
+
+    private void setupSearchListener() {
+        binding.searchEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String searchQuery = s.toString();
+                resetPagination(); // Reset phân trang khi có tìm kiếm mới
+                odataUrl.put("$top", String.valueOf(PAGE_SIZE));
+                odataUrl.put("$skip", "0");
+
+                if (searchQuery.isEmpty()) {
+                    odataUrl.remove("$filter");
+                } else {
+                    String unsignedQuery = removeVietnameseSigns.removeVietnameseSigns(searchQuery);
+                    odataUrl.put("$filter", "contains(NameUnsigned, '" + unsignedQuery + "')");
+                }
+                performSearch();
+            }
+            @Override
+            public void afterTextChanged(Editable s) {}
+        });
+    }
+
+    private void performSearch() {
+        showLoading();
+        stadiumViewModel.fetchStadium(odataUrl);
+    }
+
+    private void resetPagination() {
+        skip = 0;
+        isLastPage = false;
+        isLoading = false;
+    }
+
     private void setupPagination() {
         // Giả sử binding.recyclerView là RecyclerView của bạn
-        LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();
+        LinearLayoutManager layoutManager = (LinearLayoutManager) binding.myRecyclerView.getLayoutManager();
 
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+        binding.myRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
@@ -170,10 +314,10 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
                 skip += 10;
                 isLastPage = true;
 
-                    int take = count - skip;
-                    odataUrl.replace("$top", take + "");
-                    odataUrl.replace("$skip", skip + "");
-                    callApiForNextPage();
+                int take = count - skip;
+                odataUrl.replace("$top", take + "");
+                odataUrl.replace("$skip", skip + "");
+                callApiForNextPage();
 
             }
         }else{
@@ -196,7 +340,7 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
     private void callApiForNextPage() {
         isLoading = true; // Đặt ở đây để đảm bảo
 
-        viewModel.loadMore(odataUrl);
+        stadiumViewModel.loadMore(odataUrl);
         isLoading = false;
         if (count < PAGE_SIZE) {
             isLastPage = true;
@@ -205,166 +349,62 @@ public class HomeFragment extends Fragment implements OnItemClickListener {
 
     private void showLoading() {
         binding.progressBar.setVisibility(View.VISIBLE);
-        binding.myRecyclerView.setVisibility(View.GONE);
     }
 
     private void hideLoading() {
         binding.progressBar.setVisibility(View.GONE);
-        binding.myRecyclerView.setVisibility(View.VISIBLE);
     }
 
-    /**
-     * Phương thức thiết lập sự kiện onClick cho nút Lọc
-     */
-    private void setupFilterButton() {
-        if (filterButton != null) {
-            filterButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    navigateToFilterFragment();
-                }
-            });
-        }
-
-        // TODO: Thêm logic xử lý tìm kiếm khi người dùng nhấn "Search" trên bàn phím
-        if (searchEditText != null) {
-            searchEditText.addTextChangedListener(new TextWatcher() {
-                @Override
-                public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                    // Không cần làm gì ở đây
-                }
-
-                @Override
-                public void onTextChanged(CharSequence s, int start, int before, int count) {
-                    // HÀNH ĐỘNG XỬ LÝ KHI NỘI DUNG THAY ĐỔI
-                    String searchQuery = s.toString();
-                    odataUrl.replace("$top", "10");
-                    odataUrl.replace("$skip", "0");
-
-                    if (searchQuery.isEmpty()) {
-                        // Nếu chuỗi rỗng, xóa filter và gọi tìm kiếm
-                        odataUrl.remove("$filter");
-                    } else {
-                        // Áp dụng filter (sử dụng hàm xóa dấu của bạn)
-                        // Lưu ý: Cần đảm bảo 'removeVietnameseSigns' được truy cập tĩnh/hoặc là một đối tượng
-                        String unsignedQuery = removeVietnameseSigns.removeVietnameseSigns(searchQuery);
-                        odataUrl.put("$filter", "contains(NameUnsigned, '" + unsignedQuery + "')");
-                    }
-
-                    // Gọi hàm tìm kiếm mỗi khi nội dung thay đổi
-                    performSearch();
-
-//                    InputMethodManager imm = (InputMethodManager) searchEditText.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-//
-//                    if(imm.isAcceptingText()){
-//                        imm.hideSoftInputFromWindow(searchEditText.getWindowToken(), 0);
-//                    }
-                }
-
-                @Override
-                public void afterTextChanged(Editable s) {
-                    // Không cần làm gì ở đây
-
-                }
-            });
-        }
-    }
-
-    private void performSearch(){
-        viewModel.fetchStadium(odataUrl);
-    }
-
-    /**
-     * Phương thức thực hiện chuyển đổi sang Fragment Lọc
-     */
     private void navigateToFilterFragment() {
-        // 1. Khởi tạo Fragment lọc
         FilterFragment filterFragment = new FilterFragment();
-
-        // 2. Lấy FragmentManager
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
-
-        // Ví dụ về tên animation:
-        // slide_in_right: Fragment mới trượt vào từ bên phải
-        // slide_out_left: Fragment hiện tại trượt ra bên trái
-        // slide_in_left: Fragment quay lại trượt vào từ bên trái (khi pop)
-        // slide_out_right: Fragment hiện tại trượt ra bên phải (khi pop)
-
-        fragmentTransaction.setCustomAnimations(
-                R.anim.slide_in_right, // enter
-                R.anim.slide_out_left,  // exit
-                R.anim.slide_in_left,  // popEnter
-                R.anim.slide_out_right // popExit
-        );
-
-        // 4. Thay thế Fragment
-        // !!! Giữ nguyên R.id.nav_host_fragment_activity_main hoặc kiểm tra lại ID chính xác
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
         fragmentTransaction.replace(R.id.nav_host_fragment_activity_main, filterFragment);
-
-        // 5. Thêm vào back stack
         fragmentTransaction.addToBackStack("HomeFragment");
-
-        // 6. Hoàn tất giao dịch
         fragmentTransaction.commit();
     }
-
-    private void observeStadiumListResponse() {
-        adapter = new StadiumAdapter(this.getContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(adapter);
-
-        viewModel.stadiums.observe(getViewLifecycleOwner(), response -> {
-            stadiumList = response;
-            count = Integer.parseInt(stadiumList.getCount() + "");
-            adapter.setStadiumDTOS(stadiumList.getItems(), this);
-            adapter.notifyDataSetChanged();
-            hideLoading();
-        });
+    private void navigateToDetailFragment(int stadiumId) {
+        StadiumDetailFragment stadiumDetailFragment = new StadiumDetailFragment().newInstance(stadiumId);
+        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
+        fragmentTransaction.replace(R.id.nav_host_fragment_activity_main, stadiumDetailFragment);
+        fragmentTransaction.addToBackStack("HomeFragment");
+        fragmentTransaction.commit();
     }
     @Override
-    public void onItemClick(int stadiumId){
-        HomeFragmentDirections.ActionNavigationHomeToStadiumDetailFragment action =
-                HomeFragmentDirections.actionNavigationHomeToStadiumDetailFragment(stadiumId);
-        NavHostFragment.findNavController(HomeFragment.this).navigate(action);
+    public void onItemClick(int stadiumId) {
+        navigateToDetailFragment(stadiumId);
     }
 
     @Override
     public void onBookButtonClick(int stadiumId) {
-        // 1. Tạo action với stadiumId (đã định nghĩa trong nav_graph)
         HomeFragmentDirections.ActionNavigationHomeToVisuallyBookingFragment action =
                 HomeFragmentDirections.actionNavigationHomeToVisuallyBookingFragment(stadiumId);
-
-        // 2. Dùng NavController để điều hướng
-        NavHostFragment.findNavController(HomeFragment.this).navigate(action);
+        NavHostFragment.findNavController(this).navigate(action);
     }
 
-    @Override
-    public void onItemClick(int item, String type) {
-
-    }
-
-    @Override
-    public void onItemClickRemoveMember(int id, int postId, String type) {
-
-    }
+    // Các interface không dùng đến
+    @Override public void onItemClick(int item, String type) {}
+    @Override public void onItemClickRemoveMember(int id, int postId, String type) {}
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        binding = null;
+        binding = null; // Tránh memory leak
     }
+
     @Override
-    public void onStop(){
-        super.onStop();
-        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-        isLastPage = false;
-        skip = 0;
-        Map<String, String> odata = new HashMap<>();
-        odata.put("$filter", "");
-        model.select(odata);
-        odataUrl.replace("$skip", "0");
-        odataUrl.replace("$top", "10");
+    public void onDailyBookButtonClick(int stadiumId) {
+        // Lấy NavController
+        NavController navController = NavHostFragment.findNavController(HomeFragment.this);
+
+        // Tạo Bundle để truyền stadiumId
+        Bundle bundle = new Bundle();
+        bundle.putInt("stadiumId", stadiumId);
+
+        // Điều hướng đến dailyBookingFragment
+        navController.navigate(R.id.action_navigation_home_to_dailyBookingFragment, bundle);
     }
 }

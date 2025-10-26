@@ -21,7 +21,7 @@ import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.adapter.SelectBookingAdapter;
 import com.example.sep490_mobile.data.dto.SelectBookingDTO;
 import com.example.sep490_mobile.databinding.FragmentSelectBookingBinding;
-import com.example.sep490_mobile.data.remote.OnItemClickListener;
+import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
 
 
@@ -213,5 +213,11 @@ public class SelectBookingFragment extends Fragment implements OnItemClickListen
     @Override
     public void onBookButtonClick(int stadiumId) {
 
+    }
+
+    @Override
+    public void onDailyBookButtonClick(int stadiumId) {
+        // Phương thức này không được sử dụng trong SelectBookingFragment
+        // nên có thể để trống
     }
 }
