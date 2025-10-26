@@ -6,9 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
+// import android.widget.CheckBox; // <- Đã xóa
 import android.widget.ImageButton;
-import android.widget.SeekBar;
+// import android.widget.SeekBar; // <- Đã xóa
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -21,6 +21,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.utils.removeVietnameseSigns;
+import com.google.android.material.button.MaterialButton; // <- Đã thêm
+import com.google.android.material.chip.Chip; // <- Đã thêm
+import com.google.android.material.chip.ChipGroup; // <- Đã thêm
+import com.google.android.material.slider.Slider; // <- Đã thêm
+import com.google.android.material.textfield.TextInputEditText; // <- Đã thêm
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -31,369 +36,298 @@ import java.util.Locale;
 import java.util.Map;
 
 public class FilterFragment extends Fragment {
-    private TextView address;
-    private SeekBar priceSeekBar;
+    // --- Đã cập nhật các kiểu dữ liệu ---
+    private TextInputEditText address;
+    private Slider priceSlider; // Thay thế cho SeekBar
     private TextView tvCurrentPrice;
-    private TextView tvStartTime;
-    private TextView tvEndTime;
-    private Button btnApplyFilters, btnClearAll;
-    private int price;
+    private TextInputEditText etStartTime; // Thay thế cho TextView
+    private TextInputEditText etEndTime;   // Thay thế cho TextView
+    private MaterialButton btnApplyFilters, btnClearAll, btnResetFilters;
+    private ChipGroup sportChipGroup; // Thay thế cho CheckBox[]
+    // ---
 
+    private int price;
     private Map<String, String> odata = new HashMap<>();
-    // Danh sách CheckBox để dễ dàng quản lý
-    private CheckBox[] sportCheckBoxes;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        // Ánh xạ layout fragment_filter.xml
         View view = inflater.inflate(R.layout.fragment_filter, container, false);
         SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
-        // Ánh xạ View chính
+        // Ánh xạ View chính (đã cập nhật)
         address = view.findViewById(R.id.et_location_search);
-        priceSeekBar = view.findViewById(R.id.price_seekbar);
+        priceSlider = view.findViewById(R.id.price_slider); // Cập nhật ID
         tvCurrentPrice = view.findViewById(R.id.tv_current_price);
         btnApplyFilters = view.findViewById(R.id.btn_apply_filters);
-        btnClearAll = view.findViewById(R.id.btn_clear_all);
+        btnClearAll = view.findViewById(R.id.btn_clear_all); // Nút "Xóa Tất Cả" (trên)
+        btnResetFilters = view.findViewById(R.id.btn_reset_filters); // Nút "ĐẶT LẠI" (dưới)
         ImageButton btnCloseFilter = view.findViewById(R.id.btn_close_filter);
-// 1. Ánh xạ View từ XML
-        tvStartTime = view.findViewById(R.id.tv_start_time);
-        tvEndTime = view.findViewById(R.id.tv_end_time);
 
-        tvStartTime.setText(model.getStartTime().getValue());
-        tvEndTime.setText(model.getEndTime().getValue());
+        // Ánh xạ View thời gian (đã cập nhật)
+        etStartTime = view.findViewById(R.id.et_start_time); // Cập nhật ID
+        etEndTime = view.findViewById(R.id.et_end_time);   // Cập nhật ID
 
-        // 2. Thiết lập Listener cho cả hai TextView
-        tvStartTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showTimePickerDialog(tvStartTime, tvStartTime.getText().toString());
-            }
-        });
+        etStartTime.setText(model.getStartTime().getValue());
+        etEndTime.setText(model.getEndTime().getValue());
 
-        tvEndTime.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showTimePickerDialog(tvEndTime, tvEndTime.getText().toString());
-            }
-        });
-        // Khởi tạo danh sách CheckBox (cho mục đích quản lý/reset)
-        sportCheckBoxes = new CheckBox[]{
-                view.findViewById(R.id.cb_bongda5),
-                view.findViewById(R.id.cb_bongda7),
-                view.findViewById(R.id.cb_bongda11),
-                view.findViewById(R.id.cb_bongro),
-                view.findViewById(R.id.cb_tennis),
-                view.findViewById(R.id.cb_bongchuyen)
-                // ... thêm các CheckBox khác ở đây
-        };
+        // Thiết lập Listener cho ô chọn thời gian
+        etStartTime.setOnClickListener(v -> showTimePickerDialog(etStartTime));
+        etEndTime.setOnClickListener(v -> showTimePickerDialog(etEndTime));
 
+        // Ánh xạ ChipGroup (đã cập nhật)
+        sportChipGroup = view.findViewById(R.id.cg_sport_filter); // Cập nhật ID
 
-        // 2. Xử lý sự kiện nhấn nút Đóng
+        // Xử lý sự kiện nhấn nút Đóng
         if (btnCloseFilter != null) {
             btnCloseFilter.setOnClickListener(v -> {
-                // Lấy FragmentManager và quay lại Fragment trước đó trong Back Stack
                 FragmentManager fragmentManager = getParentFragmentManager();
                 if (fragmentManager.getBackStackEntryCount() > 0) {
                     if (getParentFragmentManager() != null) {
                         getParentFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     }
-
                 } else {
-                    // Xử lý trường hợp không có gì trong back stack (hiếm)
                     Toast.makeText(getContext(), "Không thể đóng Fragment", Toast.LENGTH_SHORT).show();
                 }
             });
         }
+
+        // Tải các lựa chọn đã có
         loadPreviousSportSelections(model.getSportType().getValue());
-        setupPriceSeekBar();
+        setupPriceSlider(); // Cập nhật tên hàm
         setupActionButtons();
         setOldValue();
 
         return view;
     }
 
+    // Đã cập nhật để dùng ChipGroup
     public void loadPreviousSportSelections(List<String> previouslySelectedIds) {
-
         if (previouslySelectedIds == null || previouslySelectedIds.isEmpty()) {
-            // Không có dữ liệu cũ, không cần làm gì
             return;
         }
 
-        for (CheckBox checkBox : sportCheckBoxes) {
-            // 1. Lấy ID của CheckBox hiện tại
-            String idName = getResources().getResourceEntryName(checkBox.getId());
+        // Duyệt qua tất cả Chip con trong ChipGroup
+        for (int i = 0; i < sportChipGroup.getChildCount(); i++) {
+            View child = sportChipGroup.getChildAt(i);
+            if (child instanceof Chip) {
+                Chip chip = (Chip) child;
+                String chipText = chip.getText().toString();
 
-            // 2. Kiểm tra xem ID này có trong danh sách đã chọn trước đó không
-            boolean isChecked = previouslySelectedIds.contains(checkBox.getText().toString());
-
-            // 3. Thiết lập trạng thái
-            checkBox.setChecked(isChecked);
+                // Kiểm tra xem text của Chip có trong danh sách đã lưu không
+                boolean isChecked = previouslySelectedIds.contains(chipText);
+                chip.setChecked(isChecked);
+            }
         }
     }
 
-
-
-    private void setOldValue(){
+    // Đã cập nhật để dùng Slider và TextInputEditText
+    private void setOldValue() {
         SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
 
-        tvStartTime.setText(model.getStartTime().getValue());
-        tvEndTime.setText(model.getEndTime().getValue());
+        etStartTime.setText(model.getStartTime().getValue());
+        etEndTime.setText(model.getEndTime().getValue());
         address.setText(model.getAddress().getValue());
-        Toast.makeText(this.getContext(), model.getPrice().getValue(), Toast.LENGTH_SHORT).show();
-        int price = Integer.parseInt(model.getPrice().getValue()) / 1000;
 
-        priceSeekBar.setProgress(price);
+        try {
+            // Đặt giá trị cho Slider
+            int priceValue = Integer.parseInt(model.getPrice().getValue());
+            int priceProgress = priceValue / 1000;
+            priceSlider.setValue(priceProgress); // Dùng setValue cho Slider
 
+            // Cập nhật text hiển thị giá
+            DecimalFormat formatter = new DecimalFormat("#,###");
+            tvCurrentPrice.setText("Giá tối đa: " + formatter.format(priceValue) + "đ/giờ");
+            this.price = priceValue; // Lưu lại giá trị
+        } catch (NumberFormatException e) {
+            // Nếu model chưa có giá, đặt giá trị mặc định
+            priceSlider.setValue(250f);
+            tvCurrentPrice.setText("Giá tối đa: 250.000đ/giờ");
+            this.price = 250000;
+        }
     }
 
     /**
-     * Hàm hiển thị TimePickerDialog
-     * @param targetTextView TextView cần cập nhật kết quả
+     * Hàm hiển thị TimePickerDialog (Đã cập nhật để dùng TextInputEditText)
+     * @param targetEditText EditText cần cập nhật kết quả
      */
-    private void showTimePickerDialog(final TextView targetTextView, String time) {
-        System.out.println("showTimePickerDialog");
-
-        // --- KHỞI TẠO GIÁ TRỊ MẶC ĐỊNH ---
-
-        // Mặc định ban đầu là giờ hiện tại của hệ thống (phòng trường hợp parsing lỗi)
+    private void showTimePickerDialog(final TextInputEditText targetEditText) {
         final Calendar c = Calendar.getInstance();
         int initialHour = c.get(Calendar.HOUR_OF_DAY);
         int initialMinute = c.get(Calendar.MINUTE);
 
-        // 1. Lấy giá trị hiện tại của TextView (ví dụ: "09:00" hoặc "15:00")
-        String currentText = targetTextView.getText().toString();
+        String currentText = (targetEditText.getText() != null) ? targetEditText.getText().toString() : "";
 
-        // 2. Kiểm tra nếu chuỗi có định dạng HH:mm hợp lệ, thì phân tích và sử dụng
         if (currentText.matches("\\d{2}:\\d{2}")) {
             try {
                 String[] parts = currentText.split(":");
-                // Cập nhật giá trị mặc định bằng giờ đã chọn trước đó
                 initialHour = Integer.parseInt(parts[0]);
                 initialMinute = Integer.parseInt(parts[1]);
             } catch (NumberFormatException e) {
-                // Nếu có lỗi phân tích cú pháp, giữ nguyên giờ hệ thống mặc định
                 e.printStackTrace();
             }
         }
 
-
-        // Khởi tạo TimePickerDialog
-        // LƯU Ý: Nếu code này nằm trong Fragment, hãy thay 'this.getContext()' bằng 'requireContext()'
         TimePickerDialog timePickerDialog = new TimePickerDialog(
-                this.getContext(), // Context
-                new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                        // Xử lý khi người dùng chọn giờ xong
-                        // Định dạng giờ: "HH:mm" (ví dụ: 08:05)
-                        String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
-
-                        // Cập nhật TextView với giờ đã chọn
-                        targetTextView.setText(selectedTime);
-                    }
+                requireContext(),
+                (view, hourOfDay, minute) -> {
+                    String selectedTime = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute);
+                    targetEditText.setText(selectedTime);
                 },
-                initialHour,   // Giờ mặc định (giờ cũ)
-                initialMinute, // Phút mặc định (phút cũ)
-                true           // Định dạng 24 giờ
+                initialHour,
+                initialMinute,
+                true // 24-hour format
         );
-
-        Toast.makeText(this.getContext(), "Giờ đã chọn: " + targetTextView.getText(), Toast.LENGTH_SHORT).show();
-        // Hiển thị hộp thoại
         timePickerDialog.show();
     }
-    private void setBtnApplyFilters(){
-        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
-            FragmentManager fragmentManager = getParentFragmentManager();
-        String filter = "";
-        String conjunction = ""; // 👈 Start with an empty conjunction
 
-// 1. Address Filter
-        if(address.length() > 0){
+    // Đã cập nhật để dùng ChipGroup và TextInputEditText
+    private void setBtnApplyFilters() {
+        SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+        FragmentManager fragmentManager = getParentFragmentManager();
+        String filter = "";
+        String conjunction = "";
+
+        // 1. Address Filter (Dùng address.getText())
+        if (address.getText() != null && address.getText().length() > 0) {
             filter += "contains(AddressUnsigned, '" + removeVietnameseSigns.removeVietnameseSigns(address.getText().toString()) + "')";
-            conjunction = " and "; // 👈 Set conjunction only after the first condition is added
+            conjunction = " and ";
             model.setAddress(address.getText().toString());
-        }else{
+        } else {
             model.setAddress("");
         }
 
-// 2. Sport Type Filter(s)
-        if(sportCheckBoxes.length > 0){
-            List<String> sportTypes = new ArrayList<>();
+        // 2. Sport Type Filter(s) (Dùng ChipGroup)
+        List<String> sportTypesOData = new ArrayList<>(); // Cho OData query
+        List<String> sportTypesModel = new ArrayList<>(); // Cho ViewModel
 
-            for (CheckBox cb : sportCheckBoxes) {
-                if (cb.isChecked()) {
-                    String sportName = cb.getText().toString();
+        List<Integer> checkedChipIds = sportChipGroup.getCheckedChipIds();
 
-                    // 1. Xây dựng điều kiện OData chính xác và thêm vào List
-                    // Cần có dấu nháy đơn '...' cho giá trị chuỗi trong OData
-                    String condition = String.format("c/SportType eq '%s'", sportName);
-                    sportTypes.add(condition);
-
-                    // Cập nhật Model (Giữ nguyên logic của bạn)
-                    // Lưu ý: List.of() chỉ có từ Java 9 trở lên
-                     model.setSportType(List.of(sportName));
-                }
+        for (int chipId : checkedChipIds) {
+            Chip chip = sportChipGroup.findViewById(chipId);
+            if (chip != null) {
+                String sportName = chip.getText().toString();
+                sportTypesModel.add(sportName); // Thêm tên vào list cho ViewModel
+                String condition = String.format("c/SportType eq '%s'", sportName);
+                sportTypesOData.add(condition); // Thêm điều kiện vào list cho OData
             }
-
-            if (!sportTypes.isEmpty()) {
-                // 2. Sử dụng String.join() để nối các điều kiện bằng " or "
-                String typeFilter = String.join(" or ", sportTypes);
-
-                // 3. Xây dựng chuỗi filter hoàn chỉnh và thêm vào 'filter'
-                // Cần bọc điều kiện bằng dấu ngoặc đơn để đảm bảo logic OData đúng
-                filter += conjunction + "Courts/any(c: (" + typeFilter + "))";
-
-                // 4. Cập nhật conjunction cho các filter tiếp theo
-                conjunction = " and ";
-            }
-        }else{
-            model.setSportType(List.of());
         }
 
-// 3. Price Filter
-        if(price > 0){
-            // Use the conjunction BEFORE adding the new part
+        // Cập nhật ViewModel (1 lần duy nhất sau vòng lặp)
+        model.setSportType(sportTypesModel);
+
+        if (!sportTypesOData.isEmpty()) {
+            String typeFilter = String.join(" or ", sportTypesOData);
+            filter += conjunction + "Courts/any(c: (" + typeFilter + "))";
+            conjunction = " and ";
+        }
+        // Kết thúc Sport Type Filter
+
+        // 3. Price Filter (biến 'price' đã được cập nhật bởi Slider)
+        if (price > 0) {
             filter += conjunction + "Courts/any(c: c/PricePerHour le " + price + ")";
             conjunction = " and ";
-
             model.setPrice(price + "");
+        } else {
+            model.setPrice("0");
         }
-        if(tvStartTime.getText().toString().isEmpty() == false && tvEndTime.getText().toString().isEmpty() == false){
-            // 4. Time Filter
-            //format time
 
-            String startTime = tvStartTime.getText().toString(); // Ví dụ: "09:00"
-            String endTime = tvEndTime.getText().toString();     // Ví dụ: "17:30"
+        // 4. Time Filter (Dùng etStartTime và etEndTime)
+        String startTime = (etStartTime.getText() != null) ? etStartTime.getText().toString() : "";
+        String endTime = (etEndTime.getText() != null) ? etEndTime.getText().toString() : "";
+
+        if (!startTime.isEmpty() && !endTime.isEmpty()) {
             model.setStartTime(startTime);
             model.setEndTime(endTime);
 
-// --- BƯỚC 1: TÁCH GIỜ VÀ PHÚT ---
-
-// Tách Giờ Bắt đầu
             String[] startParts = startTime.split(":");
-            int startHour = Integer.parseInt(startParts[0]); // sh
-            int startMinute = Integer.parseInt(startParts[1]); // sm
+            int startHour = Integer.parseInt(startParts[0]);
+            int startMinute = Integer.parseInt(startParts[1]);
 
-// Tách Giờ Kết thúc
             String[] endParts = endTime.split(":");
-            int endHour = Integer.parseInt(endParts[0]); // eh
-            int endMinute = Integer.parseInt(endParts[1]); // em
-// --- BƯỚC 2: ĐỊNH DẠNG CHUỖI DURATION CHUẨN ODATA ---
+            int endHour = Integer.parseInt(endParts[0]);
+            int endMinute = Integer.parseInt(endParts[1]);
 
             String startDuration = String.format(Locale.ROOT, "duration'PT%dH%dM'", startHour, startMinute);
-// Định dạng cho Giờ Kết thúc
             String endDuration = String.format(Locale.ROOT, "duration'PT%dH%dM'", endHour, endMinute);
-// Kết quả (cho 17:30): duration'PT17H30M'
 
-            filter += conjunction + "OpenTime le " + startDuration + " and CloseTime ge " + endDuration ;
-        }else{
+            filter += conjunction + "OpenTime le " + startDuration + " and CloseTime ge " + endDuration;
+        } else {
             model.setStartTime("");
             model.setEndTime("");
         }
 
         odata.put("$filter", filter);
-
-
-
-            if (fragmentManager.getBackStackEntryCount() > 0) {
-                // 2. Tạo Bundle để đóng gói dữ liệu
-
-
-                    model.select(odata);
-
-
-                getParentFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
-
-
-            } else {
-                // Xử lý trường hợp không có gì trong back stack (hiếm)
-                Toast.makeText(getContext(), "Không thể đóng Fragment", Toast.LENGTH_SHORT).show();
-            }
-
+        System.out.println("filter: " + filter);
+        if (fragmentManager.getBackStackEntryCount() > 0) {
+            model.select(odata);
+            getParentFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        } else {
+            Toast.makeText(getContext(), "Không thể đóng Fragment", Toast.LENGTH_SHORT).show();
+        }
     }
 
+    // Thiết lập Slider (Khoảng Giá) - Đã cập nhật
+    private void setupPriceSlider() {
+        // Listener cho Slider (thay thế cho OnSeekBarChangeListener)
+        priceSlider.addOnChangeListener((slider, value, fromUser) -> {
+            // 'value' là giá trị float (ví dụ: 250.0)
+            int progress = (int) value;
+            int priceValue = progress * 1000;
+            this.price = priceValue; // Cập nhật biến 'price' của class
 
-
-    // Thiết lập SeekBar (Khoảng Giá)
-    private void setupPriceSeekBar() {
-        // Max là 500, đại diện cho 500.000 VNĐ
-
-        priceSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                // Giá trị thực tế: progress * 1000 VNĐ. Ví dụ: 250 * 1000 = 250.000
-                int priceValue = progress * 1000;
-                DecimalFormat formatter = new DecimalFormat("#,###");
-                // Chuyển đổi sang định dạng tiền tệ
-
-                if (progress == seekBar.getMax()) {
-                    price = priceValue;
-                    tvCurrentPrice.setText("Giá tối đa: " + formatter.format(priceValue) + "đ/giờ");
-                } else {
-                    price = priceValue;
-                    tvCurrentPrice.setText("Giá tối đa: " + formatter.format(priceValue) + "đ/giờ");
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                // Không cần làm gì
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                // Có thể áp dụng logic tìm kiếm tự động ở đây
-            }
+            DecimalFormat formatter = new DecimalFormat("#,###");
+            tvCurrentPrice.setText("Giá tối đa: " + formatter.format(priceValue) + "đ/giờ");
         });
 
-        // Thiết lập giá trị ban đầu
-        priceSeekBar.setProgress(250); // Mặc định 250, tương ứng 250.000đ
+        // Thiết lập giá trị ban đầu (Slider dùng float)
+        priceSlider.setValue(250f);
+        this.price = 250 * 1000; // Đồng bộ giá trị ban đầu
     }
 
-    // Thiết lập các nút hành động
+    // Thiết lập các nút hành động (Đã cập nhật)
     private void setupActionButtons() {
         btnApplyFilters.setOnClickListener(v -> {
-            // TODO: Thu thập dữ liệu và áp dụng bộ lọc
+            // Hàm collectFilterData bây giờ chỉ gọi setBtnApplyFilters
             collectFilterData();
-
         });
 
-        btnClearAll.setOnClickListener(v -> {
+        // Tạo một hàm reset chung
+        View.OnClickListener resetListener = v -> {
+            // Đặt lại Slider về giá trị tối đa (ví dụ: 500)
+            priceSlider.setValue(priceSlider.getValueTo());
+            // Cập nhật Text
+            int maxPriceValue = (int) priceSlider.getValueTo() * 1000;
+            this.price = maxPriceValue;
+            DecimalFormat formatter = new DecimalFormat("#,###");
+            tvCurrentPrice.setText("Giá tối đa: " + formatter.format(maxPriceValue) + "đ/giờ");
 
-            // Đặt lại SeekBar
-            priceSeekBar.setProgress(priceSeekBar.getMax()); // Đặt lại mức tối đa
-            tvCurrentPrice.setText("Giá tối đa: 500.000đ/giờ");
-            // Đặt lại CheckBox
-            for (CheckBox cb : sportCheckBoxes) {
-                cb.setChecked(false);
-            }
+            // Đặt lại ChipGroup (cách đơn giản hơn)
+            sportChipGroup.clearCheck();
+
+            // Đặt lại thời gian
+            etStartTime.setText("");
+            etEndTime.setText("");
+
+            // Đặt lại địa điểm
+            address.setText("");
+
             Toast.makeText(getContext(), "Đã xóa tất cả bộ lọc", Toast.LENGTH_SHORT).show();
-        });
+        };
+
+        // Gán listener cho cả hai nút "Xóa" và "Đặt lại"
+        btnClearAll.setOnClickListener(resetListener);
+        btnResetFilters.setOnClickListener(resetListener);
     }
 
-    // Hàm thu thập dữ liệu bộ lọc
+    // Hàm thu thập dữ liệu bộ lọc (Không cần thay đổi nhiều)
     private void collectFilterData() {
-        // Thu thập loại thể thao đã chọn
-        StringBuilder sportSelected = new StringBuilder();
-        for (CheckBox cb : sportCheckBoxes) {
-            if (cb.isChecked()) {
-                sportSelected.append(cb.getText().toString()).append(", ");
-            }
-        }
-
-
-        int maxPrice = priceSeekBar.getProgress() * 1000;
+        // Hàm này giờ chỉ còn nhiệm vụ gọi hàm xử lý chính
         setBtnApplyFilters();
-        // In ra Console/Logcat để kiểm tra
-
-        // Bạn sẽ truyền dữ liệu này cho Activity/ViewModel để thực hiện tìm kiếm
     }
 
     @Override
-    public void onStop(){
+    public void onStop() {
         super.onStop();
-
     }
 }

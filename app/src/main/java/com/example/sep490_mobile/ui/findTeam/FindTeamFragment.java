@@ -76,9 +76,15 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
             // Cập nhật UI với `item`
-            if(item.get("$filter").length() > 0){
+            if(item != null){
                 odataUrl.replace("$filter", filter + " and " + item.get("$filter"));
                 System.out.println("filter: " + odataUrl.get("$filter"));
+                odataUrl.replace("$top", "10");
+                odataUrl.replace("$skip", "0");
+                skip = 0;
+                findTeamViewModel.fetchFindTeamList(odataUrl);
+            }else{
+                odataUrl.replace("$filter", filter);
                 odataUrl.replace("$top", "10");
                 odataUrl.replace("$skip", "0");
                 skip = 0;
