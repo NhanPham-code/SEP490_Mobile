@@ -9,7 +9,7 @@ public class BookingDetailDTO {
     @SerializedName("BookingId")
     private int bookingId;
 
-    @SerializedName("CourtId")
+    @SerializedName("courtId")
     private int courtId;
 
     @SerializedName("StartTime")
