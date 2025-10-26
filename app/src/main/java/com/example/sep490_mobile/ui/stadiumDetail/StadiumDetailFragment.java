@@ -1,6 +1,7 @@
 package com.example.sep490_mobile.ui.stadiumDetail;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.net.Uri;
@@ -11,7 +12,11 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 // 👇 THÊM DÒNG NÀY VÀO
+import com.example.sep490_mobile.ChatListActivity;
+import com.example.sep490_mobile.model.ChatRoomInfo;
 import com.example.sep490_mobile.ui.feedback.FeedbackFragment;
 
 import android.os.Handler;
@@ -47,6 +52,8 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -73,7 +80,7 @@ public class StadiumDetailFragment extends Fragment {
     private int videoPosition;
     private StadiumDTO stadiumDTO;
     private int stadiumId;
-
+    private Button btnChatOwner;
     private int currentUserId = -1;
     private boolean isMuted = false;
     private ImageButton volumeButton;
@@ -89,10 +96,15 @@ public class StadiumDetailFragment extends Fragment {
     private static final int MAX_COLLAPSED_LINES = 2;
     private final Handler handler = new Handler();
 
-    public static StadiumDetailFragment newInstance(int stadiumId) {
+    private String stadiumName;
+    private int createBy;
+
+    public static StadiumDetailFragment newInstance(int stadiumId, String stadiumName, int createBy) {
         StadiumDetailFragment fragment = new StadiumDetailFragment();
         Bundle args = new Bundle();
         args.putInt("stadiumId", stadiumId);
+        args.putString("stadiumName", stadiumName);
+        args.putInt("createBy", createBy);
         fragment.setArguments(args);
         return fragment;
     }
@@ -102,6 +114,8 @@ public class StadiumDetailFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             stadiumId = getArguments().getInt("stadiumId");
+            stadiumName = getArguments().getString("stadiumName");
+            createBy = getArguments().getInt("createBy");
         }
     }
 
@@ -284,6 +298,49 @@ public class StadiumDetailFragment extends Fragment {
                 }
             }
         });
+
+        btnChatOwner = root.findViewById(R.id.btn_chat_owner);
+        btnChatOwner.setOnClickListener(v -> {
+            SharedPreferences prefs = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+            int userId = prefs.getInt("user_id", -1);
+
+            if (stadiumDTO == null) {
+                Toast.makeText(getContext(), "Chưa có thông tin sân!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            int ownerId = stadiumDTO.getCreatedBy();
+            String stadiumName = stadiumDTO.getName();
+
+            if (userId == -1) {
+                Toast.makeText(getContext(), "Bạn cần đăng nhập để chat!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (userId == ownerId) {
+                Toast.makeText(getContext(), "Bạn không thể chat với chính mình!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // --- THAY ĐỔI LỚN Ở ĐÂY ---
+            // Gọi hàm với callback và chỉ điều hướng khi thành công
+            createChatRoomIfNeeded(userId, ownerId, stadiumName, new ChatRoomCreationCallback() {
+                @Override
+                public void onComplete(boolean success) {
+                    if (success) {
+                        // Chỉ điều hướng KHI VÀ CHỈ KHI tạo phòng chat thành công
+                        Bundle chatBundle = new Bundle();
+                        chatBundle.putBoolean("start_chat", true);
+                        chatBundle.putInt("senderId", userId);
+                        chatBundle.putInt("receiverId", ownerId);
+                        chatBundle.putString("receiverName", stadiumName);
+
+                        // Dùng requireActivity() để tránh lỗi NullPointerException
+                        NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+                        navController.navigate(R.id.navigation_chat, chatBundle);
+                    }
+                    // Nếu không thành công (success == false), không làm gì cả vì đã có Toast báo lỗi rồi.
+                }
+            });
+        });
         volumeButton.setOnClickListener(v -> toggleVolume());
         setupCustomFullscreenButton();
 
@@ -291,6 +348,32 @@ public class StadiumDetailFragment extends Fragment {
         insertFeedbackFragment();
         delayAndSetTextMore();
         return root;
+    }
+    public interface ChatRoomCreationCallback {
+        void onComplete(boolean success);
+    }
+    // Sửa lại hàm này
+    private void createChatRoomIfNeeded(int userId, int ownerId, String stadiumName, ChatRoomCreationCallback callback) {
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+
+        long timestamp = System.currentTimeMillis();
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("userChats/" + userId + "/" + ownerId, new ChatRoomInfo(stadiumName, timestamp, ""));
+        updates.put("userChats/" + ownerId + "/" + userId, new ChatRoomInfo("Người dùng", timestamp, ""));
+
+        dbRef.updateChildren(updates)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // THAY ĐỔI: Không gọi startActivity nữa,
+                        // mà gọi callback để báo thành công
+                        callback.onComplete(true);
+                    } else {
+                        // Báo thất bại
+                        Toast.makeText(getContext(), "Tạo phòng chat thất bại!", Toast.LENGTH_SHORT).show();
+                        callback.onComplete(false);
+                    }
+                });
     }
     private void loadUserData() {
         if (getContext() == null) return;
