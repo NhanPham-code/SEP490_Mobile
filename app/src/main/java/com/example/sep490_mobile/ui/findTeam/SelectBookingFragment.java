@@ -214,4 +214,10 @@ public class SelectBookingFragment extends Fragment implements OnItemClickListen
     public void onBookButtonClick(int stadiumId) {
 
     }
+
+    @Override
+    public void onDailyBookButtonClick(int stadiumId) {
+        // Phương thức này không được sử dụng trong SelectBookingFragment
+        // nên có thể để trống
+    }
 }

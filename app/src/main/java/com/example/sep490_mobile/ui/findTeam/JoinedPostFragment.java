@@ -333,6 +333,11 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
     }
 
     @Override
+    public void onDailyBookButtonClick(int stadiumId) {
+
+    }
+
+    @Override
     public void onStop(){
         super.onStop();
         isLastPage = false;

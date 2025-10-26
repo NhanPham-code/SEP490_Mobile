@@ -8,4 +8,5 @@ public interface OnItemClickListener {
     void onItemClickRemoveMember(int id ,int postId, String type);
 
     void onBookButtonClick(int stadiumId);
+    void onDailyBookButtonClick(int stadiumId);
 }

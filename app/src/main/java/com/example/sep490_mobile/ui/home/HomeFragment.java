@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -392,5 +393,18 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
     public void onDestroyView() {
         super.onDestroyView();
         binding = null; // Tránh memory leak
+    }
+
+    @Override
+    public void onDailyBookButtonClick(int stadiumId) {
+        // Lấy NavController
+        NavController navController = NavHostFragment.findNavController(HomeFragment.this);
+
+        // Tạo Bundle để truyền stadiumId
+        Bundle bundle = new Bundle();
+        bundle.putInt("stadiumId", stadiumId);
+
+        // Điều hướng đến dailyBookingFragment
+        navController.navigate(R.id.action_navigation_home_to_dailyBookingFragment, bundle);
     }
 }

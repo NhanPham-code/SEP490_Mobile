@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/item_time_slot_default_background"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="6dp">
+
+    <TextView
+        android:id="@+id/time_slot_text"
+        android:layout_width="48dp"
+        android:layout_height="32dp"
+        android:gravity="center"
+        android:text="08:00"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        android:background="@android:color/transparent"
+        android:clickable="false"
+        android:focusable="false"
+        android:fontFamily="sans-serif-medium"/>
+</LinearLayout>

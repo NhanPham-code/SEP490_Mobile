@@ -5,8 +5,10 @@ import com.example.sep490_mobile.data.dto.FeedbackDto;
 import com.example.sep490_mobile.data.dto.FeedbackRequestDto;
 import com.example.sep490_mobile.data.dto.BookingCreateDto;
 import com.example.sep490_mobile.data.dto.BookingReadDto;
+import com.example.sep490_mobile.data.dto.BookingSlotRequest;
 import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.CreateTeamPostDTO;
+import com.example.sep490_mobile.data.dto.MonthlyBookingCreateDto;
 import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.OdataHaveCountResponse;
 import com.example.sep490_mobile.data.dto.ReadCourtRelationDTO;
@@ -34,7 +36,6 @@ import com.example.sep490_mobile.data.dto.UpdateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
-import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
 import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
@@ -241,6 +242,30 @@ public interface ApiService {
     @DELETE("DeleteTeamMember")
     Call<Boolean> deleteTeamMember(@Query("teamMemberId") int teamMemberId, @Query("postId") int postId);
 
+    @GET("Booking/FilterByDateAndHour")
+    Call<List<BookingReadDto>> filterByDateAndHour(
+            @Query("year") int year,
+            @Query("month") int month,
+            @Query("days") List<Integer> days,
+            @Query("startTime") String startTime, // Đổi sang String
+            @Query("endTime") String endTime,     // Đổi sang String
+            @Query("stadiumId") int stadiumId
+    );
+
+    @GET("Booking/FilterByCourtAndHour")
+    Call<List<BookingReadDto>> filterByCourtAndHourForCalendar(
+            @Query("courtIds") List<Integer> courtIds,
+            @Query("year") int year,
+            @Query("month") int month,
+            @Query("startTime") String startTime, // <-- Đổi thành String
+            @Query("endTime") String endTime     // <-- Đổi thành String
+    );
+
+    @POST("booking/monthly")
+    Call<BookingReadDto> createMonthlyBooking(@Body MonthlyBookingCreateDto bookingDto);
+
+    @POST("bookings/checkAvailability")
+    Call<Void> checkSlotsAvailability(@Body List<BookingSlotRequest> requestedSlots);
 
     @GET("bookings/history?$expand=BookingDetails")
     Call<BookingHistoryODataResponse> getBookingsHistory(
@@ -278,6 +303,14 @@ public interface ApiService {
 
     @GET("myFavoriteStadium") // Hoặc endpoint đúng của bạn
     Call<List<ReadFavoriteDTO>> getMyFavoriteStadiums();
+
+    @GET("Booking/GetBookedCourts")
+    Call<List<BookingReadDto>> filterBySingleDateAndHour(
+            @Query("stadiumId") int stadiumId,
+            @Query("date") String date, // Format "YYYY-MM-DD"
+            @Query("startHour") int startHour,
+            @Query("endHour") int endHour
+    );
 
     @POST("favoriteStadium")
     Call<Void> addFavorite(@Body CreateFavoriteDTO body);
