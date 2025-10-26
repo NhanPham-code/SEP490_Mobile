@@ -193,10 +193,12 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         holder.listItem.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int stadiumId = stadiumDTO.getId();
                 if (listener != null) {
-                    // This remains unchanged for clicking the whole item
-                    listener.onItemClick(stadiumId);
+                    listener.onItemClick(
+                            stadiumDTO.getId(),
+                            stadiumDTO.getName(),
+                            stadiumDTO.getCreatedBy()
+                    );
                 }
             }
         });

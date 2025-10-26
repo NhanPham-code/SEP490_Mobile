@@ -216,7 +216,10 @@ public class MyPostManagerFragment extends Fragment implements OnItemClickListen
 
     }
 
-
+    @Override
+    public void onItemClick(int stadiumId, String stadiumName, int createBy) {
+        // Không dùng ở FindTeamFragment, để trống hoặc log lại
+    }
     private void callApiForNextPage() {
         isLoading = true; // Đặt ở đây để đảm bảo
 

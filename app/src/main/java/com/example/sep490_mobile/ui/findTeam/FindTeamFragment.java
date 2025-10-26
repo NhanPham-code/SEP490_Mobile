@@ -432,7 +432,10 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
     public void onItemClick(int item) {
 
     }
-
+    @Override
+    public void onItemClick(int stadiumId, String stadiumName, int createBy) {
+        // Không dùng ở FindTeamFragment, để trống hoặc log lại
+    }
     @Override
     public void onItemClick(int item, String type) {
         if(type.equalsIgnoreCase("join")){

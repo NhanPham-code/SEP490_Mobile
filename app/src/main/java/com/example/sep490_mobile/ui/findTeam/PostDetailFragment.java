@@ -308,7 +308,10 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
     @Override
     public void onItemClick(int item, String type) {
     }
-
+    @Override
+    public void onItemClick(int stadiumId, String stadiumName, int createBy) {
+        // Không dùng ở FindTeamFragment, để trống hoặc log lại
+    }
     @Override
     public void onItemClickRemoveMember(int id, int postId, String type) {
         if (type.equalsIgnoreCase("remove")) {

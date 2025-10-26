@@ -227,7 +227,10 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
     }
 
     // --- CÁC PHƯƠNG THỨC CHO TÌM KIẾM, PHÂN TRANG, ĐIỀU HƯỚNG ---
-
+    @Override
+    public void onItemClick(int item) {
+        // Không dùng trong HomeFragment, để trống cũng được
+    }
     private void setupSearchListener() {
         binding.searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -364,8 +367,8 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         fragmentTransaction.addToBackStack("HomeFragment");
         fragmentTransaction.commit();
     }
-    private void navigateToDetailFragment(int stadiumId) {
-        StadiumDetailFragment stadiumDetailFragment = new StadiumDetailFragment().newInstance(stadiumId);
+    private void navigateToDetailFragment(int stadiumId, String stadiumName, int createBy) {
+        StadiumDetailFragment stadiumDetailFragment = StadiumDetailFragment.newInstance(stadiumId, stadiumName, createBy);
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
@@ -373,9 +376,10 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         fragmentTransaction.addToBackStack("HomeFragment");
         fragmentTransaction.commit();
     }
+    // Trong com.example.sep490_mobile.interfaces.OnItemClickListener
     @Override
-    public void onItemClick(int stadiumId) {
-        navigateToDetailFragment(stadiumId);
+    public void onItemClick(int stadiumId, String stadiumName, int createBy) {
+        navigateToDetailFragment(stadiumId, stadiumName, createBy);
     }
 
     @Override

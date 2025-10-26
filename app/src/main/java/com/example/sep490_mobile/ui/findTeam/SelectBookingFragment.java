@@ -188,7 +188,10 @@ public class SelectBookingFragment extends Fragment implements OnItemClickListen
         // 6. Hoàn tất giao dịch
         fragmentTransaction.commit();
     }
-
+    @Override
+    public void onItemClick(int stadiumId, String stadiumName, int createBy) {
+        // Không dùng ở FindTeamFragment, để trống hoặc log lại
+    }
     @Override
     public void onItemClick(int item) {
         // Xử lý khi click vào item

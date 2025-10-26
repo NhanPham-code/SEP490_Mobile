@@ -212,7 +212,10 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.recyclerViewJoinedPost.setVisibility(View.GONE);
     }
-
+    @Override
+    public void onItemClick(int stadiumId, String stadiumName, int createBy) {
+        // Không dùng ở FindTeamFragment, để trống hoặc log lại
+    }
     private void hideLoading() {
         binding.progressBar.setVisibility(View.GONE);
         binding.recyclerViewJoinedPost.setVisibility(View.VISIBLE);
