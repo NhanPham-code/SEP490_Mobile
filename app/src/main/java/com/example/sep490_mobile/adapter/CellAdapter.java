@@ -1,5 +1,6 @@
 package com.example.sep490_mobile.adapter;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -148,11 +149,32 @@ public class CellAdapter extends RecyclerView.Adapter<CellAdapter.CellViewHolder
         if (relatedIDs == null || relatedIDs.isEmpty()) return false;
 
         for (BookingReadDto booking : bookingsForDay) {
-            for (BookingDetailDTO detail : booking.getBookingDetails()) {
+            // *** ADD NULL CHECK HERE ***
+            if (booking.getBookingDetails() == null) {
+                continue; // Skip this booking if details are null
+            }
+            // *** END NULL CHECK ***
+
+            // Now it's safe to loop
+            for (BookingDetailDTO detail : booking.getBookingDetails()) { // This loop could also crash
                 if (relatedIDs.contains(detail.getCourtId())) {
-                    LocalDateTime startTime = LocalDateTime.parse(detail.getStartTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                    LocalDateTime endTime = LocalDateTime.parse(detail.getEndTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                    if (hour >= startTime.getHour() && hour < endTime.getHour()) {
+                    // Parse LocalDateTime safely, handle potential nulls from API
+                    LocalDateTime startTime = null, endTime = null;
+                    try {
+                        if (detail.getStartTime() != null) {
+                            startTime = LocalDateTime.parse(detail.getStartTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                        }
+                        if (detail.getEndTime() != null) {
+                            endTime = LocalDateTime.parse(detail.getEndTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                        }
+                    } catch (Exception e) {
+                        Log.e("CellAdapter", "Error parsing related booking detail time", e);
+                        continue; // Skip this detail if time parsing fails
+                    }
+
+                    // Check if parsing was successful before comparing hours
+                    if (startTime != null && endTime != null &&
+                            hour >= startTime.getHour() && hour < endTime.getHour()) {
                         return true;
                     }
                 }
@@ -164,11 +186,32 @@ public class CellAdapter extends RecyclerView.Adapter<CellAdapter.CellViewHolder
     private BookingDetailDTO findIfBooked(int courtId, int hour) {
         if (bookingsForDay == null || bookingsForDay.isEmpty()) return null;
         for (BookingReadDto booking : bookingsForDay) {
-            for (BookingDetailDTO detail : booking.getBookingDetails()) {
+            // *** ADD NULL CHECK HERE ***
+            if (booking.getBookingDetails() == null) {
+                continue; // Skip this booking if details are null
+            }
+            // *** END NULL CHECK ***
+
+            // Now it's safe to loop
+            for (BookingDetailDTO detail : booking.getBookingDetails()) { // This loop was causing the crash
                 if (detail.getCourtId() == courtId) {
-                    LocalDateTime startTime = LocalDateTime.parse(detail.getStartTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                    LocalDateTime endTime = LocalDateTime.parse(detail.getEndTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
-                    if (hour >= startTime.getHour() && hour < endTime.getHour()) {
+                    // Parse LocalDateTime safely, handle potential nulls from API
+                    LocalDateTime startTime = null, endTime = null;
+                    try {
+                        if (detail.getStartTime() != null) {
+                            startTime = LocalDateTime.parse(detail.getStartTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                        }
+                        if (detail.getEndTime() != null) {
+                            endTime = LocalDateTime.parse(detail.getEndTime(), DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+                        }
+                    } catch (Exception e) {
+                        Log.e("CellAdapter", "Error parsing booking detail time", e);
+                        continue; // Skip this detail if time parsing fails
+                    }
+
+                    // Check if parsing was successful before comparing hours
+                    if (startTime != null && endTime != null &&
+                            hour >= startTime.getHour() && hour < endTime.getHour()) {
                         return detail;
                     }
                 }

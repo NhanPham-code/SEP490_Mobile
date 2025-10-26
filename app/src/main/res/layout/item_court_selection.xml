@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/court_card"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginHorizontal="16dp"
+    android:layout_marginBottom="12dp"
+    app:cardCornerRadius="12dp"
+    app:strokeColor="@color/calendar_accent_color"
+    app:strokeWidth="1dp"
+    app:cardElevation="0dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/tv_court_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/calendar_text_primary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:text="Sân 5 người A" />
+
+        <TextView
+            android:id="@+id/tv_court_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/calendar_text_secondary"
+            android:textSize="14sp"
+            android:text="200,000đ/giờ" />
+
+        <TextView
+            android:id="@+id/tv_court_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:paddingHorizontal="10dp"
+            android:paddingVertical="4dp"
+            android:background="@drawable/bg_status_available"
+            android:textColor="@color/status_text_available"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:text="Có thể đặt" />
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>
