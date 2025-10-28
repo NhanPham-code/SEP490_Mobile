@@ -1,17 +1,28 @@
 package com.example.sep490_mobile;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
+import android.widget.Toast;
 
+import com.example.sep490_mobile.viewmodel.NotificationCountViewModel;
+import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -27,12 +38,46 @@ public class MainActivity extends AppCompatActivity {
     private boolean isDragging = false;
     private float initialTouchX, initialTouchY;
 
+    private NotificationCountViewModel mainViewModel;
 
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // Người dùng đã cấp quyền
+                    Toast.makeText(this, "Đã cấp quyền thông báo.", Toast.LENGTH_SHORT).show();
+                } else {
+                    // Người dùng đã từ chối quyền
+                    Toast.makeText(this, "Bạn sẽ không nhận được thông báo real-time.", Toast.LENGTH_LONG).show();
+                }
+            });
+
+    private void askNotificationPermission() {
+        // Chỉ chạy trên Android 13 (TIRAMISU) trở lên
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            // Kiểm tra xem quyền đã được cấp chưa
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                // Quyền đã được cấp, không cần làm gì thêm
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // (Tùy chọn) Hiển thị một giao diện giải thích tại sao bạn cần quyền này
+                // nếu người dùng đã từ chối một lần trước đó.
+                // Ở đây chúng ta sẽ hỏi lại trực tiếp.
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            } else {
+                // Hỏi quyền lần đầu tiên
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        mainViewModel = new ViewModelProvider(this).get(NotificationCountViewModel.class);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
 
@@ -50,6 +95,9 @@ public class MainActivity extends AppCompatActivity {
 
         Objects.requireNonNull(getSupportActionBar()).hide();
 
+        // Yêu cầu quyền thông báo khi khởi động ứng dụng
+        askNotificationPermission();
+
         // 🔹 Khi chọn item trong bottom nav
         navView.setOnItemSelectedListener(item -> {
             int id = item.getItemId();
@@ -59,11 +107,21 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 return false; // không giữ trạng thái selected
             } else {
-                // xử lý bằng navController bình thường
+                // cập nhật số lượng thông báo chưa đọc khi vào tab Thông báo
+                if (id == R.id.navigation_notifications) {
+                    mainViewModel.fetchUnreadCount();
+                }
+                // Điều hướng đến các fragment khác bình thường
                 navController.navigate(id);
                 return true;
             }
         });
+
+        // --- THIẾT LẬP OBSERVER ---
+        setupObservers(navView);
+
+        // 🔹 Lấy số lượng thông báo chưa đọc và lắng nghe thay đổi
+        mainViewModel.fetchUnreadCount();
 
         // 🔹 Floating Chat Bubble
         FloatingActionButton fabChat = findViewById(R.id.fabChat);
@@ -156,4 +214,29 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+
+    // --- PHƯƠNG THỨC MỚI ĐỂ QUẢN LÝ OBSERVER ---
+    private void setupObservers(BottomNavigationView navView) {
+        mainViewModel.unreadCount.observe(this, count -> {
+            // Lấy hoặc tạo badge cho item thông báo
+            BadgeDrawable badge = navView.getOrCreateBadge(R.id.navigation_notifications);
+
+            if (count != null && count > 0) {
+                badge.setVisible(true);
+                badge.setNumber(count);
+            } else {
+                badge.setVisible(false);
+            }
+        });
+    }
+
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Mỗi khi người dùng quay lại MainActivity, hãy cập nhật lại số lượng
+        mainViewModel.fetchUnreadCount();
+    }
+
 }
