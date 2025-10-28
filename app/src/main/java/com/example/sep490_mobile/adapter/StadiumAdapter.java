@@ -1,16 +1,16 @@
 package com.example.sep490_mobile.adapter;
 
-//import static android.os.Build.VERSION_CODES.R;
-
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RatingBar; // Thêm import này
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,20 +41,34 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import java.util.Map; // Thêm import này
 
 public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumViewHolder> {
 
     private List<StadiumDTO> stadiumDTOS = new ArrayList<>();
     private Context context;
-    public StadiumAdapter(Context context){
-        this.context = context;
-    }
     private OnItemClickListener listener;
 
     private Set<Integer> favoriteIds = new HashSet<>();
     private OnFavoriteClickListener favoriteClickListener;
 
+    // ⭐ Thêm biến này để lưu Map<stadiumId, averageRating>
+    private Map<Integer, Float> stadiumAverageRatings = null;
+
+    // Constructor mới để truyền thêm average ratings nếu cần
+    public StadiumAdapter(Context context, OnItemClickListener listener, OnFavoriteClickListener favoriteClickListener, Map<Integer, Float> stadiumAverageRatings) {
+        this.context = context;
+        this.listener = listener;
+        this.favoriteClickListener = favoriteClickListener;
+        this.stadiumAverageRatings = stadiumAverageRatings;
+    }
+
+    // Nếu muốn giữ constructor cũ
+    public StadiumAdapter(Context context) {
+        this.context = context;
+    }
     public StadiumAdapter(Context context, OnItemClickListener listener, OnFavoriteClickListener favoriteClickListener) {
         this.context = context;
         this.listener = listener;
@@ -79,12 +93,17 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         notifyDataSetChanged();
     }
 
+    // ⭐ Hàm này để update average ratings từ ngoài truyền vào
+    public void setAverageRatings(Map<Integer, Float> stadiumAverageRatings) {
+        this.stadiumAverageRatings = stadiumAverageRatings;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public StadiumAdapter.StadiumViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.list_item_stadium, parent, false);
         return new StadiumViewHolder(view);
-
     }
 
     @Override
@@ -92,16 +111,12 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
 
         StadiumDTO stadiumDTO = stadiumDTOS.get(position);
         CourtsDTO[] courtsDTOS = stadiumDTO.courts.toArray(new CourtsDTO[0]);
-        // ✅ This is much cleaner and calls the new method directly
-        String time = DurationConverter.convertDuration(stadiumDTO.openTime) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime);        String sportType = "";
+        String time = DurationConverter.convertDuration(stadiumDTO.openTime) + " - " + DurationConverter.convertDuration(stadiumDTO.closeTime);
+        String sportType = "";
         StadiumImagesDTO[] stadiumImagesDTO = stadiumDTO.stadiumImages.toArray(new StadiumImagesDTO[0]);
         switch (courtsDTOS.length > 0 ? courtsDTOS[0].sportType : ""){
             case "Bóng đá sân 7":
-                sportType = "Bóng đá";
-                break;
             case "Bóng đá sân 5":
-                sportType = "Bóng đá";
-                break;
             case "Bóng đá sân 11":
                 sportType = "Bóng đá";
                 break;
@@ -115,15 +130,20 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         holder.stadiumSportType.setText(sportType);
         Glide.with(this.context).load(ImageUtils.getFullUrl(stadiumImagesDTO.length > 0 ? "img/" + stadiumImagesDTO[0].imageUrl : "")).centerCrop().into(holder.stadiumImages);
 
+        // ⭐ Hiển thị số sao trung bình nếu có (nếu không thì để 0)
+        float avgRating = 0f;
+        if (stadiumAverageRatings != null && stadiumAverageRatings.containsKey(stadiumDTO.getId())) {
+            avgRating = stadiumAverageRatings.get(stadiumDTO.getId());
+        }
+        holder.ratingBar.setRating(avgRating);
+        Log.d("RATING", "Sân: " + stadiumDTO.getName() + " - ID: " + stadiumDTO.getId() + " - Rating: " + avgRating);
         // Xử lý icon trái tim yêu thích
-        // 1. Đồng bộ hóa trạng thái icon trái tim
         if (favoriteIds.contains(stadiumDTO.getId())) {
             holder.favorite_icon.setImageResource(R.drawable.ic_favorite_filled);
         } else {
             holder.favorite_icon.setImageResource(R.drawable.ic_favorite_border);
         }
 
-        // 2. Bắt sự kiện click vào icon trái tim
         holder.favorite_icon.setOnClickListener(v -> {
             if (favoriteClickListener != null) {
                 favoriteClickListener.onFavoriteClick(stadiumDTO.getId());
@@ -148,11 +168,10 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
             holder.listItem.setBackgroundColor(context.getResources().getColor(R.color.white));
         }
 
-        holder.book_button.setOnClickListener(v -> { // Changed from holder.bookButton
+        holder.book_button.setOnClickListener(v -> {
             if (context instanceof FragmentActivity) {
                 FragmentManager fragmentManager = ((FragmentActivity) context).getSupportFragmentManager();
-                // SỬA LỖI 2: Use 'stadiumDTO' which holds the data for this item
-                BookingOptionsBottomSheet bottomSheet = BookingOptionsBottomSheet.newInstance(stadiumDTO.getId()); // Changed from stadium.getId()
+                BookingOptionsBottomSheet bottomSheet = BookingOptionsBottomSheet.newInstance(stadiumDTO.getId());
                 bottomSheet.show(fragmentManager, bottomSheet.getTag());
             }
         });
@@ -166,9 +185,10 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
                 }
             }
         });
-
-
-        // Xử lý sự kiện click cho nút bản đồ
+        holder.ratingBar.setRating(avgRating);
+        holder.ratingValue.setText(
+                avgRating > 0 ? String.format(Locale.US, "%.2f", avgRating) : "Chưa có"
+        );
         holder.map_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -176,19 +196,6 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
                 findPlaceAndOpenMap(stadiumId, stadiumDTO.getName());
             }
         });
-
-//        holder.book_button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                // Get the stadium ID for the current item
-//                int stadiumId = stadiumDTO.getId();
-//
-//                // ✨ Use the new interface method to notify the fragment
-//                if (listener != null) {
-//                    listener.onBookButtonClick(stadiumId);
-//                }
-//            }
-//        });
 
         holder.listItem.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -216,7 +223,7 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
                         CustomPlace place = childSnapshot.getValue(CustomPlace.class);
                         if (place != null) {
                             openGoogleMapsDirections(place.lat, place.lng, stadiumName);
-                            return; // Tìm thấy và đã xử lý, thoát khỏi vòng lặp
+                            return;
                         }
                     }
                 } else {
@@ -232,12 +239,9 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
     }
 
     public void openGoogleMapsDirections(double lat, double lng, String label) {
-        // Tạo URI cho Google Maps với tọa độ đích
         String uri = "http://maps.google.com/maps?daddr=" + lat + "," + lng + " (" + label + ")";
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(uri));
-        // Chỉ định package để chắc chắn mở bằng Google Maps
         intent.setPackage("com.google.android.apps.maps");
-        // Kiểm tra xem có ứng dụng nào có thể xử lý Intent này không
         if (intent.resolveActivity(context.getPackageManager()) != null) {
             context.startActivity(intent);
         } else {
@@ -261,24 +265,26 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         public TextView stadiumSportType;
         public ImageView stadiumImages;
         public Button book_button;
-        public ImageButton map_button; // Thêm ImageButton cho bản đồ
+        public ImageButton map_button;
         public ConstraintLayout listItem;
+        public ImageButton favorite_icon;
 
-        public ImageButton favorite_icon; // Thêm ImageButton cho biểu tượng yêu thích
+        public TextView ratingValue;
+        public RatingBar ratingBar; // ⭐ Thêm RatingBar cho số sao trung bình
 
         public StadiumViewHolder(@NonNull View itemView) {
             super(itemView);
-
             stadiumName = itemView.findViewById(R.id.stadium_name);
             stadiumAddress = itemView.findViewById(R.id.stadium_address);
             stadiumTime = itemView.findViewById(R.id.stadium_time);
             stadiumSportType = itemView.findViewById(R.id.stadium_sportType);
             stadiumImages = itemView.findViewById(R.id.stadium_image);
             book_button = itemView.findViewById(R.id.book_button);
-            map_button = itemView.findViewById(R.id.map_button); // Ánh xạ view
+            map_button = itemView.findViewById(R.id.map_button);
             listItem = itemView.findViewById(R.id.list_item);
-
-            favorite_icon = itemView.findViewById(R.id.favorite_button); // Ánh xạ view
+            favorite_icon = itemView.findViewById(R.id.favorite_button);
+            ratingBar = itemView.findViewById(R.id.rating_bar); // ⭐ Ánh xạ RatingBar
+            ratingValue = itemView.findViewById(R.id.rating_value);
         }
     }
 }

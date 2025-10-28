@@ -8,6 +8,7 @@ public interface OnItemClickListener {
     // Thêm phương thức mới này
     void onItemClick(int stadiumId, String stadiumName, int createBy);
 
+    void onChatClick(int postId, int creatorId, String creatorName);
     void onItemClickRemoveMember(int id ,int postId, String type);
     void onBookButtonClick(int stadiumId);
     void onDailyBookButtonClick(int stadiumId);

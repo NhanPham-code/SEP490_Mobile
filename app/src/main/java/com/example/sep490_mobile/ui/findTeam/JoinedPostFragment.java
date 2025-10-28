@@ -1,5 +1,6 @@
 package com.example.sep490_mobile.ui.findTeam;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -8,12 +9,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.adapter.PostManagerAdapter;
@@ -22,7 +26,10 @@ import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
 import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentJoinedPostBinding;
+import com.example.sep490_mobile.model.ChatRoomInfo;
 import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -323,6 +330,63 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
         }else if(type.equalsIgnoreCase("edit")){
             editPost(item);
         }
+    }
+    @Override
+    public void onChatClick(int postId, int creatorId, String creatorName) {
+        // Lấy userId người đăng nhập từ SharedPreferences
+        SharedPreferences prefs = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (userId == -1) {
+            Toast.makeText(getContext(), "Bạn cần đăng nhập để chat!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (userId == creatorId) {
+            Toast.makeText(getContext(), "Bạn không thể chat với chính mình!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Gọi hàm tạo phòng chat
+        createChatRoomIfNeeded(userId, creatorId, creatorName, new ChatRoomCreationCallback() {
+            @Override
+            public void onComplete(boolean success) {
+                if (success) {
+                    Bundle chatBundle = new Bundle();
+                    chatBundle.putBoolean("start_chat", true);
+                    chatBundle.putInt("senderId", userId);
+                    chatBundle.putInt("receiverId", creatorId);
+                    chatBundle.putString("receiverName", creatorName);
+
+                    NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+                    navController.navigate(R.id.navigation_chat, chatBundle);
+                }
+            }
+        });
+    }
+
+    // 2. Thêm interface này vào FindTeamFragment (nếu chưa có)
+    public interface ChatRoomCreationCallback {
+        void onComplete(boolean success);
+    }
+
+    // 3. Thêm hàm này vào FindTeamFragment (nếu chưa có)
+    private void createChatRoomIfNeeded(int userId, int ownerId, String ownerName, ChatRoomCreationCallback callback) {
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        long timestamp = System.currentTimeMillis();
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("userChats/" + userId + "/" + ownerId, new ChatRoomInfo(ownerName, timestamp, ""));
+        updates.put("userChats/" + ownerId + "/" + userId, new ChatRoomInfo("Người dùng", timestamp, ""));
+
+        dbRef.updateChildren(updates)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        callback.onComplete(true);
+                    } else {
+                        Toast.makeText(getContext(), "Tạo phòng chat thất bại!", Toast.LENGTH_SHORT).show();
+                        callback.onComplete(false);
+                    }
+                });
     }
 
     @Override

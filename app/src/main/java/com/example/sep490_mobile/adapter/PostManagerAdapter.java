@@ -239,6 +239,18 @@ public class PostManagerAdapter extends RecyclerView.Adapter<PostManagerAdapter.
                         .show();
             }
         });
+        holder.chatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(listener != null && publicProfileDTO != null){
+                    listener.onChatClick(
+                            readTeamPostDTO.getId(),
+                            readTeamPostDTO.getCreatedBy(),
+                            publicProfileDTO.fullName
+                    );
+                }
+            }
+        });
 
         holder.seeMore.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -322,12 +334,14 @@ public class PostManagerAdapter extends RecyclerView.Adapter<PostManagerAdapter.
         public TextView seeMore;
         public ConstraintLayout card;
         public TextView statusPost;
+        public ImageButton chatButton;
         public LinearLayout bottomCard;
 
         // Đã đổi tên hàm khởi tạo của ViewHolder
         public PostManagerViewHoder(@NonNull View itemView) {
             super(itemView);
             // Ánh xạ các thành phần giao diện
+            chatButton = itemView.findViewById(R.id.chatButton);
             playerAvatar = itemView.findViewById(R.id.playerAvatar);
             playerName = itemView.findViewById(R.id.playerName);
             postTimestamp = itemView.findViewById(R.id.postTimestamp);

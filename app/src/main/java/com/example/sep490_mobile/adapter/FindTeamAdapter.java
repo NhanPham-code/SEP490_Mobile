@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -176,7 +177,18 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             holder.joinButton.setEnabled(true);
         }
 
-
+        holder.chatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(listener != null && publicProfileDTO != null){
+                    listener.onChatClick(
+                            readTeamPostDTO.getId(),
+                            readTeamPostDTO.getCreatedBy(),
+                            publicProfileDTO.fullName // hoặc getFullName()
+                    );
+                }
+            }
+        });
         holder.joinButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -262,6 +274,7 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
         public TextView playersInfo;
         public TextView gameDescription;
         public TextView price;
+        public ImageButton chatButton;
         public Button joinButton;
         public TextView seeMore;
         public ConstraintLayout card;
@@ -269,6 +282,7 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
         public FindTeamViewHolder(@NonNull View itemView) {
             super(itemView);
             // Ánh xạ các thành phần giao diện
+            chatButton = itemView.findViewById(R.id.chatButton);
             playerAvatar = itemView.findViewById(R.id.playerAvatar);
             playerName = itemView.findViewById(R.id.playerName);
             postTimestamp = itemView.findViewById(R.id.postTimestamp);
