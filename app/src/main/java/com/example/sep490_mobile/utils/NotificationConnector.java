@@ -16,7 +16,7 @@ import io.reactivex.rxjava3.core.Single;
 public class NotificationConnector {
     private static final String TAG = "NotificationConnector";
     // Vui lòng thay đổi URL này
-    private static final String HUB_URL = "https://localhost:7136/notificationHub"; // https://localhost:7072 https://localhost:7136
+    private static final String HUB_URL = "http://10.0.2.2:7136/notificationHub"; // https://localhost:7072 https://localhost:7136
 
     private static volatile NotificationConnector instance;
     private HubConnection hubConnection;
