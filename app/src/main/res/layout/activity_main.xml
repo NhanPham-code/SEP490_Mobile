@@ -26,14 +26,42 @@
         app:layout_constraintRight_toRightOf="parent"
         app:menu="@menu/bottom_nav_menu" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabChat"
-        android:layout_width="wrap_content"  android:layout_height="wrap_content" android:layout_margin="16dp"
-        android:contentDescription="Chat"
-        android:src="@drawable/chat"
-        app:backgroundTint="#4CAF50"       app:tint="@android:color/white"
+    <FrameLayout
+        android:id="@+id/fabChatContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:elevation="6dp"
         app:layout_constraintBottom_toTopOf="@id/nav_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:rippleColor="@android:color/white"  app:elevation="6dp"                 app:pressedTranslationZ="12dp"      app:maxImageSize="32dp"             />
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fabChat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Chat"
+            android:src="@drawable/chat"
+            app:backgroundTint="#4CAF50"
+            app:elevation="0dp"
+            app:maxImageSize="32dp"
+            app:pressedTranslationZ="6dp"
+            app:rippleColor="@android:color/white"
+            app:tint="@android:color/white" />
+
+        <TextView
+            android:id="@+id/fab_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:background="@drawable/badge_background" android:elevation="1dp"
+            android:gravity="center"
+            android:minWidth="20dp"
+            android:minHeight="20dp"
+            android:padding="2dp"
+            android:text="0"
+            android:textColor="@android:color/white"
+            android:textSize="10sp"
+            android:textStyle="bold"
+            android:visibility="gone" /> </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

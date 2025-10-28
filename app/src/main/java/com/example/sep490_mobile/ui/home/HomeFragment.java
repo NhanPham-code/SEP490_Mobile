@@ -21,10 +21,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.sep490_mobile.adapter.StadiumAdapter;
 import com.example.sep490_mobile.R;
+import com.example.sep490_mobile.data.dto.FeedbackDto;
+import com.example.sep490_mobile.data.dto.ODataResponse;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
+import com.example.sep490_mobile.data.mapper.FeedbackMapper;
+import com.example.sep490_mobile.data.repository.FeedbackRepository;
 import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentHomeBinding;
 import com.example.sep490_mobile.interfaces.OnFavoriteClickListener;
+import com.example.sep490_mobile.model.Feedback;
 import com.example.sep490_mobile.ui.stadiumDetail.StadiumDetailFragment;
 import com.example.sep490_mobile.utils.removeVietnameseSigns;
 import com.example.sep490_mobile.viewmodel.FavoriteViewModel;
@@ -40,9 +45,15 @@ import java.util.stream.Collectors;
 
 import androidx.annotation.Nullable;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class HomeFragment extends Fragment implements OnItemClickListener, OnFavoriteClickListener {
 
     private FragmentHomeBinding binding;
+
+
     private StadiumAdapter adapter;
     private StadiumViewModel stadiumViewModel;
     private FavoriteViewModel favoriteViewModel;
@@ -62,6 +73,8 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
     private boolean isLastPage = false;
     private final int PAGE_SIZE = 10;
 
+    private FeedbackRepository feedbackRepository;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentHomeBinding.inflate(inflater, container, false);
@@ -75,15 +88,36 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         initViewModels();
         initRecyclerView();
         initListeners();
+        feedbackRepository = new FeedbackRepository(requireContext()); // <- Khởi tạo repo
 
+        // ... các gọi dữ liệu khác ...
+
+        // ⭐ LẤY TOÀN BỘ FEEDBACK VÀ TÍNH SỐ SAO TRUNG BÌNH
+        Map<String, String> odataOptions = new HashMap<>(); // Không filter
+        feedbackRepository.getFeedbacks(odataOptions).enqueue(new Callback<ODataResponse<FeedbackDto>>() {
+            @Override
+            public void onResponse(Call<ODataResponse<FeedbackDto>> call, Response<ODataResponse<FeedbackDto>> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    List<FeedbackDto> feedbackDtoList = response.body().getItems();
+                    // Group và tính average
+                    Map<Integer, Float> averageRatingMap = FeedbackMapper.calculateAverageRatingByStadium(feedbackDtoList);
+                    adapter.setAverageRatings(averageRatingMap);
+                }
+            }
+            @Override
+            public void onFailure(Call<ODataResponse<FeedbackDto>> call, Throwable t) {
+                // Xử lý lỗi nếu muốn
+            }
+        });
         showLoading();
         setupInitialOdataUrl();
         stadiumViewModel.fetchStadium(odataUrl); // Tải dữ liệu ban đầu
         favoriteViewModel.fetchFavoriteStadiums(); // Tải danh sách yêu thích ban đầu
 
-        filterStadiums();
+
         setupObservers();
         setupPagination();
+        filterStadiums();
     }
 
     private void filterStadiums() {
@@ -227,7 +261,10 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
     }
 
     // --- CÁC PHƯƠNG THỨC CHO TÌM KIẾM, PHÂN TRANG, ĐIỀU HƯỚNG ---
-
+    @Override
+    public void onItemClick(int item) {
+        // Không dùng trong HomeFragment, để trống cũng được
+    }
     private void setupSearchListener() {
         binding.searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -254,6 +291,9 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
 
     private void performSearch() {
         showLoading();
+        odataUrl.replace("$skip","0");
+        odataUrl.replace("$top","10");
+        skip=0;
         stadiumViewModel.fetchStadium(odataUrl);
     }
 
@@ -364,8 +404,8 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         fragmentTransaction.addToBackStack("HomeFragment");
         fragmentTransaction.commit();
     }
-    private void navigateToDetailFragment(int stadiumId) {
-        StadiumDetailFragment stadiumDetailFragment = new StadiumDetailFragment().newInstance(stadiumId);
+    private void navigateToDetailFragment(int stadiumId, String stadiumName, int createBy) {
+        StadiumDetailFragment stadiumDetailFragment = StadiumDetailFragment.newInstance(stadiumId, stadiumName, createBy);
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.setCustomAnimations(R.anim.slide_in_right, R.anim.slide_out_left, R.anim.slide_in_left, R.anim.slide_out_right);
@@ -373,9 +413,10 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         fragmentTransaction.addToBackStack("HomeFragment");
         fragmentTransaction.commit();
     }
+    // Trong com.example.sep490_mobile.interfaces.OnItemClickListener
     @Override
-    public void onItemClick(int stadiumId) {
-        navigateToDetailFragment(stadiumId);
+    public void onItemClick(int stadiumId, String stadiumName, int createBy) {
+        navigateToDetailFragment(stadiumId, stadiumName, createBy);
     }
 
     @Override
@@ -394,7 +435,30 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         super.onDestroyView();
         binding = null; // Tránh memory leak
     }
+    @Override
+    public void onChatClick(int postId, int creatorId, String creatorName) {
+        // Nếu không dùng, có thể để trống hoặc log lại cho debug
+        // Ví dụ:
+        // Log.d("SelectBookingFragment", "onChatClick - Không xử lý ở đây");
+    }
 
+    private void onFeedbackLoaded(List<Feedback> feedbackList) {
+        // feedbackList là List<Feedback>, nên vòng lặp phải là Feedback
+        Map<Integer, Integer> totalRating = new HashMap<>();
+        Map<Integer, Integer> countRating = new HashMap<>();
+        for (Feedback feedback : feedbackList) {
+            int stadiumId = feedback.getStadiumId();
+            int rating = feedback.getRating();
+            totalRating.put(stadiumId, totalRating.getOrDefault(stadiumId, 0) + rating);
+            countRating.put(stadiumId, countRating.getOrDefault(stadiumId, 0) + 1);
+        }
+        Map<Integer, Float> averageRatingMap = new HashMap<>();
+        for (int stadiumId : totalRating.keySet()) {
+            float avg = (float) totalRating.get(stadiumId) / countRating.get(stadiumId);
+            averageRatingMap.put(stadiumId, avg);
+        }
+        adapter.setAverageRatings(averageRatingMap); // <-- Gọi sau khi tính xong
+    }
     @Override
     public void onDailyBookButtonClick(int stadiumId) {
         // Lấy NavController
