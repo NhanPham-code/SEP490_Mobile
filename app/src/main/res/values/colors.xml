@@ -190,4 +190,8 @@
         <color name="amber_dark">#FFB300</color>
         <color name="chip_background_orange">#FFE0B2</color> <!-- Amber 200 -->
         <color name="chip_text_orange">#FF8F00</color> <!-- Amber 800 -->
+
+        <!-- Màu cho giao diện thông báo -->
+        <color name="notification_unread_background">#E8F0FE</color> <!-- Màu nền khi chưa đọc (xanh rất nhạt) -->
+        <color name="notification_indicator_blue">#1A73E8</color> <!-- Màu xanh chính (Google Blue) -->
 </resources>

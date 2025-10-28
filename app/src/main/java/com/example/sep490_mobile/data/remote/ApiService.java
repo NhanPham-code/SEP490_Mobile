@@ -41,6 +41,8 @@ import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataRe
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
 import com.example.sep490_mobile.data.dto.favorite.CreateFavoriteDTO;
 import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
+import com.example.sep490_mobile.data.dto.notification.CreateNotificationDTO;
+import com.example.sep490_mobile.data.dto.notification.NotificationDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -329,4 +331,28 @@ public interface ApiService {
     // Get favorites for a stadium
     @GET("favorite/stadium/{stadiumId}")
     Call<List<ReadFavoriteDTO>> getFavoritesByStadium(@Path("stadiumId") int stadiumId);
+
+    // Notification APIs
+    @GET("notifications/myNotification")
+    Call<ODataResponse<NotificationDTO>> getMyNotifications(@QueryMap Map<String, String> odataOptions);
+
+
+    @GET("notifications/unread-count")
+    Call<Integer> getUnreadNotificationCount();
+
+
+    @PUT("notifications/mark-all-as-read")
+    Call<Void> markAllAsRead();
+
+
+    @POST("notifications")
+    Call<NotificationDTO> createNotification(@Body CreateNotificationDTO notification);
+
+
+    @POST("notifications/batch")
+    Call<Void> createNotificationsBatch(@Body List<CreateNotificationDTO> notifications);
+
+
+    @POST("notifications/all")
+    Call<Void> createNotificationForAll(@Body CreateNotificationDTO notification);
 }

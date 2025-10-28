@@ -12,7 +12,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" /> <!-- Quyền đọc ảnh cho Android 12 trở xuống -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-
+    <uses-permission android:name="android.permission.INTERNET" />
 
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" android:maxSdkVersion="32" />
@@ -21,6 +21,7 @@
         android:maxSdkVersion="32" />
 
     <application
+        android:name=".MainApplication"
         android:networkSecurityConfig="@xml/network_security_config"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"

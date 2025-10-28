@@ -31,10 +31,13 @@ import com.example.sep490_mobile.viewmodel.EditProfileViewModel;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.regex.Pattern;
+
 import android.Manifest;
 
 public class EditProfileActivity extends AppCompatActivity {
@@ -228,11 +231,26 @@ public class EditProfileActivity extends AppCompatActivity {
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
 
-        new DatePickerDialog(this, (view, year1, monthOfYear, dayOfMonth) -> {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year1, monthOfYear, dayOfMonth) -> {
             String selectedDate = year1 + "-" + String.format(Locale.getDefault(), "%02d", monthOfYear + 1) + "-" + String.format(Locale.getDefault(), "%02d", dayOfMonth);
             binding.inputDob.setText(selectedDate);
-        }, year, month, day).show();
+            binding.inputLayoutDob.setError(null); // Xóa lỗi khi người dùng chọn ngày mới
+        }, year, month, day);
+
+        // --- VALIDATION: Giới hạn ngày sinh ---
+        // 1. Người dùng phải đủ 15 tuổi -> không được sinh sau ngày này (ngày hiện tại - 15 năm)
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.YEAR, -15);
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
+
+        // 2. Không cho phép ngày sinh quá xa trong quá khứ (ví dụ: trước năm 1900)
+        Calendar minDate = Calendar.getInstance();
+        minDate.set(1900, Calendar.JANUARY, 1);
+        datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
+
+        datePickerDialog.show();
     }
+
 
     private void saveProfileChanges() {
         String fullName = binding.inputFullname.getText().toString().trim();
@@ -241,11 +259,61 @@ public class EditProfileActivity extends AppCompatActivity {
         String dob = binding.inputDob.getText().toString().trim();
         String gender = binding.inputGender.getText().toString().trim();
 
+        boolean isValid = true;
+
+        // --- VALIDATION: Họ và tên ---
         if (fullName.isEmpty()) {
             binding.inputLayoutFullname.setError("Họ và tên không được để trống");
-            return;
+            isValid = false;
         } else {
             binding.inputLayoutFullname.setError(null);
+        }
+
+        // --- VALIDATION: Số điện thoại (định dạng Việt Nam) ---
+        // Bắt đầu bằng 0, theo sau là 3, 5, 7, 8, 9 và có 8 số tiếp theo. Tổng 10 số.
+        String phonePattern = "^(0[35789])\\d{8}$";
+        if (!phone.isEmpty() && !Pattern.matches(phonePattern, phone)) {
+            binding.inputLayoutPhone.setError("Số điện thoại không đúng định dạng Việt Nam");
+            isValid = false;
+        } else {
+            binding.inputLayoutPhone.setError(null);
+        }
+
+        // --- VALIDATION: Ngày sinh ---
+        if (!dob.isEmpty()) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            sdf.setLenient(false);
+            try {
+                Date birthDate = sdf.parse(dob);
+                Calendar dobCal = Calendar.getInstance();
+                dobCal.setTime(birthDate);
+
+                // 1. Kiểm tra không được trước năm 1900
+                if (dobCal.get(Calendar.YEAR) < 1900) {
+                    binding.inputLayoutDob.setError("Năm sinh không hợp lệ");
+                    isValid = false;
+                } else {
+                    // 2. Kiểm tra phải đủ 14 tuổi
+                    Calendar todayMinus14Years = Calendar.getInstance();
+                    todayMinus14Years.add(Calendar.YEAR, -14);
+                    if (dobCal.after(todayMinus14Years)) {
+                        binding.inputLayoutDob.setError("Bạn phải đủ 14 tuổi");
+                        isValid = false;
+                    } else {
+                        binding.inputLayoutDob.setError(null);
+                    }
+                }
+            } catch (ParseException e) {
+                binding.inputLayoutDob.setError("Định dạng ngày không hợp lệ (yyyy-MM-dd)");
+                isValid = false;
+            }
+        } else {
+            binding.inputLayoutDob.setError(null); // Cho phép ngày sinh trống
+        }
+
+
+        if (!isValid) {
+            return; // Dừng lại nếu có lỗi validation
         }
 
         viewModel.updateUserProfile(fullName, address, phone, gender, dob);
