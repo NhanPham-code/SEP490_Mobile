@@ -22,6 +22,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import org.json.JSONException;
+import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -39,7 +41,11 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
 
     private static final String TAG = "ChatActivity";
     private static final int PICK_IMAGE_REQUEST = 1;
-    private static final String IMGBB_API_KEY = "2f25b1206387ee1533a68c5bb1d1f54d";
+    // Nếu muốn dùng ImgBB, giữ lại dòng này và đổi API key nếu cần:
+    // private static final String IMGBB_API_KEY = "2f25b1206387ee1533a68c5bb1d1f54d";
+    // Nếu muốn dùng Cloudinary:
+    private static final String CLOUDINARY_CLOUD_NAME = "dwt7k4avh";
+    private static final String CLOUDINARY_UPLOAD_PRESET = "ChatMoBe";
 
     private final OkHttpClient client = new OkHttpClient();
     private final Gson gson = new Gson();
@@ -174,10 +180,59 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            uploadImageToImgBB(data.getData());
+            // Nếu muốn dùng ImgBB thì gọi hàm sau:
+            // uploadImageToImgBB(data.getData());
+            // Nếu muốn dùng Cloudinary thì gọi hàm sau:
+            uploadImageToCloudinary(data.getData());
         }
     }
 
+    // --- HÀM UPLOAD ẢNH LÊN CLOUDINARY ---
+    private void uploadImageToCloudinary(Uri imageUri) {
+        Toast.makeText(this, "Đang tải ảnh lên Cloudinary...", Toast.LENGTH_SHORT).show();
+        try (InputStream is = getContentResolver().openInputStream(imageUri)) {
+            byte[] inputData = new byte[is.available()];
+            is.read(inputData);
+
+            RequestBody requestBody = new MultipartBody.Builder()
+                    .setType(MultipartBody.FORM)
+                    .addFormDataPart("file", "image.jpg", RequestBody.create(okhttp3.MediaType.parse("image/*"), inputData))
+                    .addFormDataPart("upload_preset", CLOUDINARY_UPLOAD_PRESET)
+                    .build();
+
+            String url = "https://api.cloudinary.com/v1_1/" + CLOUDINARY_CLOUD_NAME + "/image/upload";
+            Request request = new Request.Builder().url(url).post(requestBody).build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    runOnUiThread(() -> Toast.makeText(ChatActivity.this, "Tải ảnh thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                }
+
+                @Override public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    String responseBody = response.body().string();
+                    Log.d(TAG, "Cloudinary response: " + responseBody);
+                    if (response.isSuccessful()) {
+                        try {
+                            JSONObject json = new JSONObject(responseBody);
+                            String imageUrl = json.getString("secure_url");
+                            sendMediaMessage("image", "[IMAGE]" + imageUrl + "|image");
+                        } catch (JSONException e) {
+                            runOnUiThread(() -> Toast.makeText(ChatActivity.this, "Lỗi đọc JSON Cloudinary!", Toast.LENGTH_SHORT).show());
+                            Log.e(TAG, "JSONException: " + e.getMessage());
+                        }
+                    } else {
+                        runOnUiThread(() -> Toast.makeText(ChatActivity.this, "Lỗi tải ảnh: " + response.message(), Toast.LENGTH_SHORT).show());
+                    }
+                }
+            });
+        } catch (IOException e) {
+            Toast.makeText(this, "Không thể đọc file ảnh.", Toast.LENGTH_SHORT).show();
+        }
+    }
+    // --- HẾT HÀM CLOUDINARY ---
+
+    // --- NẾU MUỐN DÙNG IMGBB, GIỮ LẠI HÀM NÀY ---
+    /*
     private void uploadImageToImgBB(Uri imageUri) {
         Toast.makeText(this, "Đang tải ảnh...", Toast.LENGTH_SHORT).show();
         try (InputStream is = getContentResolver().openInputStream(imageUri)) {
@@ -214,6 +269,7 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
             Toast.makeText(this, "Không thể đọc file ảnh.", Toast.LENGTH_SHORT).show();
         }
     }
+    */
 
     private void sendTextMessage() {
         String messageText = messageInput.getText().toString().trim();
@@ -229,7 +285,6 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
 
         chatRef.push().setValue(chatMessage).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-
                 updateLastMessage(type, content, timestamp);
                 increaseUnreadCount(receiverId);
             } else {
@@ -263,6 +318,7 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
         userChatRef2.child("timestamp").setValue(timestamp);
         userChatRef2.child("name").setValue(senderName);
     }
+
     private void increaseUnreadCount(String userId) {
         DatabaseReference unreadRef = FirebaseDatabase.getInstance()
                 .getReference("unreadMessages")
@@ -283,6 +339,7 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
                 Log.e("ChatActivity", "Không thể cập nhật unreadMessages: " + e.getMessage()));
     }
 
+    // Nếu dùng ImgBBResponse thì giữ lại, không thì có thể bỏ
     private static class ImgBBResponse { Data data; }
     private static class Data { String url; }
 }
