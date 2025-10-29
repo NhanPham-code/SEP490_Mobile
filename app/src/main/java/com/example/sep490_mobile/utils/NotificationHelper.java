@@ -16,6 +16,7 @@ import androidx.core.app.NotificationManagerCompat;
 import com.example.sep490_mobile.MainActivity;
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.notification.NotificationDTO;
+import com.example.sep490_mobile.data.dto.notification.NotificationSignalRDTO;
 
 import androidx.core.content.ContextCompat;
 
@@ -43,7 +44,7 @@ public class NotificationHelper {
     }
 
     // Hiển thị thông báo
-    public void showNotification(NotificationDTO notification) {
+    public void showNotification(NotificationSignalRDTO notification) {
         // === BƯỚC KIỂM TRA QUYỀN BẮT ĐẦU TỪ ĐÂY ===
         // Chỉ kiểm tra trên Android 13 (TIRAMISU) trở lên
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

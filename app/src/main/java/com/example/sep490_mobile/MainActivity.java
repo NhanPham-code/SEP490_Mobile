@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
@@ -28,6 +29,7 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.sep490_mobile.databinding.ActivityMainBinding;
+import com.example.sep490_mobile.utils.NotificationConnector;
 import com.example.sep490_mobile.viewmodel.NotificationCountViewModel;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -48,6 +50,12 @@ public class MainActivity extends AppCompatActivity {
 
     private NotificationCountViewModel mainViewModel;
 
+    private DatabaseReference unreadRef;
+    private ValueEventListener unreadCountListener;
+    private TextView fabBadge;
+    private FrameLayout fabChatContainer;
+    private FloatingActionButton fabChat;
+
     private final ActivityResultLauncher<String> requestPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
                 if (isGranted) {
@@ -56,12 +64,6 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(this, "Bạn sẽ không nhận được thông báo real-time.", Toast.LENGTH_LONG).show();
                 }
             });
-
-    private DatabaseReference unreadRef;
-    private ValueEventListener unreadCountListener;
-    private TextView fabBadge;
-    private FrameLayout fabChatContainer;
-    private FloatingActionButton fabChat;
 
     private void askNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -97,7 +99,19 @@ public class MainActivity extends AppCompatActivity {
 
         Objects.requireNonNull(getSupportActionBar()).hide();
 
+        // Yêu cầu quyền thông báo
         askNotificationPermission();
+
+        // kết nối với SignalR để nhận thông báo real-time
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        String accessToken = prefs.getString("access_token", null);
+        int userId = prefs.getInt("user_id", -1); // Lấy userId từ SharedPreferences
+
+        if (accessToken != null && !accessToken.isEmpty() && userId > 0) {
+            NotificationConnector.getInstance().startConnection(accessToken, userId);
+        } else {
+            Log.w("MainActivity", "Could not start SignalR: accessToken or userId is missing.");
+        }
 
         // Ánh xạ FAB và Badge
         fabChat = findViewById(R.id.fabChat);

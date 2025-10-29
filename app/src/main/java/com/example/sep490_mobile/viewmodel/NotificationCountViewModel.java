@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.example.sep490_mobile.data.dto.notification.NotificationDTO;
+import com.example.sep490_mobile.data.dto.notification.NotificationSignalRDTO;
 import com.example.sep490_mobile.data.repository.NotificationRepository;
 import com.example.sep490_mobile.utils.NotificationConnector;
 
@@ -22,7 +23,7 @@ public class NotificationCountViewModel extends AndroidViewModel {
     private final MutableLiveData<Integer> _unreadCount = new MutableLiveData<>(0);
     public final LiveData<Integer> unreadCount = _unreadCount;
 
-    private final Observer<NotificationDTO> newNotificationObserver;
+    private final Observer<NotificationSignalRDTO> newNotificationObserver;
 
     public NotificationCountViewModel(@NonNull Application application) {
         super(application);
