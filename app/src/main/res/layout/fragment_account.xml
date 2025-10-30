@@ -189,10 +189,36 @@
                     android:orientation="horizontal"
                     android:weightSum="4">
 
-                    <include layout="@layout/item_account_menu_card" android:id="@+id/menu_booking_history" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
-                    <include layout="@layout/item_account_menu_card" android:id="@+id/menu_notifications" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
-                    <include layout="@layout/item_account_menu_card" android:id="@+id/menu_subject" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
-                    <include layout="@layout/item_account_menu_card" android:id="@+id/menu_discount" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1"/>
+                    <include
+                        android:id="@+id/menu_booking_history"
+                        layout="@layout/item_account_menu_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+
+
+                    <include
+                        android:id="@+id/menu_subject"
+                        layout="@layout/item_account_menu_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <include
+                        android:id="@+id/menu_discount"
+                        layout="@layout/item_account_menu_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <include
+                        android:id="@+id/menu_chat_admin"
+                        layout="@layout/item_account_menu_card"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
                 </LinearLayout>
 
             </LinearLayout>
