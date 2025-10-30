@@ -1,26 +1,26 @@
 package com.example.sep490_mobile.data.dto;
 
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 
 import java.util.Dictionary;
 import java.util.List;
 
 public class SelectBookingDTO {
-    public List<BookingReadDTO> bookingReadDTOS;
+    public List<BookingViewDTO> bookingViewDTOS;
     public Dictionary<Integer, StadiumDTO> stadiums;
     // Constructors, getters, and setters
 
-    public SelectBookingDTO(List<BookingReadDTO> bookingReadDTOS, Dictionary<Integer, StadiumDTO> stadiums) {
-        this.bookingReadDTOS = bookingReadDTOS;
+    public SelectBookingDTO(List<BookingViewDTO> bookingViewDTOS, Dictionary<Integer, StadiumDTO> stadiums) {
+        this.bookingViewDTOS = bookingViewDTOS;
         this.stadiums = stadiums;
     }
 
-    public List<BookingReadDTO> getBookingReadDTOS() {
-        return bookingReadDTOS;
+    public List<BookingViewDTO> getBookingReadDTOS() {
+        return bookingViewDTOS;
     }
 
-    public void setBookingReadDTOS(List<BookingReadDTO> bookingReadDTOS) {
-        this.bookingReadDTOS = bookingReadDTOS;
+    public void setBookingReadDTOS(List<BookingViewDTO> bookingViewDTOS) {
+        this.bookingViewDTOS = bookingViewDTOS;
     }
 
     public Dictionary<Integer, StadiumDTO> getStadiums() {

@@ -24,6 +24,13 @@ public class MonthlyBookingReadDTO implements Parcelable {
     @SerializedName("Month") private int month;
     @SerializedName("Year") private int year;
 
+    // === BỔ SUNG 2 TRƯỜNG ĐỂ ĐỒNG BỘ VỚI UPDATE DTO ===
+    @SerializedName("PaymentMethod")
+    private String paymentMethod;
+
+    @SerializedName("Note")
+    private String note;
+    // ===================================================
 
     protected MonthlyBookingReadDTO(Parcel in) {
         id = in.readInt();
@@ -37,6 +44,11 @@ public class MonthlyBookingReadDTO implements Parcelable {
         endTime = in.readString();
         month = in.readInt();
         year = in.readInt();
+
+        // === ĐỌC 2 TRƯỜNG MỚI TỪ PARCEL ===
+        paymentMethod = in.readString();
+        note = in.readString();
+        // ====================================
     }
 
     @Override
@@ -52,6 +64,11 @@ public class MonthlyBookingReadDTO implements Parcelable {
         dest.writeString(endTime);
         dest.writeInt(month);
         dest.writeInt(year);
+
+        // === GHI 2 TRƯỜNG MỚI VÀO PARCEL ===
+        dest.writeString(paymentMethod);
+        dest.writeString(note);
+        // ===================================
     }
 
 
@@ -79,4 +96,9 @@ public class MonthlyBookingReadDTO implements Parcelable {
     public int getMonth() { return month; }
     public int getYear() { return year; }
     public void setStadiumName(String stadiumName) { this.stadiumName = stadiumName; }
+
+    // === GETTERS CHO 2 TRƯỜNG MỚI ===
+    public String getPaymentMethod() { return paymentMethod; }
+    public String getNote() { return note; }
+    // ================================
 }

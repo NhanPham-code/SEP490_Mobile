@@ -16,11 +16,11 @@ import androidx.navigation.Navigation;
 import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
 import com.example.sep490_mobile.data.dto.booking.BookingDetailViewModelDTO;
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 import com.example.sep490_mobile.data.dto.booking.IBookingHistoryItem;
 import com.example.sep490_mobile.data.dto.booking.MonthlyBookingDTO;
 import com.example.sep490_mobile.databinding.FragmentBookingHistoryDetailBinding;
-import com.example.sep490_mobile.ui.bookingdetail.BookingHistoryDetailViewModel;
+
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
@@ -75,7 +75,7 @@ public class BookingHistoryDetailFragment extends Fragment {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, dd/MM/yyyy", new Locale("vi", "VN"));
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
 
-        for (BookingReadDTO bookingDetail : item.getBookingItems()) {
+        for (BookingViewDTO bookingDetail : item.getBookingItems()) {
             for (BookingDetailViewModelDTO detail : bookingDetail.getBookingDetails()) {
                 View itemView = inflater.inflate(R.layout.item_booking_history_detail_row, binding.containerBookingItems, false);
                 TextView tvCourtName = itemView.findViewById(R.id.tv_item_court_name);

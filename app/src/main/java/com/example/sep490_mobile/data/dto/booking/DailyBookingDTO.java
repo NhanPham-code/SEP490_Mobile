@@ -6,9 +6,9 @@ import java.util.List;
 import com.google.gson.annotations.SerializedName;
 
 public class DailyBookingDTO implements IBookingHistoryItem {
-    @SerializedName("booking") private BookingReadDTO booking;
+    @SerializedName("booking") private BookingViewDTO booking;
 
-    public DailyBookingDTO(BookingReadDTO booking) { this.booking = booking; }
+    public DailyBookingDTO(BookingViewDTO booking) { this.booking = booking; }
 
     // Triển khai "hợp đồng"
     @Override
@@ -22,10 +22,10 @@ public class DailyBookingDTO implements IBookingHistoryItem {
     @Override
     public Integer getDiscountId() { return booking != null ? booking.getDiscountId() : null; }
     @Override
-    public List<BookingReadDTO> getBookingItems() { return booking != null ? Collections.singletonList(booking) : Collections.emptyList(); }
+    public List<BookingViewDTO> getBookingItems() { return booking != null ? Collections.singletonList(booking) : Collections.emptyList(); }
 
     // Parcelable
-    protected DailyBookingDTO(Parcel in) { booking = in.readParcelable(BookingReadDTO.class.getClassLoader()); }
+    protected DailyBookingDTO(Parcel in) { booking = in.readParcelable(BookingViewDTO.class.getClassLoader()); }
     @Override
     public void writeToParcel(Parcel dest, int flags) { dest.writeParcelable(booking, flags); }
     @Override
@@ -37,6 +37,6 @@ public class DailyBookingDTO implements IBookingHistoryItem {
         public DailyBookingDTO[] newArray(int size) { return new DailyBookingDTO[size]; }
     };
 
-    public BookingReadDTO getBooking() { return booking; }
-    public void setBooking(BookingReadDTO booking) { this.booking = booking; }
+    public BookingViewDTO getBooking() { return booking; }
+    public void setBooking(BookingViewDTO booking) { this.booking = booking; }
 }

@@ -1,6 +1,6 @@
 package com.example.sep490_mobile.data.dto.booking.response;
 
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
@@ -13,19 +13,19 @@ public class BookingHistoryODataResponse {
 
 
     @SerializedName("value")
-    private List<BookingReadDTO> value;
+    private List<BookingViewDTO> value;
 
 
     public int getCount() {
         return count;
     }
 
-    public List<BookingReadDTO> getValue() {
+    public List<BookingViewDTO> getValue() {
         return value;
     }
 
     // Setter không cần thiết cho count
-    public void setValue(List<BookingReadDTO> value) {
+    public void setValue(List<BookingViewDTO> value) {
         this.value = value;
     }
 }
