@@ -332,11 +332,10 @@ public class StadiumDetailFragment extends Fragment {
                         // Chỉ điều hướng KHI VÀ CHỈ KHI tạo phòng chat thành công
                         Bundle chatBundle = new Bundle();
                         chatBundle.putBoolean("start_chat", true);
-                        chatBundle.putInt("senderId", userId);
-                        chatBundle.putInt("receiverId", ownerId);
-                        chatBundle.putString("receiverName", stadiumName);
+                        chatBundle.putString("SENDER_ID", String.valueOf(userId));
+                        chatBundle.putString("RECEIVER_ID", String.valueOf(ownerId));
+                        chatBundle.putString("RECEIVER_NAME", stadiumName); // hoặc Admin
 
-                        // Dùng requireActivity() để tránh lỗi NullPointerException
                         NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
                         navController.navigate(R.id.navigation_chat, chatBundle);
                     }
