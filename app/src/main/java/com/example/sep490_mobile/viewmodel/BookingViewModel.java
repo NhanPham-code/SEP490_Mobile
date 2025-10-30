@@ -599,23 +599,13 @@ public class BookingViewModel extends AndroidViewModel {
                 if (response.isSuccessful() && response.body() != null) {
                     Log.i(TAG, "✅ Cập nhật status thành công: ID " + bookingId + " -> " + response.body().getStatus());
 
-                    // Nếu thanh toán thành công, chạy các logic phụ
                     if (newStatus.equals("accepted")) {
                         // 1. Vô hiệu hóa Discount nếu có
                         if (oldBooking.getDiscountId() != null && oldBooking.getDiscountId() > 0) {
                             getAndDisableDiscount(oldBooking.getDiscountId());
                         }
 
-                        // 2. Tạo Notification cho người đặt (payment_success)
-                        createNotification(
-                                oldBooking.getUserId(),
-                                "payment_success", // Type
-                                "Thanh toán thành công!",
-                                "Đơn đặt sân (mã " + oldBooking.getId() + ") của bạn đã được xác nhận.",
-                                null // Không cần params
-                        );
-
-                        // 3. Lấy chủ sân và tạo Notification cho chủ sân (Booking.New)
+                        // 2. Lấy chủ sân và tạo Notification cho chủ sân (Booking.New)
                         fetchStadiumOwnerAndNotify(
                                 oldBooking.getStadiumId(),
                                 "Booking", // bookingType
@@ -651,33 +641,20 @@ public class BookingViewModel extends AndroidViewModel {
                 if (response.isSuccessful()) {
                     Log.i(TAG, "✅ Cập nhật status MONTHLY thành công: ID " + monthlyBookingId);
 
-                    // Nếu thanh toán thành công, chạy các logic phụ
                     if (newStatus.equals("accepted")) {
                         // 1. Vô hiệu hóa Discount nếu có
                         if (oldMonthly.getDiscountId() != null && oldMonthly.getDiscountId() > 0) {
                             getAndDisableDiscount(oldMonthly.getDiscountId());
                         }
 
-                        // 2. Tạo Notification cho người đặt
-                        int userId = sharedPreferences.getInt("user_id", -1);
-                        if (userId != -1) {
-                            createNotification(
-                                    userId,
-                                    "payment_success",
-                                    "Thanh toán thành công!",
-                                    "Gói đặt sân tháng (mã " + oldMonthly.getId() + ") của bạn đã được xác nhận.",
-                                    null
-                            );
-                        }
-
-                        // 3. Lấy chủ sân và tạo Notification cho chủ sân
+                        // 2. Lấy chủ sân và tạo Notification cho chủ sân
                         fetchStadiumOwnerAndNotify(
                                 oldMonthly.getStadiumId(),
                                 "MonthlyBooking", // bookingType
                                 oldMonthly.getId()
                         );
 
-                        // 4. Cập nhật tất cả booking con
+                        // 3. Cập nhật tất cả booking con
                         updateChildBookingStatuses(monthlyBookingId);
                     }
 
