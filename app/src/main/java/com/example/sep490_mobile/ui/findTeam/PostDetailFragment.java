@@ -348,9 +348,9 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
                 if (success) {
                     Bundle chatBundle = new Bundle();
                     chatBundle.putBoolean("start_chat", true);
-                    chatBundle.putInt("senderId", userId);
-                    chatBundle.putInt("receiverId", creatorId);
-                    chatBundle.putString("receiverName", creatorName);
+                    chatBundle.putString("SENDER_ID", String.valueOf(userId));
+                    chatBundle.putString("RECEIVER_ID", String.valueOf(creatorId));
+                    chatBundle.putString("RECEIVER_NAME", creatorName);
 
                     NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
                     navController.navigate(R.id.navigation_chat, chatBundle);
