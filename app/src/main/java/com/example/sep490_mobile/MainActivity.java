@@ -5,10 +5,10 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.OvershootInterpolator;
@@ -31,6 +31,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.example.sep490_mobile.databinding.ActivityMainBinding;
 import com.example.sep490_mobile.utils.NotificationConnector;
 import com.example.sep490_mobile.viewmodel.NotificationCountViewModel;
+import com.example.sep490_mobile.viewmodel.BookingViewModel;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -44,11 +45,13 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity_VNPAY"; // Tag cho debug
     private ActivityMainBinding binding;
     private boolean isDragging = false;
     private float initialTouchX, initialTouchY;
 
     private NotificationCountViewModel mainViewModel;
+    private BookingViewModel bookingViewModel;
 
     private DatabaseReference unreadRef;
     private ValueEventListener unreadCountListener;
@@ -86,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         mainViewModel = new ViewModelProvider(this).get(NotificationCountViewModel.class);
+        bookingViewModel = new ViewModelProvider(this).get(BookingViewModel.class);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
 
@@ -143,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
         // Lấy số lượng thông báo chưa đọc và lắng nghe thay đổi
         mainViewModel.fetchUnreadCount();
 
+        // Floating chat click
         fabChat.setOnClickListener(v -> {
             if (!isDragging) {
                 v.animate()
@@ -164,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        // Kéo thả bubble chat + snap về cạnh SÁT mép (không margin)
+        // Kéo thả bubble chat + snap về cạnh SÁT mép
         fabChat.setOnTouchListener(new View.OnTouchListener() {
             private float dX, dY;
 
@@ -202,7 +207,6 @@ public class MainActivity extends AppCompatActivity {
 
                     case MotionEvent.ACTION_UP:
                         if (isDragging) {
-                            // Snap về cạnh SÁT mép
                             float center = fabChatContainer.getX() + (float) fabChatContainer.getWidth() / 2;
                             float endPosition = (center < (float) container.getWidth() / 2)
                                     ? 0
@@ -290,7 +294,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // --- PHƯƠNG THỨC MỚI ĐỂ QUẢN LÝ OBSERVER ---
     private void setupObservers(BottomNavigationView navView) {
         mainViewModel.unreadCount.observe(this, count -> {
             BadgeDrawable badge = navView.getOrCreateBadge(R.id.navigation_notifications);
@@ -304,9 +307,63 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handleVnPayResult(intent);
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         mainViewModel.fetchUnreadCount();
+        handleVnPayResult(getIntent());
+    }
+
+    private void handleVnPayResult(Intent intent) {
+        if (intent == null) return;
+
+        Uri data = intent.getData();
+
+        if (data != null && "sep490".equals(data.getScheme()) && "payment_return".equals(data.getHost())) {
+            Log.d(TAG, "Đã bắt được Deep Link từ VNPay: " + data.toString());
+
+            String vnpResponseCode = data.getQueryParameter("vnp_ResponseCode");
+            String vnpTxnRef = data.getQueryParameter("vnp_TxnRef"); // Booking ID
+            String vnpOrderInfo = data.getQueryParameter("vnp_OrderInfo"); // <<< LẤY THÊM ORDER INFO
+
+            if (vnpTxnRef != null && vnpResponseCode != null && vnpOrderInfo != null) {
+                try {
+                    int entityId = Integer.parseInt(vnpTxnRef);
+                    String type = "Booking"; // Mặc định
+
+                    // Phân loại type dựa trên vnp_OrderInfo
+                    if (vnpOrderInfo.startsWith("MonthlyBooking:")) {
+                        type = "MonthlyBooking";
+                    } else if (vnpOrderInfo.startsWith("Booking:")) {
+                        type = "Booking";
+                    }
+
+                    Log.d(TAG, "Xử lý kết quả VNPay: ID=" + entityId + ", Code=" + vnpResponseCode + ", Type=" + type);
+
+                    if (bookingViewModel != null) {
+                        // Gọi hàm mới với type đã được phân loại chính xác
+                        bookingViewModel.updatePaymentStatus(entityId, vnpResponseCode, type);
+                    } else {
+                        Log.e(TAG, "BookingViewModel chưa được khởi tạo.");
+                    }
+
+                    // Xóa data khỏi intent để onResume không bị gọi lại
+                    intent.setData(null);
+
+                } catch (NumberFormatException e) {
+                    Log.e(TAG, "Lỗi chuyển đổi vnp_TxnRef sang số: " + vnpTxnRef, e);
+                }
+            } else {
+                Log.w(TAG, "Thiếu tham số vnp_TxnRef, vnp_ResponseCode, hoặc vnp_OrderInfo.");
+            }
+        }
     }
 }

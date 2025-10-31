@@ -359,7 +359,7 @@ public class DiscountViewModel extends AndroidViewModel {
         Log.i(TAG, "finalizePersonalUpdate: Posted Personal. Page: " + currentPersonalPage + ", New total size: " + (listToPost != null ? listToPost.size() : 0)); // Thêm kiểm tra null
         new android.os.Handler(android.os.Looper.getMainLooper()).postDelayed(() -> {
             isLoading.postValue(false); // Tắt loading sau 1 giây
-            isFetchingFavorite = false;
+            isFetchingPersonal = false;
             Log.d(TAG, "finalizeFavoriteUpdate: Delayed isLoading=false");
         }, 300);
     }

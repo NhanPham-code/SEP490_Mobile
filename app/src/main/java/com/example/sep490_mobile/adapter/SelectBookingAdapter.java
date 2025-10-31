@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.sep490_mobile.data.dto.CourtsDTO;
 import com.example.sep490_mobile.data.dto.SelectBookingDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.PriceFormatter;
 import com.google.android.material.button.MaterialButton;
@@ -28,7 +28,7 @@ import java.util.List;
 
 public class SelectBookingAdapter extends RecyclerView.Adapter<SelectBookingAdapter.SelectBookingViewHolder> {
 
-    private List<BookingReadDTO> bookingReadDTOS;
+    private List<BookingViewDTO> bookingViewDTOS;
     private Dictionary<Integer, StadiumDTO> stadiumDTODictionary;
     private Context context;
     private OnItemClickListener listener;
@@ -38,7 +38,7 @@ public class SelectBookingAdapter extends RecyclerView.Adapter<SelectBookingAdap
     }
 
     public void setSelectBookingList(SelectBookingDTO selectBookingDTO, OnItemClickListener listener){
-        this.bookingReadDTOS = selectBookingDTO.getBookingReadDTOS();
+        this.bookingViewDTOS = selectBookingDTO.getBookingReadDTOS();
         this.stadiumDTODictionary = selectBookingDTO.getStadiums();
         this.listener = listener;
         notifyDataSetChanged();
@@ -57,9 +57,9 @@ public class SelectBookingAdapter extends RecyclerView.Adapter<SelectBookingAdap
     @Override
     public void onBindViewHolder(@NonNull SelectBookingViewHolder holder, int position) {
         // 1. Kiểm tra an toàn: Nếu bookingReadDTOS == null, không làm gì cả (đảm bảo bởi getItemCount() nhưng vẫn giữ để an toàn)
-        if (bookingReadDTOS == null || stadiumDTODictionary == null) return;
+        if (bookingViewDTOS == null || stadiumDTODictionary == null) return;
 
-        BookingReadDTO booking = bookingReadDTOS.get(position);
+        BookingViewDTO booking = bookingViewDTOS.get(position);
 
         // --- 2. Set Header Information ---
         // Tối ưu: Đảm bảo không bị null và thêm prefix
@@ -129,7 +129,7 @@ public class SelectBookingAdapter extends RecyclerView.Adapter<SelectBookingAdap
 
     @Override
     public int getItemCount() {
-        return bookingReadDTOS != null ? bookingReadDTOS.size() : 0;
+        return bookingViewDTOS != null ? bookingViewDTOS.size() : 0;
     }
 
     public class SelectBookingViewHolder extends RecyclerView.ViewHolder {

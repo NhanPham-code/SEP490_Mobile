@@ -6,9 +6,9 @@ import java.util.List;
 
 public class MonthlyBookingDTO implements IBookingHistoryItem {
     @SerializedName("monthlyBooking") private MonthlyBookingReadDTO monthlyBooking;
-    @SerializedName("bookings") private List<BookingReadDTO> bookings;
+    @SerializedName("bookings") private List<BookingViewDTO> bookings;
 
-    public MonthlyBookingDTO(MonthlyBookingReadDTO monthlyBooking, List<BookingReadDTO> bookings) {
+    public MonthlyBookingDTO(MonthlyBookingReadDTO monthlyBooking, List<BookingViewDTO> bookings) {
         this.monthlyBooking = monthlyBooking;
         this.bookings = bookings;
     }
@@ -25,12 +25,12 @@ public class MonthlyBookingDTO implements IBookingHistoryItem {
     @Override
     public Integer getDiscountId() { return monthlyBooking != null ? monthlyBooking.getDiscountId() : null; }
     @Override
-    public List<BookingReadDTO> getBookingItems() { return bookings; }
+    public List<BookingViewDTO> getBookingItems() { return bookings; }
 
     // Parcelable
     protected MonthlyBookingDTO(Parcel in) {
         monthlyBooking = in.readParcelable(MonthlyBookingReadDTO.class.getClassLoader());
-        bookings = in.createTypedArrayList(BookingReadDTO.CREATOR);
+        bookings = in.createTypedArrayList(BookingViewDTO.CREATOR);
     }
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -48,6 +48,6 @@ public class MonthlyBookingDTO implements IBookingHistoryItem {
 
     public MonthlyBookingReadDTO getMonthlyBooking() { return monthlyBooking; }
     public void setMonthlyBooking(MonthlyBookingReadDTO monthlyBooking) { this.monthlyBooking = monthlyBooking; }
-    public List<BookingReadDTO> getBookings() { return bookings; }
-    public void setBookings(List<BookingReadDTO> bookings) { this.bookings = bookings; }
+    public List<BookingViewDTO> getBookings() { return bookings; }
+    public void setBookings(List<BookingViewDTO> bookings) { this.bookings = bookings; }
 }

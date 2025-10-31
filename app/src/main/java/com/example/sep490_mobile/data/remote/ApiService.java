@@ -36,13 +36,17 @@ import com.example.sep490_mobile.data.dto.UpdateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.UpdateUserProfileDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpRequestDTO;
 import com.example.sep490_mobile.data.dto.VerifyOtpResponseDTO;
+import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.MonthlyBookingUpdateDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
 import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
 import com.example.sep490_mobile.data.dto.discount.ReadDiscountDTO;
+import com.example.sep490_mobile.data.dto.discount.UpdateDiscountDTO;
 import com.example.sep490_mobile.data.dto.favorite.CreateFavoriteDTO;
 import com.example.sep490_mobile.data.dto.favorite.ReadFavoriteDTO;
 import com.example.sep490_mobile.data.dto.notification.CreateNotificationDTO;
 import com.example.sep490_mobile.data.dto.notification.NotificationDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingUpdateDTO;
 
 import java.util.List;
 import java.util.Map;
@@ -355,4 +359,31 @@ public interface ApiService {
 
     @POST("notifications/all")
     Call<Void> createNotificationForAll(@Body CreateNotificationDTO notification);
+
+        // Get favorites for a stadium
+
+    @GET("bookings/history?$expand=BookingDetails") // Endpoint history trả về list Booking Read DTO
+        Call<BookingHistoryODataResponse> getBookingByODataFilter(@Query("$filter") String filter);
+
+    // === 2. CẬP NHẬT BOOKING BẰNG ID (PUT) ===
+    @PUT("booking/{id}")
+    Call<BookingReadDto> updateBooking(
+            @Path("id") int id,
+            @Body BookingUpdateDTO bookingUpdateDTO // Cần import BookingUpdateDTO
+    );
+    // === 3. CẬP NHẬT BOOKING THÁNG (PUT) ===
+    @PUT("booking/monthly/{id}") // <<< SỬA ĐƯỜNG DẪN
+    Call<MonthlyBookingReadDTO> updateMonthlyBooking( // <<< SỬA KIỂU TRẢ VỀ
+                                                      @Path("id") int id,
+                                                      @Body MonthlyBookingUpdateDTO monthlyBookingUpdateDTO
+    );
+
+    // === 4. LẤY BOOKING CON THEO ID GÓI THÁNG ===
+    @GET("bookings")
+    Call<ODataResponse<BookingReadDto>> getBookingsByMonthlyId(
+            @Query("$filter") String filter
+    );
+    @PUT("discounts") // <<< SỬA ĐƯỜNG DẪN
+    Call<ReadDiscountDTO> updateDiscount(@Body UpdateDiscountDTO dto); // <<< BỎ @Path("id")
+
 }

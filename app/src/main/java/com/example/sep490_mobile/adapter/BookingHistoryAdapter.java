@@ -14,20 +14,18 @@ import androidx.navigation.NavDirections;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.sep490_mobile.R;
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO; // Import nếu cần
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO; // Import nếu cần
 import com.example.sep490_mobile.data.dto.booking.DailyBookingDTO;
 import com.example.sep490_mobile.data.dto.booking.MonthlyBookingDTO;
 import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO; // Import nếu cần
 import com.example.sep490_mobile.ui.bookinghistory.BookingHistoryFragmentDirections;
 
 import java.text.DecimalFormat;
-import java.text.ParseException; // Import ParseException
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.TimeZone; // Import TimeZone
 import java.util.stream.Collectors;
 
 public class BookingHistoryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -159,7 +157,7 @@ public class BookingHistoryAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                 return;
             }
 
-            BookingReadDTO booking = dailyBooking.getBooking();
+            BookingViewDTO booking = dailyBooking.getBooking();
 
             tvStadiumName.setText(booking.getStadiumName()); // Giả sử tên sân không bao giờ null từ ViewModel
 
