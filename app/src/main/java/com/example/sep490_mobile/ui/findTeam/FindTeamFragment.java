@@ -2,6 +2,7 @@ package com.example.sep490_mobile.ui.findTeam;
 
 import static com.google.gson.reflect.TypeToken.get;
 
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
@@ -10,6 +11,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,8 +27,11 @@ import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.FindTeamDTO;
 import com.example.sep490_mobile.databinding.FragmentFindTeamBinding;
 import com.example.sep490_mobile.interfaces.OnItemClickListener;
+import com.example.sep490_mobile.model.ChatRoomInfo;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -76,9 +82,15 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
             // Cập nhật UI với `item`
-            if(item.get("$filter").length() > 0){
+            if(item != null){
                 odataUrl.replace("$filter", filter + " and " + item.get("$filter"));
                 System.out.println("filter: " + odataUrl.get("$filter"));
+                odataUrl.replace("$top", "10");
+                odataUrl.replace("$skip", "0");
+                skip = 0;
+                findTeamViewModel.fetchFindTeamList(odataUrl);
+            }else{
+                odataUrl.replace("$filter", filter);
                 odataUrl.replace("$top", "10");
                 odataUrl.replace("$skip", "0");
                 skip = 0;
@@ -113,7 +125,63 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         setupPagination();
         return root;
     }
+    @Override
+    public void onChatClick(int postId, int creatorId, String creatorName) {
+        // Lấy userId người đăng nhập từ SharedPreferences
+        SharedPreferences prefs = requireContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
 
+        if (userId == -1) {
+            Toast.makeText(getContext(), "Bạn cần đăng nhập để chat!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        if (userId == creatorId) {
+            Toast.makeText(getContext(), "Bạn không thể chat với chính mình!", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Gọi hàm tạo phòng chat
+        createChatRoomIfNeeded(userId, creatorId, creatorName, new ChatRoomCreationCallback() {
+            @Override
+            public void onComplete(boolean success) {
+                if (success) {
+                    Bundle chatBundle = new Bundle();
+                    chatBundle.putBoolean("start_chat", true);
+                    chatBundle.putString("SENDER_ID", String.valueOf(userId));
+                    chatBundle.putString("RECEIVER_ID", String.valueOf(creatorId));
+                    chatBundle.putString("RECEIVER_NAME", creatorName);
+
+                    NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+                    navController.navigate(R.id.navigation_chat, chatBundle);
+                }
+            }
+        });
+    }
+
+    // 2. Thêm interface này vào FindTeamFragment (nếu chưa có)
+    public interface ChatRoomCreationCallback {
+        void onComplete(boolean success);
+    }
+
+    // 3. Thêm hàm này vào FindTeamFragment (nếu chưa có)
+    private void createChatRoomIfNeeded(int userId, int ownerId, String ownerName, ChatRoomCreationCallback callback) {
+        DatabaseReference dbRef = FirebaseDatabase.getInstance().getReference();
+        long timestamp = System.currentTimeMillis();
+
+        Map<String, Object> updates = new HashMap<>();
+        updates.put("userChats/" + userId + "/" + ownerId, new ChatRoomInfo(ownerName, timestamp, ""));
+        updates.put("userChats/" + ownerId + "/" + userId, new ChatRoomInfo("Người dùng", timestamp, ""));
+
+        dbRef.updateChildren(updates)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        callback.onComplete(true);
+                    } else {
+                        Toast.makeText(getContext(), "Tạo phòng chat thất bại!", Toast.LENGTH_SHORT).show();
+                        callback.onComplete(false);
+                    }
+                });
+    }
     private void navigateToJoinedPostFragment(){
         JoinedPostFragment joinedPostFragment = new JoinedPostFragment();
 
@@ -175,7 +243,7 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         fragmentTransaction.commit();
     }
     private void navigateToCreatePostFragment(){
-        SelectBookingFragment filterFragment = new SelectBookingFragment().newInstance("FindTeamFragment", "");
+    SelectBookingFragment filterFragment = new SelectBookingFragment().newInstance("FindTeamFragment", "");
 
         // 2. Lấy FragmentManager
         FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
@@ -426,7 +494,10 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
     public void onItemClick(int item) {
 
     }
-
+    @Override
+    public void onItemClick(int stadiumId, String stadiumName, int createBy) {
+        // Không dùng ở FindTeamFragment, để trống hoặc log lại
+    }
     @Override
     public void onItemClick(int item, String type) {
         if(type.equalsIgnoreCase("join")){

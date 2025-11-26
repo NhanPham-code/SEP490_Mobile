@@ -2,6 +2,7 @@ package com.example.sep490_mobile.ui.findTeam;
 
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +13,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,10 +22,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.example.sep490_mobile.R; // Đảm bảo package này đúng
+import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.databinding.FragmentFilterFindTeamBinding;
-import com.example.sep490_mobile.ui.home.SharedViewModel;
+import com.example.sep490_mobile.utils.DurationConverter;
 
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -36,113 +41,40 @@ import java.util.stream.Collectors;
 
 public class FilterFindTeam extends Fragment {
 
-    // Khai báo các View cần thiết
-    private ImageButton closeFilterBtn;
-    private Button clearFiltersBtn;
-    private Button applyFiltersBtn;
-    private Button resetFiltersBtn;
     private FragmentFilterFindTeamBinding binding;
-    private List<String> sportTypes = new ArrayList<>();
-
-    // Các phần tử Toggle
-    private RelativeLayout sportFilterHeader, dateFilterHeader, timeFilterHeader, playersFilterHeader, locationFilterHeader;
-    private LinearLayout sportFilterContent, dateFilterContent, timeFilterContent, playersFilterContent, locationFilterContent;
-
-    // Input fields
-    private EditText playDateFilter, playTimeFilter, minPlayersInput, maxPlayersInput, locationSearchInput;
-
-    // VÌ XML TRÊN CHƯA CÓ KHOẢNG GIÁ, tôi sẽ bổ sung giả định cho Khoảng Giá
-    // private SeekBar priceRangeSlider;
-    // private TextView currentPrice;
-
 
     // newInstance factory method (giữ nguyên theo mẫu của bạn)
-    public static FilterFindTeam newInstance(String param1, String param2) {
-        FilterFindTeam fragment = new FilterFindTeam();
-        Bundle args = new Bundle();
-//        args.putString(ARG_PARAM1, param1);
-//        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+    public static FilterFindTeam newInstance() {
+        return new FilterFindTeam();
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout
         binding = FragmentFilterFindTeamBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-        return root;
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Ánh xạ View
-        mapViews(view);
-
         // Thiết lập sự kiện
         setupEventListeners();
 
         // Thiết lập Date/Time Picker cho EditText
         setupDateAndTimePickers();
+
+        // Lấy và hiển thị lại các filter đã chọn từ ViewModel
         setSelectedFilters();
-        // Thiết lập trạng thái ban đầu (nếu cần)
-        // Ví dụ: playersFilterContent.setVisibility(View.GONE);
-    }
-
-    private void mapViews(View view) {
-        // Header actions
-        closeFilterBtn = view.findViewById(R.id.close_filter_btn);
-        clearFiltersBtn = view.findViewById(R.id.clear_filters_btn);
-        applyFiltersBtn = view.findViewById(R.id.apply_filters_btn);
-        resetFiltersBtn = view.findViewById(R.id.reset_filters_btn);
-
-        // Toggle Headers
-        sportFilterHeader = view.findViewById(R.id.sport_filter_header);
-        dateFilterHeader = view.findViewById(R.id.date_filter_header);
-        timeFilterHeader = view.findViewById(R.id.time_filter_header);
-        playersFilterHeader = view.findViewById(R.id.players_filter_header);
-        locationFilterHeader = view.findViewById(R.id.location_filter_header);
-
-        // Toggle Contents
-        sportFilterContent = view.findViewById(R.id.sport_filter_content);
-        dateFilterContent = view.findViewById(R.id.date_filter_content);
-        timeFilterContent = view.findViewById(R.id.time_filter_content);
-        playersFilterContent = view.findViewById(R.id.players_filter_content);
-        locationFilterContent = view.findViewById(R.id.location_filter_content);
-
-        // Input fields
-        playDateFilter = view.findViewById(R.id.play_date_filter);
-        playTimeFilter = view.findViewById(R.id.play_time_filter);
-        minPlayersInput = view.findViewById(R.id.min_players_input);
-        maxPlayersInput = view.findViewById(R.id.max_players_input);
-        locationSearchInput = view.findViewById(R.id.location_search_input);
-
-        // *LƯU Ý: Phần Khoảng Giá không có trong XML bạn cung cấp,
-        // nếu bạn thêm vào, hãy ánh xạ ở đây*
-        // priceRangeSlider = view.findViewById(R.id.price_range_slider);
-        // currentPrice = view.findViewById(R.id.current_price);
     }
 
     private void setupEventListeners() {
-        // 1. Logic Đóng Fragment
-        closeFilterBtn.setOnClickListener(v -> closeFragment());
-
-        // 2. Logic Áp Dụng và Đặt Lại
-        applyFiltersBtn.setOnClickListener(v -> applyFilters());
-        resetFiltersBtn.setOnClickListener(v -> resetFilters());
-        clearFiltersBtn.setOnClickListener(v -> resetFilters()); // Giống chức năng Đặt Lại
-
-        // 3. Logic Mở Rộng/Thu Gọn (Toggle)
-
-
-        // 4. Logic Xử lý các button nhanh (Hôm nay, Mai,...)
-        // LƯU Ý: Bạn cần gán ID cho các button này trong XML để sử dụng findViewById ở đây
-        // Ví dụ: view.findViewById(R.id.today_btn).setOnClickListener(v -> setQuickDate(0));
+        binding.closeFilterBtn.setOnClickListener(v -> closeFragment());
+        binding.applyFiltersBtn.setOnClickListener(v -> applyFilters());
+        binding.resetFiltersBtn.setOnClickListener(v -> resetFilters());
+        binding.clearFiltersBtn.setOnClickListener(v -> resetFilters()); // Giống chức năng Đặt Lại
     }
-
 
     private void closeFragment() {
         if (getParentFragmentManager() != null) {
@@ -150,122 +82,188 @@ public class FilterFindTeam extends Fragment {
         }
     }
 
-    // set lại những trường đã chọn
+    /**
+     * Lấy dữ liệu từ ViewModel và thiết lập lại trạng thái cho các View.
+     * Đã sửa lại để kiểm tra giá trị của LiveData thay vì kiểm tra observers.
+     */
     private void setSelectedFilters() {
         ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
 
-        if(model.getSportType().hasObservers()){
-            List<String> selectedSports = model.getSportType().getValue();
-            if (selectedSports != null) {
-                // Đặt lại tất cả CheckBox về unchecked trước khi thiết lập
-                resetCheckboxes(sportFilterContent);
-
-                for (String sport : selectedSports) {
-                    // Đảm bảo sử dụng binding và kiểm tra null để tránh lỗi nếu không tìm thấy view
-                    if (sport.equalsIgnoreCase("Bóng đá sân 11") && binding.bg11 != null) {
-                        binding.bg11.setChecked(true);
-                    } else if (sport.equalsIgnoreCase("Bóng đá sân 5") && binding.bg5 != null) {
-                        binding.bg5.setChecked(true);
-                    } else if (sport.equalsIgnoreCase("Bóng đá sân 7") && binding.bg7 != null) {
-                        binding.bg7.setChecked(true);
-                    } else if (sport.equalsIgnoreCase("Bóng Chuyền") && binding.bgC != null) {
-                        binding.bgC.setChecked(true);
-                    } else if (sport.equalsIgnoreCase("Bóng Rổ") && binding.bgR != null) {
-                        binding.bgR.setChecked(true);
-                    } else if (sport.equalsIgnoreCase("Cầu Lông") && binding.bgCl != null) {
-                        binding.bgCl.setChecked(true);
-                    } else if (sport.equalsIgnoreCase("Tennis") && binding.bgTn != null) {
-                        binding.bgTn.setChecked(true);
-                    }
-                }
+        // 1. Set SportType
+        List<String> selectedSports = model.getSportType().getValue();
+        if (selectedSports != null && !selectedSports.isEmpty()) {
+            resetCheckboxes(binding.sportFilterContent);
+            for (String sport : selectedSports) {
+                if (sport.equalsIgnoreCase("Bóng đá sân 11")) binding.bg11.setChecked(true);
+                else if (sport.equalsIgnoreCase("Bóng đá sân 5")) binding.bg5.setChecked(true);
+                else if (sport.equalsIgnoreCase("Bóng đá sân 7")) binding.bg7.setChecked(true);
+                else if (sport.equalsIgnoreCase("Bóng chuyền")) binding.bgC.setChecked(true);
+                else if (sport.equalsIgnoreCase("Bóng rổ")) binding.bgR.setChecked(true);
+                else if (sport.equalsIgnoreCase("Cầu lông")) binding.bgCl.setChecked(true);
+                else if (sport.equalsIgnoreCase("Tennis")) binding.bgTn.setChecked(true);
+                else if (sport.equalsIgnoreCase("Pickleball")) binding.bgPk.setChecked(true);
             }
         }
-        if(model.getPlayDate().hasObservers()){
-            playDateFilter.setText(model.getPlayDate().getValue());
-        }
-        if(model.getPlayTime().hasObservers()){
-            playTimeFilter.setText(model.getPlayTime().getValue());
-        }
-        if(model.getMinPlayerr().hasObservers()){
-            minPlayersInput.setText(model.getMinPlayerr().getValue().toString());
 
-        }
-        if(model.getMaxPlayer().hasObservers()){
-            maxPlayersInput.setText(model.getMaxPlayer().getValue().toString());
-        }
-        if(model.getAddress().hasObservers()){
-            locationSearchInput.setText(model.getAddress().getValue());
+        // 2. Set PlayDate
+        String playDate = model.getPlayDate().getValue();
+        if (playDate != null && !playDate.isEmpty()) {
+            binding.playDateFilter.setText(playDate);
         }
 
+        // 3. Set PlayTime
+        String playTime = model.getPlayTime().getValue();
+        if (playTime != null && !playTime.isEmpty()) {
+            binding.playTimeFilter.setText(playTime);
+        }
+
+        // 4. Set MinPlayer
+        Integer minPlayer = model.getMinPlayerr().getValue();
+        if (minPlayer != null) {
+            binding.minPlayersInput.setText(String.valueOf(minPlayer));
+        }
+
+        // 5. Set MaxPlayer
+        Integer maxPlayer = model.getMaxPlayer().getValue();
+        if (maxPlayer != null) {
+            binding.maxPlayersInput.setText(String.valueOf(maxPlayer));
+        }
+
+        // 6. Set Address
+        String address = model.getAddress().getValue();
+        if (address != null && !address.isEmpty()) {
+            binding.locationSearchInput.setText(address);
+        }
     }
 
+    /**
+     * Thu thập dữ liệu, tạo query và gửi đến ViewModel.
+     */
     private void applyFilters() {
-        // TODO: Thu thập dữ liệu từ các trường và gửi đến Activity/ViewModel
-        // Ví dụ:
         ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
-        getSelectedCheckboxes(sportFilterContent);
+
         List<String> odata = new ArrayList<>();
 
+        // 1. Sport Types
+        List<String> sportTypes = getSelectedCheckboxes(binding.sportFilterContent);
         model.setSportType(sportTypes);
-        String date = playDateFilter.getText().toString();
-        String time = playTimeFilter.getText().toString();
-        int minPlayers = Integer.parseInt(minPlayersInput.getText().toString());
-        int maxPlayers = Integer.parseInt(maxPlayersInput.getText().toString());
-        String location = locationSearchInput.getText().toString();
+        if (!sportTypes.isEmpty()) {
+            String sportFilter = sportTypes.stream()
+                    .map(s -> "SportType eq '" + s + "'")
+                    .collect(Collectors.joining(" or "));
+            odata.add("(" + sportFilter + ")");
+        }
+        String date = binding.playDateFilter.getText().toString(); // e.g., "26-10-2025"
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            if (!date.isEmpty()) {
+                // 1. Parse the input date string
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                LocalDate localPlayDate = LocalDate.parse(date, inputFormatter);
 
-        if(sportTypes.size() > 0){
-            String sport = sportTypes.stream().collect(Collectors.joining("or"));
-            odata.add("SportType eq '" + sport + "'");
+                // 2. Define the start and end of the day in UTC
+                // Start of the day: 2025-10-26T00:00:00Z
+                OffsetDateTime startOfDay = localPlayDate.atStartOfDay().atOffset(ZoneOffset.UTC);
+                // End of the day (start of the next day): 2025-10-27T00:00:00Z
+                OffsetDateTime startOfNextDay = localPlayDate.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC);
+
+                // 3. Create the OData filter clause for the date range
+                // The query will be: (PlayDate ge 2025-10-26T00:00:00Z and PlayDate lt 2025-10-27T00:00:00Z)
+                // Note that there are no single quotes around the date values.
+                String odataFilter = String.format("(PlayDate lt %s)",
+                        startOfDay.toString(),
+                        startOfNextDay.toString());
+                odata.add(odataFilter);
+                model.setPlayDate(date);
+            } else {
+                model.setPlayDate(null);
+            }
         }
-        if (date.length() > 0){
-            odata.add("PlayDate eq " + date);
-            model.setPlayDate(date);
+
+
+        // 3. Play Time
+        String timeStr = binding.playTimeFilter.getText().toString();
+        if (!timeStr.isEmpty()) {
+            String time = DurationConverter.convertTimeToIsoDuration(timeStr);
+            odata.add("TimePlay eq duration'" + time + "'");
+            model.setPlayTime(timeStr);
+        } else {
+            model.setPlayTime(null);
         }
-        if(time.length() > 0){
-            odata.add("PlayTime eq " + time);
-            model.setPlayTime(time);
+
+        // 4. Players
+        int minPlayers = 0, maxPlayers = 0;
+        try {
+            if (!binding.minPlayersInput.getText().toString().isEmpty()) {
+                minPlayers = Integer.parseInt(binding.minPlayersInput.getText().toString());
+            }
+            if (!binding.maxPlayersInput.getText().toString().isEmpty()) {
+                maxPlayers = Integer.parseInt(binding.maxPlayersInput.getText().toString());
+            }
+        } catch (NumberFormatException e) {
+            Toast.makeText(getContext(), "Số người chơi không hợp lệ.", Toast.LENGTH_SHORT).show();
+            return;
         }
-        if(minPlayers > 0){
+
+        if (minPlayers > 0) {
             odata.add("NeededPlayers ge " + minPlayers);
             model.setMinPlayer(minPlayers);
+        } else {
+            model.setMinPlayer(1);
         }
-        if(maxPlayers > 0){
+        if (maxPlayers > 0) {
             odata.add("NeededPlayers le " + maxPlayers);
             model.setMaxPlayer(maxPlayers);
+        } else {
+            model.setMaxPlayer(10);
         }
-        if(location.length() > 0){
+
+        // 5. Location
+        String location = binding.locationSearchInput.getText().toString();
+        if (!location.isEmpty()) {
             odata.add("contains(Location, '" + location + "')");
             model.setAddress(location);
+        } else {
+            model.setAddress(null);
         }
 
-        String filter = odata.stream().collect(Collectors.joining(" and "));
+        // Build query and set to ViewModel
+        String filter = String.join(" and ", odata);
         Map<String, String> url = new HashMap<>();
-        url.put("$filter", filter);
-        model.setSelected(url);
-
-        if (getParentFragmentManager() != null) {
-            getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        if (!filter.isEmpty()) {
+            url.put("$filter", filter);
+            model.setSelected(url);
+        }else{
+            model.setSelected(null);
         }
+
+
+        closeFragment();
     }
 
+    /**
+     * Đặt lại tất cả các trường nhập liệu trên UI và xóa dữ liệu trong ViewModel.
+     */
     private void resetFilters() {
-        // 1. Đặt lại CheckBox (Loại Thể Thao)
-        resetCheckboxes(sportFilterContent);
+        ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
 
-        // 2. Đặt lại trường nhập liệu
-        playDateFilter.setText("");
-        playTimeFilter.setText("");
-        minPlayersInput.setText("1");
-        maxPlayersInput.setText("10");
-        locationSearchInput.setText("");
+        // 1. Reset UI
+        resetCheckboxes(binding.sportFilterContent);
+        binding.playDateFilter.setText("");
+        binding.playTimeFilter.setText("");
+        binding.minPlayersInput.setText("");
+        binding.maxPlayersInput.setText("");
+        binding.locationSearchInput.setText("");
 
-        // 3. Đặt lại SeekBar (Nếu có)
-        // if (priceRangeSlider != null) priceRangeSlider.setProgress(25);
-        // if (currentPrice != null) currentPrice.setText("250.000đ/giờ");
+//        // 2. Reset ViewModel
+//        model.setSportType(new ArrayList<>());
+//        model.setPlayDate(null);
+//        model.setPlayTime(null);
+//        model.setMinPlayer(1);
+//        model.setMaxPlayer(10);
+//        model.setAddress(null);
+//        model.setSelected(new HashMap<>()); // Xóa cả odata query
 
-        // Đảm bảo các filter ẩn ban đầu được ẩn lại (Ví dụ: Players, Location)
-        playersFilterContent.setVisibility(View.VISIBLE); // Giả sử ban đầu chúng ta muốn hiển thị
-        locationFilterContent.setVisibility(View.VISIBLE);
+        Toast.makeText(getContext(), "Đã xóa tất cả bộ lọc", Toast.LENGTH_SHORT).show();
     }
 
     private void resetCheckboxes(LinearLayout container) {
@@ -277,20 +275,18 @@ public class FilterFindTeam extends Fragment {
         }
     }
 
-    private void getSelectedCheckboxes(LinearLayout container) {
-        StringBuilder sb = new StringBuilder();
+    private List<String> getSelectedCheckboxes(LinearLayout container) {
+        List<String> selectedSports = new ArrayList<>();
         for (int i = 0; i < container.getChildCount(); i++) {
             View child = container.getChildAt(i);
             if (child instanceof CheckBox) {
                 CheckBox cb = (CheckBox) child;
                 if (cb.isChecked()) {
-                    sportTypes.add(cb.getText().toString()); // Thêm tên của loại thể thao)
+                    selectedSports.add(cb.getText().toString());
                 }
             }
         }
-        if (sb.length() > 0) {
-            sb.setLength(sb.length() - 2); // Loại bỏ dấu phẩy và khoảng trắng cuối cùng
-        }
+        return selectedSports;
     }
 
     // ===================================================
@@ -298,8 +294,8 @@ public class FilterFindTeam extends Fragment {
     // ===================================================
 
     private void setupDateAndTimePickers() {
-        playDateFilter.setOnClickListener(v -> showDatePicker());
-        playTimeFilter.setOnClickListener(v -> showTimePicker());
+        binding.playDateFilter.setOnClickListener(v -> showDatePicker());
+        binding.playTimeFilter.setOnClickListener(v -> showTimePicker());
     }
 
     private void showDatePicker() {
@@ -308,11 +304,10 @@ public class FilterFindTeam extends Fragment {
         int month = c.get(Calendar.MONTH);
         int day = c.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(),
+        DatePickerDialog datePickerDialog = new DatePickerDialog(requireContext(),
                 (view, selectedYear, selectedMonth, selectedDay) -> {
-                    // Định dạng lại thành DD/MM/YYYY hoặc format mong muốn
                     String date = String.format(Locale.getDefault(), "%02d/%02d/%d", selectedDay, selectedMonth + 1, selectedYear);
-                    playDateFilter.setText(date);
+                    binding.playDateFilter.setText(date);
                 }, year, month, day);
         datePickerDialog.show();
     }
@@ -322,12 +317,11 @@ public class FilterFindTeam extends Fragment {
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int minute = c.get(Calendar.MINUTE);
 
-        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+        TimePickerDialog timePickerDialog = new TimePickerDialog(requireContext(),
                 (view, selectedHour, selectedMinute) -> {
                     String time = String.format(Locale.getDefault(), "%02d:%02d", selectedHour, selectedMinute);
-                    playTimeFilter.setText(time);
+                    binding.playTimeFilter.setText(time);
                 }, hour, minute, true); // true cho định dạng 24 giờ
         timePickerDialog.show();
     }
-
 }

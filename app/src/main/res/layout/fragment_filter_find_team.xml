@@ -110,10 +110,12 @@
                     <CheckBox android:id="@+id/bg_5" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng đá sân 5" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
                     <CheckBox android:id="@+id/bg_7" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng đá sân 7" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
                     <CheckBox android:id="@+id/bg_11" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng đá sân 11" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
-                    <CheckBox android:id="@+id/bg_r" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng Rổ" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:id="@+id/bg_r" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng rổ" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
                     <CheckBox android:id="@+id/bg_tn" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Tennis" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
-                    <CheckBox android:id="@+id/bg_cl" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cầu Lông" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
-                    <CheckBox android:id="@+id/bg_c" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng Chuyền" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:id="@+id/bg_cl" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Cầu lông" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:id="@+id/bg_c" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Bóng chuyền" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+                    <CheckBox android:id="@+id/bg_pk" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Pickleball" android:buttonTint="#FF9800" android:paddingStart="4dp"/>
+
                 </LinearLayout>
                 <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#F0F0F0" android:layout_marginTop="12dp"/>
             </LinearLayout>

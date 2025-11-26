@@ -7,7 +7,6 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -17,22 +16,15 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
-import com.example.sep490_mobile.R;
-import com.example.sep490_mobile.adapter.FindTeamAdapter;
 import com.example.sep490_mobile.adapter.SelectBookingAdapter;
-import com.example.sep490_mobile.adapter.StadiumAdapter;
 import com.example.sep490_mobile.data.dto.CourtsDTO;
 import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.CreateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.ScheduleBookingDTO;
-import com.example.sep490_mobile.data.dto.SelectBookingDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.booking.BookingDetailViewModelDTO;
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
-import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 import com.example.sep490_mobile.databinding.FragmentCreatePostBinding;
-import com.example.sep490_mobile.databinding.FragmentSelectBookingBinding;
-import com.example.sep490_mobile.ui.schedule.ScheduleViewModel;
 import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.HtmlConverter;
 import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
@@ -40,7 +32,6 @@ import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.List;
 
 
@@ -54,7 +45,7 @@ public class CreatePostFragment extends Fragment {
     private SelectBookingAdapter adapter;
     private CreateTeamPostDTO createTeamPostDTO;
     private CreateTeamMemberDTO createTeamMemberDTO;
-    private BookingReadDTO booking;
+    private BookingViewDTO booking;
     private StadiumDTO stadium;
 
     public CreatePostFragment() {
@@ -79,11 +70,11 @@ public class CreatePostFragment extends Fragment {
                 model.created.observe(getViewLifecycleOwner(), aBoolean -> {
                     if (aBoolean) {
                         Toast.makeText(getContext(), "Tạo bài viết thành công", Toast.LENGTH_SHORT).show();
-                        getParentFragmentManager().popBackStack();
                     }
                     else {
                         Toast.makeText(getContext(), "Tạo bài viết thất bại", Toast.LENGTH_SHORT).show();
                     }
+                    getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 });
 
             }

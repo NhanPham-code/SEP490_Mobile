@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/notification_item_background_selector"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingStart="16dp"
+    android:paddingTop="12dp"
+    android:paddingEnd="16dp"
+    android:paddingBottom="12dp">
+
+    <!-- Icon đại diện cho loại thông báo -->
+    <ImageView
+        android:id="@+id/icon_notification_type"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:background="@drawable/shape_circle_icon_background"
+        android:padding="12dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_notification_bell"
+        app:tint="@color/white" />
+
+    <!-- === BỔ SUNG: TextView cho Title === -->
+    <TextView
+        android:id="@+id/text_notification_title"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="@color/text_primary"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@+id/indicator_unread"
+        app:layout_constraintStart_toEndOf="@id/icon_notification_type"
+        app:layout_constraintTop_toTopOf="@id/icon_notification_type"
+        tools:text="Đặt sân thành công" />
+
+    <!-- === ĐIỀU CHỈNH: TextView cho Message/Content === -->
+    <TextView
+        android:id="@+id/text_notification_message"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:ellipsize="end"
+        android:maxLines="2"
+        android:textColor="@color/text_secondary"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@id/text_notification_title"
+        app:layout_constraintStart_toStartOf="@id/text_notification_title"
+        app:layout_constraintTop_toBottomOf="@id/text_notification_title"
+        tools:text="Bạn đã đặt thành công sân số 2 tại sân bóng ABC vào lúc 18:00." />
+
+    <!-- Thời gian nhận thông báo -->
+    <TextView
+        android:id="@+id/text_notification_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:textColor="@color/notification_indicator_blue"
+        android:textSize="13sp"
+        app:layout_constraintStart_toStartOf="@+id/text_notification_message"
+        app:layout_constraintTop_toBottomOf="@+id/text_notification_message"
+        tools:text="5 phút trước" />
+
+    <!-- Chấm tròn chỉ báo trạng thái chưa đọc -->
+    <View
+        android:id="@+id/indicator_unread"
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:background="@drawable/shape_circle_indicator"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

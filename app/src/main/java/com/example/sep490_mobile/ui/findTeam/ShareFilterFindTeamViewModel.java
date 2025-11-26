@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.example.sep490_mobile.data.dto.StadiumDTO;
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -15,10 +15,10 @@ import java.util.Map;
 public class ShareFilterFindTeamViewModel extends ViewModel {
     private final MutableLiveData<Map<String, String>> selected = new MutableLiveData<Map<String, String>>();
     private MutableLiveData<String> address = new MutableLiveData<String>();
-    private MutableLiveData<BookingReadDTO> booking= new MutableLiveData<BookingReadDTO>();
+    private MutableLiveData<BookingViewDTO> booking= new MutableLiveData<BookingViewDTO>();
     private MutableLiveData<StadiumDTO> stadium = new MutableLiveData<StadiumDTO>();
-    private MutableLiveData<String> playDate = new MutableLiveData<String>(getCurrentDateString());
-    private MutableLiveData<String> playTime = new MutableLiveData<String>("15:00");
+    private MutableLiveData<String> playDate = new MutableLiveData<String>();
+    private MutableLiveData<String> playTime = new MutableLiveData<String>();
     private MutableLiveData<Integer> needPlayer = new MutableLiveData<Integer>(1);
     private MutableLiveData<Integer> minPlayer = new MutableLiveData<Integer>(1);
     private MutableLiveData<Integer> maxPlayer = new MutableLiveData<Integer>(10);
@@ -65,11 +65,11 @@ private String getCurrentDateString() {
         this.stadium.setValue(stadium);
     }
 
-    public LiveData<BookingReadDTO> getBooking() {
+    public LiveData<BookingViewDTO> getBooking() {
         return booking;
     }
 
-    public void setBooking(BookingReadDTO booking) {
+    public void setBooking(BookingViewDTO booking) {
         this.booking.setValue(booking);
     }
 

@@ -15,9 +15,13 @@ import com.example.sep490_mobile.databinding.ActivityRegisterFormBinding;
 import com.example.sep490_mobile.model.RegistrationData;
 import com.example.sep490_mobile.viewmodel.CheckEmailViewModel;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 public class RegisterFormActivity extends AppCompatActivity {
 
@@ -90,27 +94,99 @@ public class RegisterFormActivity extends AppCompatActivity {
         String password = Objects.requireNonNull(binding.inputPassword.getText()).toString().trim();
         String confirmPassword = Objects.requireNonNull(binding.inputConfirmPassword.getText()).toString().trim();
 
-        // --- Client-side Validation ---
-        if (TextUtils.isEmpty(fullName) || TextUtils.isEmpty(email) || TextUtils.isEmpty(phone) || TextUtils.isEmpty(password)) {
-            Toast.makeText(this, "Vui lòng điền đầy đủ các trường bắt buộc.", Toast.LENGTH_SHORT).show();
-            return;
+        boolean isValid = true;
+
+        // --- VALIDATION: Họ và tên ---
+        if (TextUtils.isEmpty(fullName)) {
+            binding.inputLayoutFullname.setError("Họ và tên không được để trống");
+            isValid = false;
+        } else {
+            binding.inputLayoutFullname.setError(null);
         }
 
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+        // --- VALIDATION: Email ---
+        if (TextUtils.isEmpty(email)) {
+            binding.inputLayoutEmail.setError("Email không được để trống");
+            isValid = false;
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             binding.inputLayoutEmail.setError("Định dạng email không hợp lệ!");
-            return;
+            isValid = false;
         } else {
             binding.inputLayoutEmail.setError(null);
         }
 
-        if (!password.equals(confirmPassword)) {
+        // --- VALIDATION: Số điện thoại ---
+        String phonePattern = "^(0[35789])\\d{8}$";
+        if (TextUtils.isEmpty(phone)) {
+            binding.inputLayoutPhone.setError("Số điện thoại không được để trống");
+            isValid = false;
+        } else if (!Pattern.matches(phonePattern, phone)) {
+            binding.inputLayoutPhone.setError("Số điện thoại không đúng định dạng Việt Nam");
+            isValid = false;
+        } else {
+            binding.inputLayoutPhone.setError(null);
+        }
+
+        // --- VALIDATION: Ngày sinh ---
+        if (TextUtils.isEmpty(dob)) {
+            binding.inputLayoutDob.setError("Ngày sinh không được để trống");
+            isValid = false;
+        } else {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            sdf.setLenient(false);
+            try {
+                Date birthDate = sdf.parse(dob);
+                Calendar dobCal = Calendar.getInstance();
+                dobCal.setTime(birthDate);
+
+                if (dobCal.get(Calendar.YEAR) < 1900) {
+                    binding.inputLayoutDob.setError("Năm sinh không hợp lệ");
+                    isValid = false;
+                } else {
+                    Calendar todayMinus15Years = Calendar.getInstance();
+                    todayMinus15Years.add(Calendar.YEAR, -15);
+                    if (dobCal.after(todayMinus15Years)) {
+                        binding.inputLayoutDob.setError("Bạn phải đủ 15 tuổi");
+                        isValid = false;
+                    } else {
+                        binding.inputLayoutDob.setError(null);
+                    }
+                }
+            } catch (ParseException e) {
+                binding.inputLayoutDob.setError("Định dạng ngày không hợp lệ (yyyy-MM-dd)");
+                isValid = false;
+            }
+        }
+
+
+        // --- VALIDATION: Mật khẩu ---
+        if (TextUtils.isEmpty(password)) {
+            binding.inputLayoutPassword.setError("Mật khẩu không được để trống");
+            isValid = false;
+        } else if (password.length() < 6) {
+            binding.inputLayoutPassword.setError("Mật khẩu phải có ít nhất 6 ký tự");
+            isValid = false;
+        } else {
+            binding.inputLayoutPassword.setError(null);
+        }
+
+        // --- VALIDATION: Xác nhận mật khẩu ---
+        if (TextUtils.isEmpty(confirmPassword)) {
+            binding.inputLayoutConfirmPassword.setError("Vui lòng xác nhận mật khẩu");
+            isValid = false;
+        } else if (!password.equals(confirmPassword)) {
             binding.inputLayoutConfirmPassword.setError("Mật khẩu không khớp!");
-            return;
+            isValid = false;
         } else {
             binding.inputLayoutConfirmPassword.setError(null);
         }
 
-        // Nếu validation thành công, lưu dữ liệu và gọi ViewModel để kiểm tra email
+        if (!isValid) {
+            Toast.makeText(this, "Vui lòng kiểm tra lại các thông tin đã nhập", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Nếu tất cả validation thành công, lưu dữ liệu và gọi ViewModel để kiểm tra email
         registrationData = new RegistrationData(fullName, email, phone, dob, password);
         checkEmailViewModel.checkEmailExists(email);
     }
@@ -126,30 +202,28 @@ public class RegisterFormActivity extends AppCompatActivity {
     }
 
     private void showDatePickerDialog() {
-        // Lấy ngày hiện tại
-        final Calendar calendar = Calendar.getInstance();
+        final Calendar c = Calendar.getInstance();
+        int year = c.get(Calendar.YEAR);
+        int month = c.get(Calendar.MONTH);
+        int day = c.get(Calendar.DAY_OF_MONTH);
 
-        // Tính toán ngày tối đa cho phép (cách đây 15 năm)
-        // Đây sẽ là ngày sinh muộn nhất có thể để đủ 15 tuổi
-        Calendar maxDateCalendar = Calendar.getInstance();
-        maxDateCalendar.add(Calendar.YEAR, -15);
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, year1, monthOfYear, dayOfMonth) -> {
+            String selectedDate = year1 + "-" + String.format(Locale.getDefault(), "%02d", monthOfYear + 1) + "-" + String.format(Locale.getDefault(), "%02d", dayOfMonth);
+            binding.inputDob.setText(selectedDate);
+            binding.inputLayoutDob.setError(null); // Xóa lỗi khi người dùng chọn ngày mới
+        }, year, month, day);
 
-        // Lấy năm, tháng, ngày để hiển thị ban đầu (có thể lấy từ ngày đã chọn trước đó hoặc ngày mặc định)
-        int initialYear = maxDateCalendar.get(Calendar.YEAR);
-        int initialMonth = maxDateCalendar.get(Calendar.MONTH);
-        int initialDay = maxDateCalendar.get(Calendar.DAY_OF_MONTH);
+        // --- VALIDATION: Giới hạn ngày sinh ---
+        // 1. Người dùng phải đủ 15 tuổi -> không được sinh sau ngày này (ngày hiện tại - 15 năm)
+        Calendar maxDate = Calendar.getInstance();
+        maxDate.add(Calendar.YEAR, -15);
+        datePickerDialog.getDatePicker().setMaxDate(maxDate.getTimeInMillis());
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                (view, year, month, dayOfMonth) -> {
-                    // Định dạng lại ngày tháng năm và hiển thị lên EditText
-                    String selectedDate = year + "-" + String.format(Locale.getDefault(),"%02d", month + 1) + "-" + String.format(Locale.getDefault(),"%02d", dayOfMonth);
-                    binding.inputDob.setText(selectedDate);
-                }, initialYear, initialMonth, initialDay);
+        // 2. Không cho phép ngày sinh quá xa trong quá khứ (ví dụ: trước năm 1900)
+        Calendar minDate = Calendar.getInstance();
+        minDate.set(1900, Calendar.JANUARY, 1);
+        datePickerDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
 
-        // Đặt ngày tối đa có thể chọn là ngày đã tính toán ở trên
-        datePickerDialog.getDatePicker().setMaxDate(maxDateCalendar.getTimeInMillis());
-
-        // Hiển thị dialog
         datePickerDialog.show();
     }
 }

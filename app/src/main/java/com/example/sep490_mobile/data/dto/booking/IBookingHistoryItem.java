@@ -12,5 +12,5 @@ public interface IBookingHistoryItem extends Parcelable {
     double getOriginalPrice();
     Integer getDiscountId();
 
-    List<BookingReadDTO> getBookingItems();
+    List<BookingViewDTO> getBookingItems();
 }

@@ -14,7 +14,6 @@
         android:layout_height="376dp"
         android:background="@color/cardview_light_background">
 
-
         <ImageView
             android:id="@+id/stadium_image"
             android:layout_width="0dp"
@@ -54,7 +53,7 @@
                 android:contentDescription="Yêu thích"
                 android:padding="12dp"
                 android:src="@drawable/ic_heart"
-                app:tint="@color/secondary_green_dark" /> <!-- Màu xanh chính, đậm hơn nền -->
+                app:tint="@color/secondary_green_dark" />
 
             <!-- Nút Bản đồ - Phong cách Tonal -->
             <ImageButton
@@ -68,7 +67,6 @@
                 android:src="@drawable/ic_map_black_24dp"
                 app:tint="@color/secondary_green_dark" />
         </LinearLayout>
-
 
         <androidx.cardview.widget.CardView
             android:id="@+id/info_card"
@@ -86,8 +84,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:padding="16dp"
-                >
+                android:padding="16dp">
 
                 <TextView
                     android:id="@+id/stadium_sportType"
@@ -115,6 +112,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
+
                 <TextView
                     android:id="@+id/stadium_address"
                     android:layout_width="0dp"
@@ -129,17 +127,38 @@
                     app:layout_constraintStart_toStartOf="@+id/stadium_name"
                     app:layout_constraintTop_toBottomOf="@+id/stadium_name" />
 
-                <RatingBar
-                    android:id="@+id/rating_bar"
-                    style="?android:attr/ratingBarStyleSmall"
+                <!-- RatingBar và số điểm trung bình cạnh nhau -->
+                <LinearLayout
+                    android:id="@+id/rating_container"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:isIndicator="true"
-                    android:numStars="5"
-                    android:rating="4"
-                    android:theme="@style/RatingBarYellow"  app:layout_constraintStart_toStartOf="@id/stadium_name"
-                    app:layout_constraintTop_toBottomOf="@+id/stadium_address" />
+                    android:orientation="horizontal"
+                    app:layout_constraintStart_toStartOf="@id/stadium_name"
+                    app:layout_constraintTop_toBottomOf="@+id/stadium_address"
+                    android:layout_marginTop="8dp">
+
+                    <RatingBar
+                        android:id="@+id/rating_bar"
+                        style="?android:attr/ratingBarStyleSmall"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:isIndicator="true"
+                        android:numStars="5"
+                        android:stepSize="0.01"
+                        android:rating="4"
+                        android:theme="@style/RatingBarYellow"/>
+
+                    <TextView
+                        android:id="@+id/rating_value"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4.81"
+                        android:textColor="@android:color/black"
+                        android:textStyle="bold"
+                        android:textSize="14sp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="6dp"/>
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/stadium_time"
@@ -153,7 +172,7 @@
                     android:textColor="@android:color/black"
                     android:textSize="14sp"
                     app:layout_constraintStart_toStartOf="@id/stadium_name"
-                    app:layout_constraintTop_toBottomOf="@+id/rating_bar" />
+                    app:layout_constraintTop_toBottomOf="@+id/rating_container" />
 
                 <Button
                     android:id="@+id/book_button"

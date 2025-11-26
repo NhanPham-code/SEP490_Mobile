@@ -3,11 +3,9 @@ package com.example.sep490_mobile.viewmodel;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -27,19 +25,14 @@ import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.TeamMemberDetailDTO;
 import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.UpdateTeamPostDTO;
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
 import com.example.sep490_mobile.data.repository.BookingRepository;
 import com.example.sep490_mobile.data.repository.FindTeamRepository;
-import com.example.sep490_mobile.data.repository.ScheduleRepository;
 import com.example.sep490_mobile.data.repository.StadiumRepository;
 import com.example.sep490_mobile.data.repository.UserRepository;
 import com.example.sep490_mobile.utils.DurationConverter;
 
-import java.io.IOException;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.HashMap;
@@ -345,7 +338,7 @@ public class FindTeamViewModel extends AndroidViewModel {
 
                         // Tối ưu: Thêm .distinct() để không gọi API trùng lặp stadium ID
                         List<Integer> listStadiumIds = bookings.getValue().stream()
-                                .map(BookingReadDTO::getStadiumId)
+                                .map(BookingViewDTO::getStadiumId)
                                 .distinct()
                                 .collect(Collectors.toList());
                         String stadiumIDs = listStadiumIds.stream().map(String::valueOf).collect(Collectors.joining(","));
