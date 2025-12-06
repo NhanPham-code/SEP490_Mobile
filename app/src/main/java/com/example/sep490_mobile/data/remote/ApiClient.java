@@ -29,7 +29,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class ApiClient {
     // QUAN TRỌNG: Đối với localhost trên trình giả lập Android, sử dụng 10.0.2.2
     // Đối với thiết bị thực, sử dụng địa chỉ IP của máy tính của bạn trong mạng cục bộ
-    private static final String BASE_URL = "https://localhost:7136/"; // Sửa thành 10.0.2.2 cho emulator
+    private static final String BASE_URL = "https://10.0.2.2:7136/"; // Sửa thành 10.0.2.2 cho emulator
     private static ApiClient instance;
     private ApiService apiService;
     // Khai báo một ApiService KHÔNG CÓ token để sử dụng cho Authenticator
