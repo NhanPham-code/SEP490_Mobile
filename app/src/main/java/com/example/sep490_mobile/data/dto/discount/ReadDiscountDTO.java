@@ -1,52 +1,57 @@
-package com.example.sep490_mobile.data.dto.discount; // Adjust package name if needed
+package com.example.sep490_mobile.data.dto.discount; // (Giữ package của ông)
 
 import android.os.Parcel;
-import android.os.Parcelable; // Import Parcelable
+import android.os.Parcelable;
 import com.google.gson.annotations.SerializedName;
-import java.util.ArrayList; // Import ArrayList
+import java.util.ArrayList;
 import java.util.List;
 
-// Implement Parcelable
 public class ReadDiscountDTO implements Parcelable {
 
-    @SerializedName("Id")
+    // === BẮT ĐẦU SỬA: Dùng "value" (camelCase) và "alternate" (PascalCase) ===
+
+    @SerializedName(value = "id", alternate = "Id")
     private int id;
 
-    @SerializedName("Code")
+    @SerializedName(value = "code", alternate = "Code")
     private String code;
 
-    @SerializedName("Description")
+    @SerializedName(value = "description", alternate = "Description")
     private String description;
 
-    @SerializedName("PercentValue")
+    @SerializedName(value = "percentValue", alternate = "PercentValue")
     private double percentValue;
 
-    @SerializedName("MaxDiscountAmount")
+    @SerializedName(value = "maxDiscountAmount", alternate = "MaxDiscountAmount")
     private double maxDiscountAmount;
 
-    @SerializedName("MinOrderAmount")
+    @SerializedName(value = "minOrderAmount", alternate = "MinOrderAmount")
     private double minOrderAmount;
 
-    @SerializedName("StartDate")
+    @SerializedName(value = "startDate", alternate = "StartDate")
     private String startDate;
 
-    @SerializedName("EndDate")
+    @SerializedName(value = "endDate", alternate = "EndDate")
     private String endDate;
 
-    @SerializedName("CodeType")
+    @SerializedName(value = "codeType", alternate = "CodeType") // <<< SỬA CHÍNH
     private String codeType;
 
-    @SerializedName("IsActive")
+    @SerializedName(value = "isActive", alternate = "IsActive")
     private boolean isActive;
 
-    @SerializedName("TargetUserId")
+    @SerializedName(value = "targetUserId", alternate = "TargetUserId") // <<< SỬA CHÍNH
     private String targetUserId;
 
-    @SerializedName("StadiumIds")
+    @SerializedName(value = "stadiumIds", alternate = "StadiumIds")
     private List<Integer> stadiumIds;
 
-    // Still transient for Gson, but needs Parcelable handling
+    // === KẾT THÚC SỬA ===
+
+
     private transient List<String> stadiumNames;
+
+    // (Constructor và các hàm Parcelable giữ nguyên, không cần sửa)
 
     // Parcelable Constructor
     protected ReadDiscountDTO(Parcel in) {
@@ -59,9 +64,9 @@ public class ReadDiscountDTO implements Parcelable {
         startDate = in.readString();
         endDate = in.readString();
         codeType = in.readString();
-        isActive = in.readByte() != 0; // Read boolean as byte
+        isActive = in.readByte() != 0;
         targetUserId = in.readString();
-        // Read List<Integer>
+
         byte stadiumIdsPresent = in.readByte();
         if (stadiumIdsPresent == 1) {
             stadiumIds = new ArrayList<>();
@@ -69,7 +74,7 @@ public class ReadDiscountDTO implements Parcelable {
         } else {
             stadiumIds = null;
         }
-        // Read List<String> for stadiumNames
+
         byte stadiumNamesPresent = in.readByte();
         if (stadiumNamesPresent == 1) {
             stadiumNames = new ArrayList<>();
@@ -91,16 +96,16 @@ public class ReadDiscountDTO implements Parcelable {
         dest.writeString(startDate);
         dest.writeString(endDate);
         dest.writeString(codeType);
-        dest.writeByte((byte) (isActive ? 1 : 0)); // Write boolean as byte
+        dest.writeByte((byte) (isActive ? 1 : 0));
         dest.writeString(targetUserId);
-        // Write List<Integer>
+
         if (stadiumIds != null) {
             dest.writeByte((byte) 1);
             dest.writeList(stadiumIds);
         } else {
             dest.writeByte((byte) 0);
         }
-        // Write List<String> for stadiumNames
+
         if (stadiumNames != null) {
             dest.writeByte((byte) 1);
             dest.writeStringList(stadiumNames);
@@ -143,6 +148,6 @@ public class ReadDiscountDTO implements Parcelable {
     public List<Integer> getStadiumIds() { return stadiumIds; }
     public List<String> getStadiumNames() { return stadiumNames; }
 
-    // Setter for stadiumNames (used by ViewModel)
+    // Setter
     public void setStadiumNames(List<String> stadiumNames) { this.stadiumNames = stadiumNames; }
 }

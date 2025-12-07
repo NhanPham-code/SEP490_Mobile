@@ -188,7 +188,7 @@ public class DiscountListFragment extends Fragment {
                     // Ẩn bar chính KHI KẾT THÚC loading
                     progressBar.setVisibility(View.GONE);
                     setLoadingMoreState(false); // Đảm bảo bar nhỏ cũng tắt
-                    // KHÔNG gọi updateUiBasedOnData ở đây nữa
+                    updateUiBasedOnData();
                 }
             }
         });

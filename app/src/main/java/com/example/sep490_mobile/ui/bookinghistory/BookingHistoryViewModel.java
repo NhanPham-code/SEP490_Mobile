@@ -9,11 +9,10 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.example.sep490_mobile.data.dto.ScheduleCourtDTO;
 import com.example.sep490_mobile.data.dto.ScheduleODataStadiumResponseDTO;
 import com.example.sep490_mobile.data.dto.ScheduleStadiumDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
-import com.example.sep490_mobile.data.dto.booking.BookingReadDTO;
+import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 import com.example.sep490_mobile.data.dto.booking.DailyBookingDTO;
 import com.example.sep490_mobile.data.dto.booking.MonthlyBookingDTO;
 import com.example.sep490_mobile.data.dto.booking.response.MonthlyBookingODataResponse;
@@ -21,7 +20,6 @@ import com.example.sep490_mobile.data.dto.booking.MonthlyBookingReadDTO;
 import com.example.sep490_mobile.data.repository.BookingRepository;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet; // Import HashSet
 import java.util.List;
@@ -152,7 +150,7 @@ public class BookingHistoryViewModel extends AndroidViewModel {
                     public void onResponse(@NonNull Call<BookingHistoryODataResponse> call, @NonNull Response<BookingHistoryODataResponse> response) {
                         Log.d(TAG, "fetchDailyBookingsPage: onResponse - Code: " + response.code() + " page " + currentDailyPage);
                         if (response.isSuccessful() && response.body() != null && response.body().getValue() != null) {
-                            List<BookingReadDTO> fetchedData = response.body().getValue();
+                            List<BookingViewDTO> fetchedData = response.body().getValue();
                             totalDailyCount = response.body().getCount();
                             Log.i(TAG, "fetchDailyBookingsPage: Success! Fetched " + fetchedData.size() + ". Total: " + totalDailyCount);
                             boolean isLast = (currentDailyPage * PAGE_SIZE >= totalDailyCount);
@@ -236,7 +234,7 @@ public class BookingHistoryViewModel extends AndroidViewModel {
         Log.i(TAG, "Fetching details for " + monthlySummaries.size() + " monthly summaries...");
 
         // Dùng Map để lưu kết quả: ID gói tháng -> List các BookingReadDTO chi tiết
-        ConcurrentHashMap<Integer, List<BookingReadDTO>> detailsMap = new ConcurrentHashMap<>();
+        ConcurrentHashMap<Integer, List<BookingViewDTO>> detailsMap = new ConcurrentHashMap<>();
         // Đếm số lượng cuộc gọi API chi tiết cần hoàn thành
         AtomicInteger pendingCalls = new AtomicInteger(monthlySummaries.size());
         // Tập hợp tất cả ID sân cần lấy tên (từ tóm tắt + chi tiết)
@@ -249,7 +247,7 @@ public class BookingHistoryViewModel extends AndroidViewModel {
                     .enqueue(new Callback<BookingHistoryODataResponse>() {
                         @Override
                         public void onResponse(@NonNull Call<BookingHistoryODataResponse> call, @NonNull Response<BookingHistoryODataResponse> response) {
-                            List<BookingReadDTO> bookingsForThisSummary = new ArrayList<>(); // List chi tiết cho gói này
+                            List<BookingViewDTO> bookingsForThisSummary = new ArrayList<>(); // List chi tiết cho gói này
                             if (response.isSuccessful() && response.body() != null && response.body().getValue() != null) {
                                 bookingsForThisSummary = response.body().getValue();
                                 Log.d(TAG, "fetchDetails: Success for Monthly ID " + summary.getId() + ", found " + bookingsForThisSummary.size() + " bookings.");
@@ -290,7 +288,7 @@ public class BookingHistoryViewModel extends AndroidViewModel {
 
     // Bước 3: Lấy tên sân/sân con cho cả tóm tắt và chi tiết
     private void processStadiumNamesForMonthly(List<MonthlyBookingReadDTO> summaries,
-                                               Map<Integer, List<BookingReadDTO>> detailsMap,
+                                               Map<Integer, List<BookingViewDTO>> detailsMap,
                                                Set<Integer> allStadiumIds) {
         Log.d(TAG, "processStadiumNamesForMonthly: Processing names for " + summaries.size() + " summaries. All Stadium IDs: " + allStadiumIds);
         // Nếu không có ID sân nào cần lấy tên
@@ -341,20 +339,20 @@ public class BookingHistoryViewModel extends AndroidViewModel {
 
     // --- Hàm trợ giúp: Tạo danh sách MonthlyBookingDTO cuối cùng ---
     private List<MonthlyBookingDTO> createMonthlyDTOs(List<MonthlyBookingReadDTO> summaries,
-                                                      Map<Integer, List<BookingReadDTO>> detailsMap,
+                                                      Map<Integer, List<BookingViewDTO>> detailsMap,
                                                       Map<Integer, String> stadiumNameLookup,
                                                       Map<Integer, String> courtNameLookup) {
         List<MonthlyBookingDTO> resultList = new ArrayList<>();
         // Duyệt qua danh sách tóm tắt gốc
         for (MonthlyBookingReadDTO summary : summaries) {
             // Lấy danh sách chi tiết tương ứng từ map (mặc định là list rỗng nếu không tìm thấy)
-            List<BookingReadDTO> details = detailsMap.getOrDefault(summary.getId(), new ArrayList<>());
+            List<BookingViewDTO> details = detailsMap.getOrDefault(summary.getId(), new ArrayList<>());
 
             // Gán tên sân cho tóm tắt
             summary.setStadiumName(stadiumNameLookup.getOrDefault(summary.getStadiumId(), "Sân ID:" + summary.getStadiumId()));
 
             // Gán tên sân và tên sân con cho từng booking chi tiết
-            for (BookingReadDTO detail : details) {
+            for (BookingViewDTO detail : details) {
                 detail.setStadiumName(stadiumNameLookup.getOrDefault(detail.getStadiumId(), "Sân ID:" + detail.getStadiumId()));
                 if (detail.getBookingDetails() != null) {
                     detail.getBookingDetails().forEach(bd ->
@@ -393,10 +391,10 @@ public class BookingHistoryViewModel extends AndroidViewModel {
 
 
     // --- Xử lý tên cho Lịch Ngày (Giữ nguyên) ---
-    private void processStadiumAndCourtNamesForDaily(List<BookingReadDTO> bookings) {
+    private void processStadiumAndCourtNamesForDaily(List<BookingViewDTO> bookings) {
         Log.d(TAG, "processStadiumAndCourtNamesForDaily: Processing " + bookings.size() + " bookings.");
         if (bookings.isEmpty()) { finalizeDailyUpdate(new ArrayList<>(), new HashMap<>(), new HashMap<>()); return; }
-        Set<Integer> stadiumIds = bookings.stream().map(BookingReadDTO::getStadiumId).collect(Collectors.toSet());
+        Set<Integer> stadiumIds = bookings.stream().map(BookingViewDTO::getStadiumId).collect(Collectors.toSet());
         Log.d(TAG, "processStadiumAndCourtNamesForDaily: Stadium IDs: " + stadiumIds);
         Call<ScheduleODataStadiumResponseDTO> stadiumCall = repository.getStadiumsByIds(new ArrayList<>(stadiumIds));
         if (stadiumCall == null) { finalizeDailyUpdate(bookings, new HashMap<>(), new HashMap<>()); return; }
@@ -424,10 +422,10 @@ public class BookingHistoryViewModel extends AndroidViewModel {
     }
 
     // --- Finalize cho Lịch Ngày (Giữ nguyên) ---
-    private void finalizeDailyUpdate(List<BookingReadDTO> newBookingsFromApi, Map<Integer, String> stadiumNameLookup, Map<Integer, String> courtNameLookup) {
+    private void finalizeDailyUpdate(List<BookingViewDTO> newBookingsFromApi, Map<Integer, String> stadiumNameLookup, Map<Integer, String> courtNameLookup) {
         Log.i(TAG, "finalizeDailyUpdate: Processing " + newBookingsFromApi.size() + " new daily bookings.");
         List<DailyBookingDTO> newDailyList = new ArrayList<>();
-        for (BookingReadDTO booking : newBookingsFromApi) {
+        for (BookingViewDTO booking : newBookingsFromApi) {
             booking.setStadiumName(stadiumNameLookup.getOrDefault(booking.getStadiumId(), "Sân ID:" + booking.getStadiumId()));
             if (booking.getBookingDetails() != null) {
                 booking.getBookingDetails().forEach(detail ->

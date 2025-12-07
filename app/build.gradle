@@ -4,7 +4,10 @@ plugins {
     id 'com.google.gms.google-services'
     id 'androidx.navigation.safeargs'
 }
-
+Properties properties = new Properties()
+if (rootProject.file("local.properties").exists()) {
+    properties.load(rootProject.file("local.properties").newDataInputStream())
+}
 android {
     namespace 'com.example.sep490_mobile'
     compileSdk 35
