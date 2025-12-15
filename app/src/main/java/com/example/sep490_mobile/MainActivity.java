@@ -232,7 +232,7 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
         int userId = prefs.getInt("user_id", -1);
         if (userId == -1) {
-            Toast.makeText(this, "Lỗi: Không tìm thấy user_id", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Bạn cần đăng nhập để nhận thông báo!", Toast.LENGTH_SHORT).show();
             return;
         }
 

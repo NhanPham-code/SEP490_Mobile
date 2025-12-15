@@ -82,7 +82,7 @@ public class AccountFragment extends Fragment {
         biometricHelper = new BiometricHelper(requireActivity(), new BiometricHelper.BiometricCallback() {
             @Override
             public void onAuthenticationSuccess(BiometricPrompt.AuthenticationResult result) {
-                // <-- SỬA LỖI 1: Gán `result` cho biến tạm, không phải `null`
+                // Gán `result` cho biến tạm
                 tempAuthResult = result;
                 // Bây giờ mới gọi server để lấy token
                 accountViewModel.generateBiometricToken();
@@ -247,6 +247,7 @@ public class AccountFragment extends Fragment {
             if (Boolean.TRUE.equals(success)) {
                 binding.layoutLoggedIn.setVisibility(View.GONE);
                 binding.layoutLoggedOut.setVisibility(View.VISIBLE);
+                binding.layoutMenuContainer.setVisibility(View.GONE);
             }
         });
 
@@ -254,7 +255,7 @@ public class AccountFragment extends Fragment {
         accountViewModel.getBiometricToken().observe(getViewLifecycleOwner(), token -> {
             // 3. Khi server trả về token, kiểm tra xem có `result` tạm và `token` không.
             if (token != null && tempAuthResult != null) {
-                // 4. ĐÃ CÓ CẢ HAI! Bây giờ mới tiến hành mã hóa.
+                // 4. Tiến hành mã hóa.
                 biometricHelper.onEncryptionSuccess(tempAuthResult, token);
 
                 Toast.makeText(getContext(), "Đã bật đăng nhập sinh trắc học.", Toast.LENGTH_SHORT).show();
@@ -278,11 +279,14 @@ public class AccountFragment extends Fragment {
         if (isLoggedIn) {
             binding.layoutLoggedIn.setVisibility(View.VISIBLE);
             binding.layoutLoggedOut.setVisibility(View.GONE);
+            binding.layoutMenuContainer.setVisibility(View.VISIBLE);
+
             updateUIFromSharedPrefs(); // Gọi hàm cập nhật UI
             updateBiometricSwitchState(); // Cập nhật trạng thái switch
         } else {
             binding.layoutLoggedIn.setVisibility(View.GONE);
             binding.layoutLoggedOut.setVisibility(View.VISIBLE);
+            binding.layoutMenuContainer.setVisibility(View.GONE);
         }
     }
 

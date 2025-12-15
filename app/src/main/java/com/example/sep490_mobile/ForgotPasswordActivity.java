@@ -28,6 +28,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         binding = ActivityForgotPasswordBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // ẩn header
+        if(getSupportActionBar() != null){
+            getSupportActionBar().hide();
+        }
+
         viewModel = new ViewModelProvider(this).get(ForgotPasswordViewModel.class);
 
         setupClickListeners();

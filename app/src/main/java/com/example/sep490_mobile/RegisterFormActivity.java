@@ -17,8 +17,10 @@ import com.example.sep490_mobile.viewmodel.CheckEmailViewModel;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.regex.Pattern;
@@ -163,21 +165,44 @@ public class RegisterFormActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(password)) {
             binding.inputLayoutPassword.setError("Mật khẩu không được để trống");
             isValid = false;
-        } else if (password.length() < 6) {
-            binding.inputLayoutPassword.setError("Mật khẩu phải có ít nhất 6 ký tự");
-            isValid = false;
         } else {
-            binding.inputLayoutPassword.setError(null);
+            // 1. Danh sách các quy tắc bị thiếu (để hiển thị thông báo lỗi chi tiết)
+            List<String> missingRules = new ArrayList<>();
+            if (password.length() < 8) missingRules.add("8 ký tự");
+            if (!password.matches(".*[A-Z].*")) missingRules.add("chữ in hoa");
+            if (!password.matches(".*\\d.*")) missingRules.add("số");
+            if (!password.matches(".*[^a-zA-Z0-9\\s].*")) missingRules.add("ký tự đặc biệt");
+
+            // 2. Tính điểm độ mạnh
+            int strength = 0;
+            if (password.length() >= 8) strength++;
+            // Quy tắc 2: Cần cả chữ thường VÀ chữ hoa mới được 1 điểm
+            if (password.matches(".*[a-z].*") && password.matches(".*[A-Z].*")) strength++;
+            if (password.matches(".*\\d.*")) strength++;
+            if (password.matches(".*[^a-zA-Z0-9\\s].*")) strength++;
+
+            // 3. Kiểm tra điều kiện chấp nhận (Phải đạt điểm >= 3)
+            if (strength < 3) {
+                StringBuilder msg = new StringBuilder("Mật khẩu chưa đủ mạnh.");
+                if (!missingRules.isEmpty()) {
+                    // TextUtils.join giúp nối mảng thành chuỗi: "số, ký tự đặc biệt"
+                    msg.append(" Cần thêm: ").append(TextUtils.join(", ", missingRules)).append(".");
+                }
+                binding.inputLayoutPassword.setError(msg.toString());
+                isValid = false;
+            } else {
+                binding.inputLayoutPassword.setError(null);
+            }
         }
 
         // --- VALIDATION: Xác nhận mật khẩu ---
-        if (TextUtils.isEmpty(confirmPassword)) {
+        if (isValid && TextUtils.isEmpty(confirmPassword)) {
             binding.inputLayoutConfirmPassword.setError("Vui lòng xác nhận mật khẩu");
             isValid = false;
-        } else if (!password.equals(confirmPassword)) {
+        } else if (isValid && !password.equals(confirmPassword)) {
             binding.inputLayoutConfirmPassword.setError("Mật khẩu không khớp!");
             isValid = false;
-        } else {
+        } else if (isValid) {
             binding.inputLayoutConfirmPassword.setError(null);
         }
 
