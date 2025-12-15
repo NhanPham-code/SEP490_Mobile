@@ -25,6 +25,7 @@ import com.example.sep490_mobile.R;
 import com.example.sep490_mobile.adapter.FindTeamAdapter;
 import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.FindTeamDTO;
+import com.example.sep490_mobile.data.dto.notification.CreateNotificationDTO;
 import com.example.sep490_mobile.databinding.FragmentFindTeamBinding;
 import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.model.ChatRoomInfo;
@@ -435,7 +436,7 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
     }
 
 
-    private void joinTeam(int postId){
+    private void joinTeam(int postId, int creatorId){
         SharedPreferences sharedPreferences = this.getContext().getSharedPreferences("MyAppPrefs", getContext().MODE_PRIVATE);
         int currentUserId = sharedPreferences.getInt("user_id", 0);
 
@@ -446,6 +447,13 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         createTeamMemberDTO.setJoinedAt(DurationConverter.createCurrentISOString());
 
         findTeamViewModel.createMember(createTeamMemberDTO);
+        findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                creatorId,
+                "Recruitment.JoinRequest",
+                "Đã nhận được yêu cầu tham gia",
+                "Vừa có một thành viên tham gia vào đội nhóm của bạn",
+                null
+        ));
         findTeamViewModel.created.observe(getViewLifecycleOwner(), isCreated -> {
            if(isCreated){
                Toast.makeText(this.getContext(), "Đã tham gia, và hãy chờ duyệt", Toast.LENGTH_LONG).show();
@@ -497,19 +505,24 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
     @Override
     public void onItemClick(int stadiumId, String stadiumName, int createBy) {
         // Không dùng ở FindTeamFragment, để trống hoặc log lại
+
     }
     @Override
     public void onItemClick(int item, String type) {
-        if(type.equalsIgnoreCase("join")){
-            joinTeam(item);
-        }else if (type.equalsIgnoreCase("detail")){
-            goToDetail(item);
-        }
+//        if(type.equalsIgnoreCase("join")){
+//            joinTeam(item);
+//        }else if (type.equalsIgnoreCase("detail")){
+//            goToDetail(item);
+//        }
     }
 
     @Override
-    public void onItemClickRemoveMember(int id, int postId, String type) {
-
+    public void onItemClickRemoveMember(int id, int memberUserId, int postId, String type) {
+        if(type.equalsIgnoreCase("join")){
+            joinTeam(id, memberUserId);
+        }else if (type.equalsIgnoreCase("detail")){
+            goToDetail(id);
+        }
     }
 
     @Override

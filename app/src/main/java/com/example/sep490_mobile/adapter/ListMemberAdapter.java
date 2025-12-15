@@ -114,7 +114,7 @@ public class ListMemberAdapter extends RecyclerView.Adapter<ListMemberAdapter.Li
             @Override
             public void onClick(View v) {
                 if(listener != null){
-                    listener.onItemClickRemoveMember(readTeamMemberDTO.getId(), readTeamMemberDTO.getTeamPostId(), "accept");
+                    listener.onItemClickRemoveMember(readTeamMemberDTO.getId(), readTeamMemberDTO.getUserId(), readTeamMemberDTO.getTeamPostId(), "accept");
                 }
             }
         });
@@ -122,7 +122,11 @@ public class ListMemberAdapter extends RecyclerView.Adapter<ListMemberAdapter.Li
             @Override
             public void onClick(View v) {
                 if(listener != null){
-                    listener.onItemClickRemoveMember(readTeamMemberDTO.getId(), readTeamMemberDTO.getTeamPostId(), "remove");
+                    if(readTeamMemberDTO.getRole().equalsIgnoreCase("Member")){
+                        listener.onItemClickRemoveMember(readTeamMemberDTO.getId(), readTeamMemberDTO.getUserId(), readTeamMemberDTO.getTeamPostId(), "remove");
+                    } else if (readTeamMemberDTO.getRole().equalsIgnoreCase("Waiting")) {
+                        listener.onItemClickRemoveMember(readTeamMemberDTO.getId(), readTeamMemberDTO.getUserId(), readTeamMemberDTO.getTeamPostId(), "cancel");
+                    }
                 }
             }
         });

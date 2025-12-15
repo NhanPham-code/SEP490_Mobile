@@ -27,8 +27,11 @@ import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.UpdateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
+import com.example.sep490_mobile.data.dto.notification.CreateNotificationDTO;
+import com.example.sep490_mobile.data.dto.notification.NotificationDTO;
 import com.example.sep490_mobile.data.repository.BookingRepository;
 import com.example.sep490_mobile.data.repository.FindTeamRepository;
+import com.example.sep490_mobile.data.repository.NotificationRepository;
 import com.example.sep490_mobile.data.repository.StadiumRepository;
 import com.example.sep490_mobile.data.repository.UserRepository;
 import com.example.sep490_mobile.utils.DurationConverter;
@@ -52,6 +55,7 @@ public class FindTeamViewModel extends AndroidViewModel {
     private final StadiumRepository stadiumRepository;
     private final UserRepository userRepository;
     private final FindTeamRepository findTeamRepository;
+    private final NotificationRepository notificationRepository;
     private final BookingRepository bookingRepository;
     private final MutableLiveData<List<ReadTeamMemberForDetailDTO>> _listMember = new MutableLiveData<>();
     private final MutableLiveData<TeamMemberDetailDTO> _teamMemberDetail = new MutableLiveData<>();
@@ -91,6 +95,7 @@ public class FindTeamViewModel extends AndroidViewModel {
         this.userRepository = new UserRepository(application);
         this.findTeamRepository = new FindTeamRepository(application);
         this.bookingRepository = new BookingRepository(application);
+        this.notificationRepository = new NotificationRepository(application);
     }
 
     public void fetchFindTeamList(Map<String, String> odataUrl) {
@@ -755,6 +760,24 @@ public class FindTeamViewModel extends AndroidViewModel {
                 _errorMessage.setValue("Lỗi mạng khi tải User Profiles: " + t.getMessage());
                 // SỬA LỖI 2: Đánh dấu cuộc gọi này đã xong (kể cả khi thất bại)
                 checkAndNotifyCompletion(currentData, pendingCalls);
+            }
+        });
+    }
+
+    public void notifyToMember(CreateNotificationDTO createNotificationDTO){
+        notificationRepository.createNotification(createNotificationDTO).enqueue(new Callback<NotificationDTO>() {
+            @Override
+            public void onResponse(Call<NotificationDTO> call, Response<NotificationDTO> response) {
+                if (response.isSuccessful()){
+                    System.out.println("da thong bao:");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NotificationDTO> call, Throwable t) {
+                _isLoading.setValue(false);
+                _errorMessage.setValue("Lỗi mạng khi tải Booking History: " + t.getMessage());
+                Log.d(TAG, "onFailure: " + t.getMessage());
             }
         });
     }

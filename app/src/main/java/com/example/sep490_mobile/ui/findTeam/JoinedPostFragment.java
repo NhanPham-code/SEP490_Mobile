@@ -390,7 +390,7 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
     }
 
     @Override
-    public void onItemClickRemoveMember(int id, int postId, String type) {
+    public void onItemClickRemoveMember(int id, int memberUserId, int postId, String type) {
 
     }
 

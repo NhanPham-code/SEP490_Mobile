@@ -428,7 +428,7 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
 
     // Các interface không dùng đến
     @Override public void onItemClick(int item, String type) {}
-    @Override public void onItemClickRemoveMember(int id, int postId, String type) {}
+    @Override public void onItemClickRemoveMember(int id, int memberUserId, int postId, String type) {}
 
     @Override
     public void onDestroyView() {

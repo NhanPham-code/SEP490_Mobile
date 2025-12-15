@@ -193,7 +193,7 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             @Override
             public void onClick(View v) {
                 if(listener != null){
-                    listener.onItemClick(readTeamPostDTO.getId(), "join");
+                    listener.onItemClickRemoveMember(readTeamPostDTO.getId(), readTeamPostDTO.getCreatedBy(), 0, "join");
                 }
             }
         });
@@ -248,7 +248,7 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             @Override
             public void onClick(View v) {
                 if(listener != null){
-                    listener.onItemClick(readTeamPostDTO.getId(), "detail");
+                    listener.onItemClickRemoveMember(readTeamPostDTO.getId(), readTeamPostDTO.getCreatedBy(),0 , "detail");
                 }
             }
         });
