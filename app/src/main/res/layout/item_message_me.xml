@@ -24,7 +24,15 @@
             android:scaleType="centerCrop"
             android:visibility="gone"
             android:layout_marginBottom="4dp" />
+        <VideoView
+            android:id="@+id/messageVideo"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="6dp"
 
+            android:visibility="gone"
+            android:scaleType="centerCrop"/>
 
         <TextView
             android:id="@+id/messageText"

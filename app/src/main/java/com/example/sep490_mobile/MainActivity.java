@@ -1,18 +1,17 @@
 package com.example.sep490_mobile;
 
-import android.Manifest;
+import android. Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.animation.OvershootInterpolator;
-import android.widget.FrameLayout;
-import android.widget.TextView;
+import android.view. MotionEvent;
+import android. view.View;
+import android. view.animation. OvershootInterpolator;
+import android.widget. FrameLayout;
+import android. widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -23,29 +22,30 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
+import androidx. navigation.Navigation;
+import androidx. navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.sep490_mobile.databinding.ActivityMainBinding;
 import com.example.sep490_mobile.viewmodel.NotificationCountViewModel;
-import com.google.android.material.badge.BadgeDrawable;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google. android.material.badge.BadgeDrawable;
+import com.google. android.material.bottomnavigation. BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com. google.firebase.database.DataSnapshot;
+import com. google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database. FirebaseDatabase;
+import com. google.firebase.database.ValueEventListener;
 
-import java.util.Objects;
+import java.util. Objects;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
 
     private ActivityMainBinding binding;
     private boolean isDragging = false;
     private float initialTouchX, initialTouchY;
-
+    private IncomingCallListener incomingCallListener;
     private NotificationCountViewModel mainViewModel;
 
     private final ActivityResultLauncher<String> requestPermissionLauncher =
@@ -64,9 +64,9 @@ public class MainActivity extends AppCompatActivity {
     private FloatingActionButton fabChat;
 
     private void askNotificationPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES. TIRAMISU) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
-                    PackageManager.PERMISSION_GRANTED) {
+                    PackageManager. PERMISSION_GRANTED) {
                 // Quyền đã được cấp
             } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
                 requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
@@ -83,26 +83,40 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        mainViewModel = new ViewModelProvider(this).get(NotificationCountViewModel.class);
+        mainViewModel = new ViewModelProvider(this).get(NotificationCountViewModel. class);
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
 
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_map, R.id.navigation_find_team, R.id.navigation_notifications, R.id.navigation_account
+                R.id.navigation_home, R.id.navigation_map, R.id.navigation_find_team,
+                R.id.navigation_notifications, R.id.navigation_account
         ).build();
 
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        NavigationUI.setupWithNavController(binding.navView, navController);
+        NavigationUI. setupWithNavController(binding.navView, navController);
 
         Objects.requireNonNull(getSupportActionBar()).hide();
 
         askNotificationPermission();
 
+        // ✅ LẤY USERID THẬT TỪ SHAREDPREFERENCES
+        SharedPreferences prefs = getSharedPreferences("MyAppPrefs", MODE_PRIVATE);
+        int userId = prefs.getInt("user_id", -1);
+
+        if (userId != -1) {
+            String myUserId = String.valueOf(userId);
+            incomingCallListener = new IncomingCallListener(this, myUserId);
+            android.util.Log.d(TAG, "✅ Started IncomingCallListener for userId: " + myUserId);
+        } else {
+            android.util.Log.e(TAG, "❌ Cannot start IncomingCallListener: user_id not found!");
+            Toast.makeText(this, "Lỗi:  Không tìm thấy thông tin người dùng", Toast.LENGTH_SHORT).show();
+        }
+
         // Ánh xạ FAB và Badge
         fabChat = findViewById(R.id.fabChat);
         fabBadge = findViewById(R.id.fab_badge);
-        fabChatContainer = findViewById(R.id.fabChatContainer);
+        fabChatContainer = findViewById(R.id. fabChatContainer);
 
         // Lắng nghe tổng số tin chưa đọc
         setupUnreadCountListener();
@@ -130,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         mainViewModel.fetchUnreadCount();
 
         fabChat.setOnClickListener(v -> {
-            if (!isDragging) {
+            if (! isDragging) {
                 v.animate()
                         .scaleX(0.85f)
                         .scaleY(0.85f)
@@ -138,7 +152,7 @@ public class MainActivity extends AppCompatActivity {
                         .withEndAction(() -> v.animate()
                                 .scaleX(1f)
                                 .scaleY(1f)
-                                .setDuration(150)
+                                . setDuration(150)
                                 .setInterpolator(new OvershootInterpolator())
                                 .start())
                         .start();
@@ -157,22 +171,23 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 ConstraintLayout container = findViewById(R.id.container);
-                View navView = findViewById(R.id.nav_view);
+                View navView = findViewById(R.id. nav_view);
 
                 switch (event.getActionMasked()) {
                     case MotionEvent.ACTION_DOWN:
                         dX = fabChatContainer.getX() - event.getRawX();
                         dY = fabChatContainer.getY() - event.getRawY();
                         initialTouchX = event.getRawX();
-                        initialTouchY = event.getRawY();
+                        initialTouchY = event. getRawY();
                         isDragging = false;
                         return true;
 
-                    case MotionEvent.ACTION_MOVE:
+                    case MotionEvent. ACTION_MOVE:
                         float newX = event.getRawX() + dX;
                         float newY = event.getRawY() + dY;
 
-                        if (!isDragging && (Math.abs(event.getRawX() - initialTouchX) > 10 || Math.abs(event.getRawY() - initialTouchY) > 10)) {
+                        if (! isDragging && (Math.abs(event.getRawX() - initialTouchX) > 10
+                                || Math.abs(event.getRawY() - initialTouchY) > 10)) {
                             isDragging = true;
                         }
 
@@ -180,9 +195,10 @@ public class MainActivity extends AppCompatActivity {
                         newX = Math.max(0, newX);
                         newY = Math.max(0, newY);
                         newX = Math.min(container.getWidth() - fabChatContainer.getWidth(), newX);
-                        newY = Math.min(container.getHeight() - fabChatContainer.getHeight() - navView.getHeight(), newY);
+                        newY = Math.min(container. getHeight() - fabChatContainer.getHeight()
+                                - navView.getHeight(), newY);
 
-                        fabChatContainer.setX(newX);
+                        fabChatContainer. setX(newX);
                         fabChatContainer.setY(newY);
                         return true;
 
@@ -193,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
                             float endPosition = (center < (float) container.getWidth() / 2)
                                     ? 0
                                     : (container.getWidth() - fabChatContainer.getWidth());
-                            fabChatContainer.animate()
+                            fabChatContainer. animate()
                                     .x(endPosition)
                                     .setDuration(200)
                                     .start();
@@ -253,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
             fabBadge.setText(String.valueOf(count));
             fabBadge.setVisibility(View.VISIBLE);
         } else {
-            fabBadge.setVisibility(View.GONE);
+            fabBadge.setVisibility(View. GONE);
         }
     }
 
@@ -274,12 +290,15 @@ public class MainActivity extends AppCompatActivity {
         if (unreadRef != null && unreadCountListener != null) {
             unreadRef.removeEventListener(unreadCountListener);
         }
+
+        // ✅ Cleanup IncomingCallListener
+
     }
 
     // --- PHƯƠNG THỨC MỚI ĐỂ QUẢN LÝ OBSERVER ---
     private void setupObservers(BottomNavigationView navView) {
         mainViewModel.unreadCount.observe(this, count -> {
-            BadgeDrawable badge = navView.getOrCreateBadge(R.id.navigation_notifications);
+            BadgeDrawable badge = navView. getOrCreateBadge(R.id.navigation_notifications);
 
             if (count != null && count > 0) {
                 badge.setVisible(true);

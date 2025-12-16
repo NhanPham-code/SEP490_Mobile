@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#222">
+
+
+<!-- Avatar Circle -->
+    <TextView
+        android:id="@+id/tv_caller_avatar"
+        android:layout_width="140dp"
+        android:layout_height="140dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:background="#667eea"
+        android:gravity="center"
+        android:text="A"
+        android:textColor="#fff"
+        android:textSize="56sp"
+        android:textStyle="bold"
+        android:elevation="10dp" />
+
+    <!-- Caller Name -->
+    <TextView
+        android:id="@+id/tv_caller_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_caller_avatar"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Nguoi dung"
+        android:textColor="#fff"
+        android:textSize="24sp"
+        android:textStyle="bold" />
+
+    <!-- Call Type -->
+    <TextView
+        android:id="@+id/tv_call_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_caller_name"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="8dp"
+        android:text="Cuoc goi Video"
+        android:textColor="#B0BEC5"
+        android:textSize="16sp" />
+
+    <!-- Ringing Status -->
+    <TextView
+        android:id="@+id/tv_ringing"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tv_call_type"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="12dp"
+        android:text="Dang goi den..."
+        android:textColor="#4CAF50"
+        android:textSize="14sp" />
+
+    <!-- Buttons Container (giống y chang video_call_controls) -->
+    <LinearLayout
+        android:id="@+id/incoming_call_controls"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="20dp"
+        android:background="@android:color/transparent">
+
+        <!-- Decline Button -->
+        <ImageButton
+            android:id="@+id/btn_decline"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="40dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_end_call"
+            android:contentDescription="Decline Call"
+            app:tint="#f44336" />
+
+        <!-- Accept Button -->
+        <ImageButton
+            android:id="@+id/btn_accept"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginStart="40dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_end_call"
+            android:contentDescription="Accept Call"
+            app:tint="#4CAF50" />
+
+    </LinearLayout>
+
+</RelativeLayout>

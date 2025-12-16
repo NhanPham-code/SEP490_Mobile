@@ -1,0 +1,13 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Hình điện thoại nằm ngang, màu đỏ -->
+    <path
+        android:fillColor="#f44336"
+        android:pathData="M37.2,31.06C34.43,29.26 30.7,27.24 24,27.24C17.3,27.24 13.58,29.26 10.81,31.06C9.74,31.76 9,33.01 9,34.39V37.49
+            c0,1.13 0.94,2.06 2.07,2.06h6.6c0.97,0 1.81,-0.69 2.06,-1.63l0.56,-2.05c0.16,-0.6 0.78,-1.01 1.39,-1.01h6.81
+            c0.61,0 1.22,0.41 1.38,1.01l0.57,2.04c0.25,0.95 1.09,1.64 2.06,1.64h6.59c1.13,0 2.06,-0.93 2.06,-2.06V34.39
+            C39,33.01 38.26,31.76 37.2,31.06Z"/>
+</vector>
