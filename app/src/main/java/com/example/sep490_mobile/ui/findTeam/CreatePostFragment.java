@@ -272,6 +272,12 @@ public class CreatePostFragment extends Fragment {
             binding.newNeededPlayersEditText.requestFocus();
             return null;
         }
+        int player = Integer.parseInt(neededPlayersStr);
+        if (player <= 0) {
+            Toast.makeText(getContext(), "Số người chơi phải lớn hơn 0!", Toast.LENGTH_SHORT).show();
+            binding.newNeededPlayersEditText.requestFocus();
+            return null;
+        }
 
 
         // --- 3. Ánh xạ dữ liệu sau khi Validation thành công ---

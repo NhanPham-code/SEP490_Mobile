@@ -36,12 +36,19 @@ import com.example.sep490_mobile.data.repository.StadiumRepository;
 import com.example.sep490_mobile.data.repository.UserRepository;
 import com.example.sep490_mobile.utils.DurationConverter;
 
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -261,7 +268,8 @@ public class FindTeamViewModel extends AndroidViewModel {
 
         // 2. Chuẩn bị filter cho API thứ nhất (fetchFindTeamList)
         Map<String, String> odataUrl = new HashMap<>();
-        odataUrl.put("$filter", "CreatedBy eq " + currentUserId );
+
+        odataUrl.put("$filter", "CreatedBy eq " + currentUserId);
 
         // 3. Gọi hàm mới để thực hiện API chuỗi
         fetchFindTeamListAndThenFetchBookingHistory(odataUrl, currentUserId, myUserId);
@@ -307,9 +315,12 @@ public class FindTeamViewModel extends AndroidViewModel {
                         // Không có gì để loại trừ, chỉ lọc theo User ID
                         url = userFilter;
                     }
+                    ZonedDateTime dateNowInVietnam = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 
+// Định dạng theo chuẩn ISO 8601 (đã bao gồm múi giờ)
+                    String formatted = dateNowInVietnam.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                     // --- BƯỚC 2: Gọi API thứ hai (Tải Booking History) ---
-                    fetchBookingHistory(url + " and BookingDetails/any(m: m/StartTime ge " + DurationConverter.createCurrentISOSDateTime() + ")");
+                    fetchBookingHistory(url + " and Status eq 'accepted' and BookingDetails/any(m: m/StartTime ge " + DurationConverter.createCurrentISOSDateTime() + ")");
 
                 } else {
                     // Xử lý lỗi API FindTeam
