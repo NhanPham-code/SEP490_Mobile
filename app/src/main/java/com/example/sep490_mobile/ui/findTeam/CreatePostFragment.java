@@ -75,20 +75,21 @@ public class CreatePostFragment extends Fragment {
                 }
 
                 model.createNewPost(newPost, getContext());
-                model.created.observe(getViewLifecycleOwner(), aBoolean -> {
+                model.created.observe(getViewLifecycleOwner(), isCreated -> {
 
 
-                    if (aBoolean) {
+                    if (isCreated != null && isCreated) {
                         Toast.makeText(getContext(), "Tạo bài viết thành công", Toast.LENGTH_SHORT).show();
 
-                        // ⭐ BƯỚC 1: GỬI TÍN HIỆU THÀNH CÔNG
-                        // Gửi một "kết quả" để FindTeamFragment lắng nghe và tải lại dữ liệu.
+                        // 1. Chuẩn bị tín hiệu
                         Bundle result = new Bundle();
                         result.putBoolean("refresh", true);
-                        getParentFragmentManager().setFragmentResult("POST_CREATED_REQUEST_KEY", result);
 
-                        // Quay lại FindTeamFragment
-                        getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        // 2. GỬI TÍN HIỆU
+                        requireActivity().getSupportFragmentManager().setFragmentResult("POST_CREATED_REQUEST_KEY", result);
+
+                        // 3. ĐÓNG FRAGMENT HIỆN TẠI
+                        requireActivity().getSupportFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     }
                     // Không cần làm gì nếu aBoolean là false, ViewModel sẽ xử lý lỗi.
                 });

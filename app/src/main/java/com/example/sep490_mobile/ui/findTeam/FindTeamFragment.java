@@ -58,21 +58,17 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
     // ⭐ BƯỚC 1: ĐỊNH NGHĨA KEY CHO FRAGMENT RESULT
     public static final String POST_CREATED_REQUEST_KEY = "POST_CREATED_REQUEST_KEY";
 
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // ⭐ BƯỚC 2: ĐĂNG KÝ LISTENER TRONG onCreate
-        // Nó sẽ lắng nghe tín hiệu từ CreatePostFragment
-        getParentFragmentManager().setFragmentResultListener(POST_CREATED_REQUEST_KEY, this, (requestKey, bundle) -> {
+        // QUAN TRỌNG: Đăng ký listener tại đây
+        requireActivity().getSupportFragmentManager().setFragmentResultListener(POST_CREATED_REQUEST_KEY, this, (requestKey, bundle) -> {
             boolean shouldRefresh = bundle.getBoolean("refresh", false);
             if (shouldRefresh) {
-                Log.d("FindTeamFragment", "Nhận được tín hiệu, đang tải lại dữ liệu...");
-                Toast.makeText(getContext(), "Nhận được tín hiệu, đang tải lại dữ liệu...", Toast.LENGTH_SHORT).show();
-                // Reset và tải lại dữ liệu từ đầu
-                findTeamViewModel.fetchFindTeamList(odataUrl);
-                observeFindTeamListResponse();
-                binding.myRecyclerView.smoothScrollToPosition(0);
+                Log.d("FindTeamFragment", ">>> ĐÃ NHẬN TÍN HIỆU! BẮT ĐẦU TẢI LẠI DỮ LIỆU... <<<");
+                refreshData(); // Gọi hàm tải lại dữ liệu của bạn
             }
         });
     }
@@ -439,7 +435,7 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
                 "Recruitment.JoinRequest",
                 "Đã nhận được yêu cầu tham gia",
                 "Vừa có một thành viên tham gia vào đội nhóm của bạn",
-                null
+                "{\"title\": FindTeam, \"content\": \"/FindTeam/FindTeam\"}"
         ));
         findTeamViewModel.created.observe(getViewLifecycleOwner(), isCreated -> {
             if(isCreated){

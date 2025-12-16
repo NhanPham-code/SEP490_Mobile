@@ -197,7 +197,8 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
             "Recruitment.JoinRequest",
             "Đã nhận được yêu cầu tham gia",
             "Vừa có một thành viên tham gia vào đội nhóm của bạn",
-                null
+                "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
         ));
     }
 
@@ -212,7 +213,8 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
                     "Recruitment.Accepted",
                     "Yêu cầu tham gia đã được chấp nhận",
                     "Yêu cầu tham gia vào nhóm của bạn đã được chấp nhận bởi chủ nhóm",
-                    null
+                    "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
             ));
         }
     }
@@ -227,7 +229,8 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
                         "Recruitment.kick",
                         "Bạn đã bị đuổi khỏi đội nhóm",
                         "Bạn đã bị đuổi khỏi đội nhóm bới chủ nhóm",
-                        null
+                        "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
                 ));
             } else if (status.equalsIgnoreCase("leave")) {
                 findTeamViewModel.notifyToMember(new CreateNotificationDTO(
@@ -235,7 +238,7 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
                         "Recruitment.Leave",
                         "Thành viên rời đội",
                         "Vừa có một thành viên rời khỏi đội nhóm của bạn",
-                        null
+                        "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
                 ));
             }else{
                 findTeamViewModel.notifyToMember(new CreateNotificationDTO(
@@ -243,7 +246,8 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
                         "Recruitment.Canceled",
                         "Yêu cầu không được chấp thuận",
                         "Yêu cầu tham gia vào nhóm của bạn đã không được chấp nhận bởi chủ nhóm",
-                        null
+                        "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
                 ));
             }
         }

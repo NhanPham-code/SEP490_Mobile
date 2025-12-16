@@ -143,10 +143,12 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             createdTime = DurationConverter.convertIsoPlayDate(readTeamPostDTO.getCreatedAt(), "dd/MM/yyyy - HH:mm");
         }
 
+        String time = DurationConverter.convertDuration(readTeamPostDTO.getTimePlay(), 1);
+
         // Các thành phần khác không liên quan đến lỗi Null
         holder.postTimestamp.setText(createdTime);
         holder.sportType.setText(readTeamPostDTO.getSportType());
-        holder.playDateTime.setText(datePlay);
+        holder.playDateTime.setText(datePlay + " - " + time);
         holder.location.setText(readTeamPostDTO.getLocation());
         holder.playersInfo.setText("cần " + readTeamPostDTO.getJoinedPlayers() + " / " + readTeamPostDTO.getNeededPlayers()+ " người" );
         HtmlConverter.convertHtmlToMarkdown(readTeamPostDTO.getDescription(), holder.gameDescription);

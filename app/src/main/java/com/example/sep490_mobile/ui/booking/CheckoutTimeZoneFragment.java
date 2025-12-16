@@ -304,25 +304,48 @@ public class CheckoutTimeZoneFragment extends Fragment {
     }
 
     private void applyDiscount(ReadDiscountDTO discount) {
-        if (discount == null) { removeDiscount(); return; }
+        if (discount == null) {
+            removeDiscount();
+            return;
+        }
+
+        // 1. Kiểm tra đơn tối thiểu
         if (originalTotalPrice < discount.getMinOrderAmount()) {
             Toast.makeText(getContext(), String.format("Đơn tối thiểu %s", currencyFormatter.format(discount.getMinOrderAmount())), Toast.LENGTH_LONG).show();
             removeDiscount();
             return;
         }
-        double discountValue = originalTotalPrice * (discount.getPercentValue() / 100.0);
-        if (discount.getMaxDiscountAmount() > 0 && discountValue > discount.getMaxDiscountAmount()) {
-            discountValue = discount.getMaxDiscountAmount();
-        }
-        finalTotalPrice = originalTotalPrice - discountValue;
-        selectedDiscount = discount;
 
+        // 2. Tính số tiền giảm theo phần trăm
+        double discountValue = originalTotalPrice * (discount.getPercentValue() / 100.0);
+
+        // 3. Logic giới hạn số tiền giảm (Max Amount)
+        double maxDiscount = discount.getMaxDiscountAmount();
+
+        // Nếu maxDiscount > 0: Có giới hạn trần -> Cần kiểm tra để cắt giảm
+        // Nếu maxDiscount == 0: Không giới hạn -> Bỏ qua if này (giữ nguyên discountValue tính theo %)
+        if (maxDiscount > 0) {
+            if (discountValue > maxDiscount) {
+                discountValue = maxDiscount;
+            }
+        }
+        // Nếu muốn chắc chắn hơn, bạn có thể thêm else if (maxDiscount == 0) để log lại,
+        // nhưng về mặt logic thì để trống như trên là đã đúng ý bạn rồi.
+
+        // 4. Tính tổng tiền cuối cùng
+        finalTotalPrice = originalTotalPrice - discountValue;
+
+        // Cập nhật UI
+        selectedDiscount = discount;
         binding.tvSelectedDiscountCode.setText(discount.getCode());
         binding.tvSelectedDiscountCode.setTextColor(getResources().getColor(R.color.ocean_blue));
+
         binding.layoutDiscountAmount.setVisibility(View.VISIBLE);
         binding.tvDiscountAmount.setText(String.format("- %s", currencyFormatter.format(discountValue)));
+
         binding.tvTotalPrice.setText(currencyFormatter.format(finalTotalPrice));
-        Log.d(TAG, "Applied discount: " + discount.getCode() + ", Value: " + discountValue + ", Final Price: " + finalTotalPrice);
+
+        Log.d(TAG, "Applied discount: " + discount.getCode() + ", Value: " + discountValue + ", MaxCap: " + maxDiscount);
     }
 
     private void removeDiscount() {

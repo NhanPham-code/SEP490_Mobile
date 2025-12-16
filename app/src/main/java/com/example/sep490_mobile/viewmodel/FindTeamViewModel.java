@@ -135,7 +135,11 @@ public class FindTeamViewModel extends AndroidViewModel {
 
                 } else {
                     _isLoading.setValue(false);
-                    _errorMessage.setValue("Lỗi tải Team Posts. Mã: " + response.code());
+                    if(response.code() == 401){
+                        _errorMessage.setValue("Vui lòng đăng nhập để sửa dụng!");
+                    }else{
+                        _errorMessage.setValue("Lỗi tải Team Post: " + response.code());
+                    }
                 }
             }
 
@@ -310,7 +314,11 @@ public class FindTeamViewModel extends AndroidViewModel {
                 } else {
                     // Xử lý lỗi API FindTeam
                     _isLoading.setValue(false);
-                    _errorMessage.setValue("Lỗi tải Team Post: " + response.code());
+                    if(response.code() == 401){
+                        _errorMessage.setValue("Vui lòng đăng nhập để sửa dụng!");
+                    }else{
+                        _errorMessage.setValue("Lỗi tải Team Post: " + response.code());
+                    }
                 }
             }
 
@@ -693,7 +701,11 @@ public class FindTeamViewModel extends AndroidViewModel {
 
                 } else {
                     _isLoading.setValue(false);
-                    _errorMessage.setValue("Lỗi tải Team Posts. Mã: " + response.code());
+                    if(response.code() == 401){
+                        _errorMessage.setValue("Vui lòng đăng nhập để sửa dụng!");
+                    }else{
+                        _errorMessage.setValue("Lỗi tải Team Post: " + response.code());
+                    }
                 }
             }
 
@@ -764,6 +776,12 @@ public class FindTeamViewModel extends AndroidViewModel {
     }
 
     public void notifyToMember(CreateNotificationDTO createNotificationDTO){
+
+        String jsonString = "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}";
+// 2. Thêm các cặp key-value bạn muốn vào trong JSON
+//    Key là một String, Value có thể là String, Integer, Boolean, Double...
+
+        createNotificationDTO.setParameters(jsonString);
         notificationRepository.createNotification(createNotificationDTO).enqueue(new Callback<NotificationDTO>() {
             @Override
             public void onResponse(Call<NotificationDTO> call, Response<NotificationDTO> response) {

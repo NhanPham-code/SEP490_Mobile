@@ -106,7 +106,14 @@ public class MyPostManagerFragment extends Fragment implements OnItemClickListen
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
                     fragmentTransaction.addToBackStack("FindTeamFragment");
-                    getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    Bundle result = new Bundle();
+                    result.putBoolean("refresh", true);
+
+                    // 2. GỬI TÍN HIỆU
+                    requireActivity().getSupportFragmentManager().setFragmentResult("POST_CREATED_REQUEST_KEY", result);
+
+                    // 3. ĐÓNG FRAGMENT HIỆN TẠI
+                    requireActivity().getSupportFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
             }
         });
