@@ -9,7 +9,7 @@ public interface OnItemClickListener {
     void onItemClick(int stadiumId, String stadiumName, int createBy);
 
     void onChatClick(int postId, int creatorId, String creatorName);
-    void onItemClickRemoveMember(int id ,int postId, String type);
+    void onItemClickRemoveMember(int id , int memberUserId,int postId, String type);
     void onBookButtonClick(int stadiumId);
     void onDailyBookButtonClick(int stadiumId);
 }
