@@ -430,7 +430,6 @@ public class FindTeamViewModel extends AndroidViewModel {
         findTeamRepository.addNewMember(createTeamMemberDTO).enqueue(new Callback<ReadTeamMemberDTO>() {
             @Override
             public void onResponse(Call<ReadTeamMemberDTO> call, Response<ReadTeamMemberDTO> response) {
-                _created.setValue(false);
                 if(response.isSuccessful()){
                     _created.setValue(true);
                     _isLoading.setValue(false);
@@ -781,4 +780,5 @@ public class FindTeamViewModel extends AndroidViewModel {
             }
         });
     }
+
 }
