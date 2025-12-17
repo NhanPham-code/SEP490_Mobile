@@ -106,7 +106,7 @@ public class SelectBookingAdapter extends RecyclerView.Adapter<SelectBookingAdap
         holder.tvStadiumName.setText(stadiumDTO.getName());
         // Format date: Điền giá trị thực tế (giả sử getBookingDate() trả về String)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            holder.tvBookingDate.setText("Ngày chơi: " + ( booking.getBookingDetails().get(0).getStartTime() != null ? DurationConverter.convertCustomToReadable(booking.getBookingDetails().get(0).getStartTime().toString(), "dd/MM/yyyy") : "N/A"));
+            holder.tvBookingDate.setText("Ngày chơi: " + ( booking.getBookingDetails().get(0).getStartTime() != null ? DurationConverter.convertCustomToReadable(booking.getBookingDetails().get(0).getStartTime().toString(), "dd/MM/yyyy - HH:mm") : "N/A"));
         }
 
         // Tối ưu: Format price as a currency string
