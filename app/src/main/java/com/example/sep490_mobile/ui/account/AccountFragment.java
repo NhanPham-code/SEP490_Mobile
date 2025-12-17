@@ -142,10 +142,15 @@ public class AccountFragment extends Fragment {
         binding.btnLogin.setOnClickListener(v -> startActivity(new Intent(getActivity(), LoginActivity.class)));
         binding.btnLogout.setOnClickListener(v -> accountViewModel.logout());
         binding.btnRegister.setOnClickListener(v -> startActivity(new Intent(getActivity(), RegisterFormActivity.class)));
-        binding.btnSettings.setOnClickListener(v -> startActivity(new Intent(getActivity(), SettingsActivity.class)));
         binding.menuChatAdmin.getRoot().setOnClickListener(v -> {
             goToChatWithAdmin();
         });
+
+        binding.btnTeams.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            navController.navigate(R.id.navigation_find_team);
+        });
+
         // --- SỬ DỤNG LAUNCHER ĐỂ MỞ EditProfileActivity ---
         binding.ivEditProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), EditProfileActivity.class);
@@ -160,11 +165,13 @@ public class AccountFragment extends Fragment {
         binding.menuSubject.getRoot().setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(AccountFragment.this);
             navController.navigate(R.id.action_navigation_account_to_bookingHistoryFragment);
-        });binding.menuDiscount.getRoot().setOnClickListener(v -> {
+
+        });
+
+        binding.menuDiscount.getRoot().setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(AccountFragment.this);
             navController.navigate(R.id.action_navigation_account_to_discountListFragment);
         });
-
 
         // --- XỬ LÝ SWITCH BIOMETRIC ---
         binding.switchBiometric.setOnCheckedChangeListener((buttonView, isChecked) -> {
