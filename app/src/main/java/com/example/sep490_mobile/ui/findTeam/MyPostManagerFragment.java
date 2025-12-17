@@ -63,7 +63,7 @@ public class MyPostManagerFragment extends Fragment implements OnItemClickListen
         // Required empty public constructor
     }
 
-    public static final String POST_CREATED_REQUEST_KEY = "POST_CREATED_REQUEST_KEY";
+    public static final String POST_CREATED_REQUEST_KEY = "POST_UPDATE_REQUEST_KEY";
 
 
     @Override
