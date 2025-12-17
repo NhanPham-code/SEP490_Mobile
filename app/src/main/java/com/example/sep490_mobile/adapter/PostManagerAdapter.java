@@ -81,7 +81,7 @@ public class PostManagerAdapter extends RecyclerView.Adapter<PostManagerAdapter.
         ReadTeamPostDTO readTeamPostDTO = teamPostDTOS.get(position);
         StadiumDTO stadiumDTO = stadiums.get(readTeamPostDTO.getStadiumId());
         PublicProfileDTO publicProfileDTO = users.get(readTeamPostDTO.getCreatedBy());
-
+        holder.title.setText(readTeamPostDTO.getTitle());
         // 1. Kiểm tra NULL cho Người Tạo (PublicProfileDTO)
         if (publicProfileDTO != null) {
             // publicProfileDTO.fullName KHÔNG PHẢI LÀ PHƯƠNG THỨC.
@@ -183,7 +183,7 @@ public class PostManagerAdapter extends RecyclerView.Adapter<PostManagerAdapter.
         // Các thành phần khác không liên quan đến lỗi Null
         holder.postTimestamp.setText(createdTime);
         holder.sportType.setText(readTeamPostDTO.getSportType());
-        holder.playDateTime.setText(datePlay);
+        holder.playDateTime.setText(datePlay + " - " + DurationConverter.convertDuration(readTeamPostDTO.getTimePlay(),1));
         holder.location.setText(readTeamPostDTO.getLocation());
         holder.playersInfo.setText("cần " + readTeamPostDTO.getJoinedPlayers() + " / " + readTeamPostDTO.getNeededPlayers()+ " người" );
         HtmlConverter.convertHtmlToMarkdown(readTeamPostDTO.getDescription(), holder.gameDescription);
@@ -336,6 +336,7 @@ public class PostManagerAdapter extends RecyclerView.Adapter<PostManagerAdapter.
         public TextView statusPost;
         public ImageButton chatButton;
         public LinearLayout bottomCard;
+        public TextView title;
 
         // Đã đổi tên hàm khởi tạo của ViewHolder
         public PostManagerViewHoder(@NonNull View itemView) {
@@ -358,6 +359,7 @@ public class PostManagerAdapter extends RecyclerView.Adapter<PostManagerAdapter.
             deleteButton = itemView.findViewById(R.id.deleteButton);
             statusPost = itemView.findViewById(R.id.status_post);
             bottomCard = itemView.findViewById(R.id.bottom_card);
+            title = itemView.findViewById(R.id.post_title);
         }
     }
 }

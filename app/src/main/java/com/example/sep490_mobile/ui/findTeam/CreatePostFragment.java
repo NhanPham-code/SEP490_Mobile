@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -80,7 +81,9 @@ public class CreatePostFragment extends Fragment {
 
                     if (isCreated != null && isCreated) {
                         Toast.makeText(getContext(), "Tạo bài viết thành công", Toast.LENGTH_SHORT).show();
-
+                        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.addToBackStack("FindTeamFragment");
                         // 1. Chuẩn bị tín hiệu
                         Bundle result = new Bundle();
                         result.putBoolean("refresh", true);

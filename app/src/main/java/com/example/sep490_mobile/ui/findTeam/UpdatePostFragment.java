@@ -128,7 +128,7 @@ public class UpdatePostFragment extends Fragment {
                                     result.putBoolean("refresh", true);
 
                                     // 2. GỬI TÍN HIỆU
-                                    requireActivity().getSupportFragmentManager().setFragmentResult("POST_CREATED_REQUEST_KEY", result);
+                                    requireActivity().getSupportFragmentManager().setFragmentResult("POST_UPDATE_REQUEST_KEY", result);
 
                                     // 3. ĐÓNG FRAGMENT HIỆN TẠI
                                     requireActivity().getSupportFragmentManager().popBackStack(mParam2, FragmentManager.POP_BACK_STACK_INCLUSIVE);

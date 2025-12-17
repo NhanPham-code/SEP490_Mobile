@@ -55,7 +55,7 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
     private boolean isLastPage = false;
     private final int PAGE_SIZE = 10; // Số lượng mục mỗi trang
     private Map<String, String> odataUrl = new HashMap<>();
-    public static final String POST_CREATED_REQUEST_KEY = "POST_CREATED_REQUEST_KEY";
+    public static final String POST_CREATED_REQUEST_KEY = "POST_UPDATE_REQUEST_KEY";
 
 
     // TODO: Rename and change types of parameters
