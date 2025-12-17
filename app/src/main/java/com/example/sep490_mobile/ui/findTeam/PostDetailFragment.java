@@ -131,7 +131,7 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
             if (tag.equalsIgnoreCase("Tham Gia")) {
                 joinTeam(findTeamDTO.getTeamPostDTOS().get(0).getId(), myId, findTeamDTO.getTeamPostDTOS().get(0).getCreatedBy());
             } else { // "Rời Nhóm"
-                String type = "";
+                String type = "WaitingLeave";
                 List<ReadTeamMemberDTO> readTeamMemberDTO = findTeamDTO.getTeamPostDTOS().get(0).getTeamMembers();
                 for ( ReadTeamMemberDTO memberDTO : readTeamMemberDTO ){
                     if(memberDTO.getUserId() == myId){
@@ -223,7 +223,7 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
         ReadTeamPostDTO post = findPostById(postId);
         if (post != null) {
             findTeamViewModel.deleteMember(id, postId, post, type);
-            if(type.equalsIgnoreCase("member")){
+            if(type.equalsIgnoreCase("member") && status.equalsIgnoreCase("member")){
                 findTeamViewModel.notifyToMember(new CreateNotificationDTO(
                         memberUserId,
                         "Recruitment.kick",
@@ -232,7 +232,7 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
                         "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
 
                 ));
-            } else if (status.equalsIgnoreCase("leave")) {
+            } else if (status.equalsIgnoreCase("leave") && type.equalsIgnoreCase("Member")) {
                 findTeamViewModel.notifyToMember(new CreateNotificationDTO(
                         findTeamDTO.getTeamPostDTOS().get(0).getCreatedBy(),
                         "Recruitment.Leave",
@@ -240,7 +240,7 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
                         "Vừa có một thành viên rời khỏi đội nhóm của bạn",
                         "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
                 ));
-            }else{
+            } else if (status.equalsIgnoreCase("waiting") && type.equalsIgnoreCase("waiting")) {
                 findTeamViewModel.notifyToMember(new CreateNotificationDTO(
                         memberUserId,
                         "Recruitment.Canceled",
