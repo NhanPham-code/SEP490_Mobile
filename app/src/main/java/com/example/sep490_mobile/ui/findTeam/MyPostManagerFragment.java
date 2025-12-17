@@ -14,6 +14,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,6 +63,7 @@ public class MyPostManagerFragment extends Fragment implements OnItemClickListen
         // Required empty public constructor
     }
 
+    public static final String POST_CREATED_REQUEST_KEY = "POST_CREATED_REQUEST_KEY";
 
 
     @Override
@@ -71,6 +73,15 @@ public class MyPostManagerFragment extends Fragment implements OnItemClickListen
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        // QUAN TRỌNG: Đăng ký listener tại đây
+        requireActivity().getSupportFragmentManager().setFragmentResultListener(POST_CREATED_REQUEST_KEY, this, (requestKey, bundle) -> {
+            boolean shouldRefresh = bundle.getBoolean("refresh", false);
+            if (shouldRefresh) {
+                Log.d("FindTeamFragment", ">>> ĐÃ NHẬN TÍN HIỆU! BẮT ĐẦU TẢI LẠI DỮ LIỆU... <<<");
+                findTeamViewModel.fetchFindTeamList(odataUrl);
+                observePostListResponse();
+            }
+        });
     }
 
     @Override
