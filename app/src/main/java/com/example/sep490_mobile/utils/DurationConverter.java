@@ -262,8 +262,19 @@ public class DurationConverter {
         if (duration == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return "N/A";
         }
-        long hours = duration.toHours();
-        long minutes = duration.toMinutes() % 60;
+
+        // API 26+ có phương thức getSeconds()
+        long totalSeconds = duration.getSeconds();
+
+        // Xử lý trường hợp duration âm nếu cần
+        if (totalSeconds < 0) {
+            // Bạn có thể quyết định cách xử lý, ví dụ trả về "00:00" hoặc ném lỗi
+            return "00:00";
+        }
+
+        long hours = totalSeconds / 3600;
+        long minutes = (totalSeconds % 3600) / 60;
+
         return String.format(Locale.getDefault(), "%02d:%02d", hours, minutes);
     }
 
