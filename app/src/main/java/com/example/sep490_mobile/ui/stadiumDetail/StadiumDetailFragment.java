@@ -641,7 +641,11 @@ public class StadiumDetailFragment extends Fragment {
         binding.tvStadiumLocation.setText(stadiumDTO.getAddress());
 
         // Cập nhật giờ mở cửa
-        binding.tvOpeningHours.setText(formatTime(stadiumDTO.getOpenTime().toString()) + " - " + formatTime(stadiumDTO.getCloseTime().toString()));
+        if(stadiumDTO.getOpenTime() != null && stadiumDTO.getCloseTime() != null){
+            binding.tvOpeningHours.setText(formatTime(stadiumDTO.getOpenTime().toString()) + " - " + formatTime(stadiumDTO.getCloseTime().toString()));
+        }else{
+            binding.tvOpeningHours.setText("Giờ mở cửa chưa cập nhật");
+        }
 
         // Cập nhật giá
         // 1. Đảm bảo danh sách không rỗng
