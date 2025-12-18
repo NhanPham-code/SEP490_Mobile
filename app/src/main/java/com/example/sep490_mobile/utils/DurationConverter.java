@@ -259,7 +259,7 @@ public class DurationConverter {
     }
 
     public static String convertDuration(Duration duration) {
-        if (duration == null ) {
+        if (duration == null || Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             return "N/A";
         }
 

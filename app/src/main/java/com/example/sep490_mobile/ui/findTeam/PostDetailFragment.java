@@ -27,6 +27,7 @@ import com.example.sep490_mobile.data.dto.CreateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.FindTeamDTO;
 import com.example.sep490_mobile.data.dto.PublicProfileDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.ReadTeamMemberForDetailDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
@@ -216,6 +217,28 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
                     "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
 
             ));
+            int joined = post.getJoinedPlayers() + 1;
+            if(joined == post.getNeededPlayers()){
+                findTeamViewModel.getTeamMember(post.getStadiumId());
+                findTeamViewModel.listMember.observe(getViewLifecycleOwner(), member ->{
+                    if(member != null){
+                        for (ReadTeamMemberForDetailDTO readTeamMemberForDetailDTO : member){
+                            if(readTeamMemberForDetailDTO.getRole().equalsIgnoreCase("Waiting") && readTeamMemberForDetailDTO.getUserId() != memberUserId){
+                                findTeamViewModel.deleteMember(readTeamMemberForDetailDTO.getId(), post.getId(), post, "waiting");
+                            }
+                            findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                                    readTeamMemberForDetailDTO.getUserId(),
+                                    "Recruitment.full",
+                                    "Nhóm đã đầy người chơi",
+                                    "Nhóm đã đủ người chơi, bạn hãy tìm nhóm khác để tham gia!",
+                                    "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
+                            ));
+                        }
+                    }
+                });
+
+            }
         }
     }
 

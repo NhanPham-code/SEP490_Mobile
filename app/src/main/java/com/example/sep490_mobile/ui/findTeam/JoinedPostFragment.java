@@ -25,6 +25,7 @@ import com.example.sep490_mobile.adapter.PostManagerAdapter;
 import com.example.sep490_mobile.data.dto.FindTeamDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
+import com.example.sep490_mobile.data.dto.notification.CreateNotificationDTO;
 import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentJoinedPostBinding;
 import com.example.sep490_mobile.model.ChatRoomInfo;
@@ -325,6 +326,15 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
         ReadTeamPostDTO readTeamPostDTO = findTeamDTO.getTeamPostDTOS().get(position);
         for (ReadTeamMemberDTO teamMember : readTeamPostDTO.getTeamMembers()){
             findTeamViewModel.deleteMember(teamMember.getId(), teamMember.getTeamPostId(), readTeamPostDTO, "Waiting");
+            if(!teamMember.getRole().equalsIgnoreCase("Waiting") ){
+                findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                        teamMember.getUserId(),
+                        "Recruitment.Delete",
+                        "Nhóm đã bị xóa",
+                        "Nhóm " + readTeamPostDTO.getTitle() + " mà bạn tham gia đã bị xóa bởi chủ nhóm!",
+                        "{\"title\": FindTeam, \"content\": \"/FindTeam/FindTeam\"}"
+                ));
+            }
         }
         findTeamViewModel.deleteTeamPost(readTeamPostDTO.getId());
         findTeamViewModel.success.observe(getViewLifecycleOwner(), aBoolean -> {
