@@ -116,6 +116,10 @@ public class FeedbackFragment extends Fragment {
             viewModel.loadFeedbacksForPage(1);
             if (currentUserId != -1) {
                 viewModel.findUserFeedback(stadiumId, currentUserId);
+                // [THÊM MỚI] Gọi API kiểm tra quyền đánh giá
+                viewModel.checkUserCanFeedback(stadiumId);
+            } else {
+                cardAddFeedback.setVisibility(View.GONE);
             }
         }
     }
@@ -179,11 +183,9 @@ public class FeedbackFragment extends Fragment {
             buttonDeleteMyFeedback.setEnabled(!loading);
         });
 
-        // === SỬA ĐOẠN NÀY: LẤY USER PROFILE VÀ TRUYỀN VÀO ADAPTER ===
         viewModel.feedbacks.observe(getViewLifecycleOwner(), feedbacks -> {
             adapter.submitList(feedbacks);
 
-            // 1. Lấy tất cả userId từ danh sách feedback
             Set<Integer> userIds = new HashSet<>();
             for (Feedback fb : feedbacks) {
                 userIds.add(fb.getUserId());
@@ -198,7 +200,7 @@ public class FeedbackFragment extends Fragment {
                         if (response.isSuccessful() && response.body() != null) {
                             Map<Integer, PublicProfileDTO> map = new HashMap<>();
                             for (PublicProfileDTO dto : response.body().getItems()) {
-                                map.put(dto.getId(), dto); // CHỈNH ĐÚNG LÀ getId()!
+                                map.put(dto.getId(), dto);
                             }
                             adapter.setUserProfiles(map);
                         }
@@ -208,7 +210,6 @@ public class FeedbackFragment extends Fragment {
                 });
             }
         });
-        // === HẾT ĐOẠN SỬA ===
 
         viewModel.error.observe(getViewLifecycleOwner(), errorMessage -> {
             if (errorMessage != null && !errorMessage.isEmpty()) {
@@ -222,6 +223,8 @@ public class FeedbackFragment extends Fragment {
                 viewModel.loadFeedbacksForPage(currentPage != null ? currentPage : 1);
                 if (currentUserId != -1) {
                     viewModel.findUserFeedback(stadiumId, currentUserId);
+                    // Refresh lại cả quyền đánh giá
+                    viewModel.checkUserCanFeedback(stadiumId);
                 }
             }
         });
@@ -242,6 +245,11 @@ public class FeedbackFragment extends Fragment {
 
         viewModel.userFeedback.observe(getViewLifecycleOwner(), feedback -> {
             currentUserFeedback = feedback;
+            handleFeedbackFormVisibility();
+        });
+
+        // [QUAN TRỌNG] Lắng nghe sự thay đổi của quyền đánh giá
+        viewModel.canFeedback.observe(getViewLifecycleOwner(), canFeedback -> {
             handleFeedbackFormVisibility();
         });
 
@@ -290,41 +298,55 @@ public class FeedbackFragment extends Fragment {
         }
     }
 
+    // [CHỈNH SỬA] Đây là phương thức duy nhất xử lý hiển thị form
     private void handleFeedbackFormVisibility() {
         if (currentUserId == -1) {
             cardAddFeedback.setVisibility(View.GONE);
             return;
         }
 
-        cardAddFeedback.setVisibility(View.VISIBLE);
-        selectedImageUri = null; // Reset selection
+        // Lấy quyền từ ViewModel (API trả về)
+        boolean canReview = Boolean.TRUE.equals(viewModel.canFeedback.getValue());
+        // Kiểm tra xem đã đánh giá chưa
+        boolean hasReviewed = (currentUserFeedback != null);
 
-        if (currentUserFeedback != null) {
-            addFeedbackTitle.setText("Chỉnh sửa đánh giá của bạn");
-            ratingBarInput.setRating(currentUserFeedback.getRating());
-            editTextComment.setText(currentUserFeedback.getComment());
-            buttonSubmit.setText("Cập nhật");
-            buttonDeleteMyFeedback.setVisibility(View.VISIBLE);
-            deleteButtonSpace.setVisibility(View.VISIBLE);
+        // Hiển thị nếu: Đã đánh giá (để sửa) HOẶC Được phép đánh giá
+        if (hasReviewed || canReview) {
+            cardAddFeedback.setVisibility(View.VISIBLE);
+            selectedImageUri = null; // Reset selection
 
-            if (currentUserFeedback.getImagePath() != null && !currentUserFeedback.getImagePath().isEmpty()) {
-                imagePreview.setVisibility(View.VISIBLE);
-                String fullUrl = BASE_URL + currentUserFeedback.getImagePath();
-                Glide.with(requireContext()).load(fullUrl).into(imagePreview);
-                buttonSelectImage.setText("Đổi ảnh");
+            if (hasReviewed) {
+                // Chế độ chỉnh sửa
+                addFeedbackTitle.setText("Chỉnh sửa đánh giá của bạn");
+                ratingBarInput.setRating(currentUserFeedback.getRating());
+                editTextComment.setText(currentUserFeedback.getComment());
+                buttonSubmit.setText("Cập nhật");
+                buttonDeleteMyFeedback.setVisibility(View.VISIBLE);
+                deleteButtonSpace.setVisibility(View.VISIBLE);
+
+                if (currentUserFeedback.getImagePath() != null && !currentUserFeedback.getImagePath().isEmpty()) {
+                    imagePreview.setVisibility(View.VISIBLE);
+                    String fullUrl = BASE_URL + currentUserFeedback.getImagePath();
+                    Glide.with(requireContext()).load(fullUrl).into(imagePreview);
+                    buttonSelectImage.setText("Đổi ảnh");
+                } else {
+                    imagePreview.setVisibility(View.GONE);
+                    buttonSelectImage.setText("Thêm ảnh");
+                }
             } else {
+                // Chế độ tạo mới
+                addFeedbackTitle.setText("Để lại đánh giá sau trận đấu");
+                ratingBarInput.setRating(0);
+                editTextComment.setText("");
+                buttonSubmit.setText("Gửi đánh giá");
+                buttonDeleteMyFeedback.setVisibility(View.GONE);
+                deleteButtonSpace.setVisibility(View.GONE);
                 imagePreview.setVisibility(View.GONE);
-                buttonSelectImage.setText("Thêm ảnh");
+                buttonSelectImage.setText("Chọn ảnh");
             }
         } else {
-            addFeedbackTitle.setText("Để lại đánh giá của bạn");
-            ratingBarInput.setRating(0);
-            editTextComment.setText("");
-            buttonSubmit.setText("Gửi đánh giá");
-            buttonDeleteMyFeedback.setVisibility(View.GONE);
-            deleteButtonSpace.setVisibility(View.GONE);
-            imagePreview.setVisibility(View.GONE);
-            buttonSelectImage.setText("Chọn ảnh");
+            // Không được phép đánh giá và chưa từng đánh giá -> Ẩn form
+            cardAddFeedback.setVisibility(View.GONE);
         }
     }
 
