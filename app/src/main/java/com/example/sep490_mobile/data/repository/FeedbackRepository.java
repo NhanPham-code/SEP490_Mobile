@@ -76,4 +76,8 @@ public class FeedbackRepository {
     public Call<Void> deleteFeedback(int feedbackId) {
         return apiService.deleteFeedback(feedbackId);
     }
+
+    public Call<Boolean> checkBookingCompleted(int stadiumId) {
+        return apiService.checkBookingCompleted(stadiumId);
+    }
 }

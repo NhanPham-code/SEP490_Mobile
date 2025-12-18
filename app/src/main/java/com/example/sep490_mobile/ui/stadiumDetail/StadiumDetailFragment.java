@@ -56,6 +56,7 @@ import com.google.android.exoplayer2.ui.PlayerControlView;
 import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -100,6 +101,7 @@ public class StadiumDetailFragment extends Fragment {
 
     private String stadiumName;
     private int createBy;
+    private Button btnBookNow;
 
     public static StadiumDetailFragment newInstance(int stadiumId, String stadiumName, int createBy) {
         StadiumDetailFragment fragment = new StadiumDetailFragment();
@@ -140,6 +142,8 @@ public class StadiumDetailFragment extends Fragment {
         nextButton = root.findViewById(R.id.btn_next);
         backButton = root.findViewById(R.id.btn_prev);
         customFullscreenButton = root.findViewById(R.id.btn_custom_fullscreen);
+        btnBookNow = root.findViewById(R.id.btn_book_now);
+        btnBookNow.setOnClickListener(v -> showBookingBottomSheet());
 // ... (Trong phương thức onViewCreated hoặc setup)
         videoOverlayContainer = root.findViewById(R.id.video_container); // 💡 THAY THẾ vv_stadium_video
         if (videoOverlayContainer != null) {
@@ -381,6 +385,48 @@ public class StadiumDetailFragment extends Fragment {
         if (getContext() == null) return;
         SharedPreferences prefs = getContext().getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
         this.currentUserId = prefs.getInt("user_id", -1);
+    }
+
+    private void showBookingBottomSheet() {
+        if (getContext() == null) return;
+
+        // 1. Tạo BottomSheetDialog
+        BottomSheetDialog bottomSheetDialog = new BottomSheetDialog(requireContext());
+
+        // 2. Inflate layout cho Bottom Sheet
+        View bottomSheetView = getLayoutInflater().inflate(R.layout.bottom_sheet_booking_options, null);
+        bottomSheetDialog.setContentView(bottomSheetView);
+
+        // 3. Ánh xạ các view trong Bottom Sheet
+        View optionVisual = bottomSheetView.findViewById(R.id.option_visual_booking);
+        View optionList = bottomSheetView.findViewById(R.id.option_list_booking);
+        View optionMonthly = bottomSheetView.findViewById(R.id.option_monthly_booking);
+        View btnCancel = bottomSheetView.findViewById(R.id.btn_cancel);
+
+        // 4. Tạo Bundle để truyền stadiumId
+        Bundle args = new Bundle();
+        args.putInt("stadiumId", stadiumId);
+
+        // 5. Xử lý sự kiện click cho từng tùy chọn
+        optionVisual.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Navigation.findNavController(requireView()).navigate(R.id.visuallyBookingFragment, args);
+        });
+
+        optionList.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Navigation.findNavController(requireView()).navigate(R.id.dailyBookingFragment, args);
+        });
+
+        optionMonthly.setOnClickListener(v -> {
+            bottomSheetDialog.dismiss();
+            Navigation.findNavController(requireView()).navigate(R.id.monthlyBookingFragment, args);
+        });
+
+        btnCancel.setOnClickListener(v -> bottomSheetDialog.dismiss());
+
+        // 6. Hiển thị Dialog
+        bottomSheetDialog.show();
     }
 
     /**
