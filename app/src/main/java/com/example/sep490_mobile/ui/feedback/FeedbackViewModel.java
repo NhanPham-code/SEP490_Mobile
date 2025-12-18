@@ -1,6 +1,10 @@
 package com.example.sep490_mobile.ui.feedback;
 
+import static com.google.android.exoplayer2.mediacodec.MediaCodecInfo.TAG;
+
 import android.app.Application;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.AndroidViewModel;
@@ -56,6 +60,8 @@ public class FeedbackViewModel extends AndroidViewModel {
     public LiveData<Integer> currentPage = _currentPage;
     private final MutableLiveData<Integer> _totalPages = new MutableLiveData<>(0);
     public LiveData<Integer> totalPages = _totalPages;
+    private final MutableLiveData<Boolean> _canFeedback = new MutableLiveData<>(false);
+    public final LiveData<Boolean> canFeedback = _canFeedback;
 
     public FeedbackViewModel(@NonNull Application application) {
         super(application);
@@ -190,6 +196,37 @@ public class FeedbackViewModel extends AndroidViewModel {
             public void onFailure(@NonNull Call<Void> call, @NonNull Throwable t) {
                 _isLoading.setValue(false);
                 _error.setValue(t.getMessage());
+            }
+        });
+    }
+
+    public void checkUserCanFeedback(int stadiumId) {
+        // Đặt tên TAG là "FEEDBACK_CHECK" cho dễ tìm
+        String TAG = "FEEDBACK_CHECK";
+
+        feedbackRepository.checkBookingCompleted(stadiumId).enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(@NonNull Call<Boolean> call, @NonNull Response<Boolean> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    boolean result = response.body();
+                    _canFeedback.setValue(result);
+
+                    // 👇 LOG KẾT QUẢ THÀNH CÔNG
+                    Log.d(TAG, "Kiểm tra quyền đánh giá: " + result + " (StadiumId: " + stadiumId + ")");
+                } else {
+                    _canFeedback.setValue(false);
+
+                    // 👇 LOG KHI LỖI HOẶC BODY NULL
+                    Log.e(TAG, "Lỗi API: Code " + response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(@NonNull Call<Boolean> call, @NonNull Throwable t) {
+                _canFeedback.setValue(false);
+
+                // 👇 LOG KHI MẤT MẠNG / LỖI SERVER
+                Log.e(TAG, "Lỗi kết nối: " + t.getMessage());
             }
         });
     }

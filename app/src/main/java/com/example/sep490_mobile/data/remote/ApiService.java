@@ -386,4 +386,6 @@ public interface ApiService {
     @PUT("discounts") // <<< SỬA ĐƯỜNG DẪN
     Call<ReadDiscountDTO> updateDiscount(@Body UpdateDiscountDTO dto); // <<< BỎ @Path("id")
 
+    @GET("booking/check-completed/{stadiumId}")
+    Call<Boolean> checkBookingCompleted(@Path("stadiumId") int stadiumId);
 }
