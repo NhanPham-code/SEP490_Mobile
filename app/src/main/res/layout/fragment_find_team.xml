@@ -1,9 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     android:id="@+id/find_team_fragment_constraint_layout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".ui.home.HomeFragment"
+    tools:context=".ui.findTeam.FindTeamFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/bg_gradient"
@@ -16,13 +17,13 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:textColor="@color/gray_700"
-        android:textSize="30dp"
+        android:textSize="30sp"
         android:text="Tìm Nhóm Chơi"
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="16dp">
 
     </TextView>
-    <!-- 1. Thanh tìm kiếm (Search Bar) -->
+    <!-- 1. Thanh chứa các nút chức năng -->
     <LinearLayout
         android:id="@+id/button_container"
         android:layout_width="0dp"
@@ -32,6 +33,7 @@
         android:orientation="horizontal"
         android:padding="7dp"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
         <Button
@@ -79,25 +81,30 @@
             android:contentDescription="Lọc danh sách"
             android:elevation="4dp"
             android:src="@drawable/ic_filter_list"
-            app:layout_constraintBottom_toBottomOf="@+id/search_edit_text"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/search_edit_text"
             app:tint="@color/secondary_green_dark" />
     </LinearLayout>
 
 
 
-    <!-- 3. RecyclerView được điều chỉnh nằm dưới thanh tìm kiếm/lọc -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/my_recycler_view"
+    <!-- 3. SwipeRefreshLayout bao bọc RecyclerView -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button_container"
-        tools:listitem="@android:layout/list_content" />
+        app:layout_constraintTop_toBottomOf="@+id/button_container">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/my_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/list_item_findteam" />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <ProgressBar
         android:id="@+id/progressBar"
@@ -108,6 +115,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:elevation="4dp" />
+        android:elevation="10dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

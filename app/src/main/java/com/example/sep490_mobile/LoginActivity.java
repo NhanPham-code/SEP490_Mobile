@@ -140,7 +140,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        // 2. Lắng nghe kết quả đăng nhập (cả thành công và thất bại do logic)
+        // 2. Lắng nghe kết quả đăng nhập
         loginViewModel.getLoginResult().observe(this, loginResponse -> {
             if (loginResponse == null) return;
 
@@ -150,9 +150,6 @@ public class LoginActivity extends AppCompatActivity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
                 finish();
-            } else {
-                // Đăng nhập thất bại (sai email/pass), hiển thị lỗi từ server
-                showError(loginResponse.getMessage());
             }
         });
 

@@ -30,6 +30,7 @@ import com.example.sep490_mobile.data.dto.ReadTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.ReadTeamPostDTO;
 import com.example.sep490_mobile.data.dto.StadiumDTO;
 import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
+import com.example.sep490_mobile.data.dto.notification.CreateNotificationDTO;
 import com.example.sep490_mobile.interfaces.OnItemClickListener;
 import com.example.sep490_mobile.databinding.FragmentPostDetailBinding;
 import com.example.sep490_mobile.model.ChatRoomInfo;
@@ -41,6 +42,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class PostDetailFragment extends Fragment implements OnItemClickListener {
@@ -127,9 +129,17 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
             int myId = sharedPreferences.getInt("user_id", 0);
 
             if (tag.equalsIgnoreCase("Tham Gia")) {
-                joinTeam(findTeamDTO.getTeamPostDTOS().get(0).getId(), myId);
+                joinTeam(findTeamDTO.getTeamPostDTOS().get(0).getId(), myId, findTeamDTO.getTeamPostDTOS().get(0).getCreatedBy());
             } else { // "Rời Nhóm"
-                removeMember(teamMemberId, findTeamDTO.getTeamPostDTOS().get(0).getId(), "member");
+                String type = "WaitingLeave";
+                List<ReadTeamMemberDTO> readTeamMemberDTO = findTeamDTO.getTeamPostDTOS().get(0).getTeamMembers();
+                for ( ReadTeamMemberDTO memberDTO : readTeamMemberDTO ){
+                    if(memberDTO.getUserId() == myId){
+                        type = memberDTO.getRole().toLowerCase();
+                    }
+                }
+                removeMember(teamMemberId, findTeamDTO.getTeamPostDTOS().get(0).getId(), myId, type, "leave");
+
             }
         });
 
@@ -174,7 +184,7 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
         });
     }
 
-    private void joinTeam(int postId, int currentUserId) {
+    private void joinTeam(int postId, int currentUserId, int creatorId) {
         CreateTeamMemberDTO createTeamMemberDTO = new CreateTeamMemberDTO();
         createTeamMemberDTO.setTeamPostId(postId);
         createTeamMemberDTO.setUserId(currentUserId);
@@ -182,20 +192,64 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
         createTeamMemberDTO.setJoinedAt(DurationConverter.createCurrentISOString());
 
         findTeamViewModel.createMember(createTeamMemberDTO);
+        findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                creatorId,
+            "Recruitment.JoinRequest",
+            "Đã nhận được yêu cầu tham gia",
+            "Vừa có một thành viên tham gia vào đội nhóm của bạn",
+                "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
+        ));
     }
 
-    private void acceptMember(int id, int postId) {
+    private void acceptMember(int id, int postId, int memberUserId) {
         ReadTeamPostDTO post = findPostById(postId);
+        String teamName = findTeamDTO.getTeamPostDTOS().get(0).getTitle();
         if (post != null) {
             UpdateTeamMemberDTO updateDto = new UpdateTeamMemberDTO(id, "Member");
             findTeamViewModel.updateTeamMember(updateDto, post);
+            findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                    memberUserId,
+                    "Recruitment.Accepted",
+                    "Yêu cầu tham gia đã được chấp nhận",
+                    "Yêu cầu tham gia vào nhóm của bạn đã được chấp nhận bởi chủ nhóm",
+                    "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
+            ));
         }
     }
 
-    private void removeMember(int id, int postId, String type) {
+    private void removeMember(int id, int postId, int memberUserId, String type, String status) {
         ReadTeamPostDTO post = findPostById(postId);
         if (post != null) {
             findTeamViewModel.deleteMember(id, postId, post, type);
+            if(type.equalsIgnoreCase("member") && status.equalsIgnoreCase("member")){
+                findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                        memberUserId,
+                        "Recruitment.kick",
+                        "Bạn đã bị đuổi khỏi đội nhóm",
+                        "Bạn đã bị đuổi khỏi đội nhóm bới chủ nhóm",
+                        "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
+                ));
+            } else if (status.equalsIgnoreCase("leave") && type.equalsIgnoreCase("Member")) {
+                findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                        findTeamDTO.getTeamPostDTOS().get(0).getCreatedBy(),
+                        "Recruitment.Leave",
+                        "Thành viên rời đội",
+                        "Vừa có một thành viên rời khỏi đội nhóm của bạn",
+                        "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+                ));
+            } else if (status.equalsIgnoreCase("waiting") && type.equalsIgnoreCase("waiting")) {
+                findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                        memberUserId,
+                        "Recruitment.Canceled",
+                        "Yêu cầu không được chấp thuận",
+                        "Yêu cầu tham gia vào nhóm của bạn đã không được chấp nhận bởi chủ nhóm",
+                        "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+
+                ));
+            }
         }
     }
 
@@ -319,11 +373,13 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
         // Không dùng ở FindTeamFragment, để trống hoặc log lại
     }
     @Override
-    public void onItemClickRemoveMember(int id, int postId, String type) {
+    public void onItemClickRemoveMember(int id, int memberUserId, int postId, String type) {
         if (type.equalsIgnoreCase("remove")) {
-            removeMember(id, postId, "member");
+            removeMember(id, postId, memberUserId, "member", "member");
+        } else if (type.equalsIgnoreCase("cancel")) {
+            removeMember(id, postId, memberUserId, "waiting", "waiting");
         } else { // "accept"
-            acceptMember(id, postId);
+            acceptMember(id, postId, memberUserId);
         }
     }
     @Override

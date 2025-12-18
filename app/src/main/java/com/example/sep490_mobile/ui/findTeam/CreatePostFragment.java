@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,12 +33,15 @@ import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class CreatePostFragment extends Fragment {
 
     private FindTeamViewModel model;
+
     private List<ScheduleBookingDTO> bookingList;
     private int count;
     private FragmentCreatePostBinding binding;
@@ -59,22 +63,38 @@ public class CreatePostFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentCreatePostBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        model = new ViewModelProvider(this).get(FindTeamViewModel.class);
+        // SỬA: Lấy ViewModel chung của Activity để không fetch lại dữ liệu không cần thiết
+        model = new ViewModelProvider(requireActivity()).get(FindTeamViewModel.class);
         setSelectBooking();
 
         binding.submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                CreateTeamPostDTO newPost = collectFormData();
+                if (newPost == null) {
+                    return; // Dừng lại nếu dữ liệu không hợp lệ
+                }
 
-                model.createNewPost(collectFormData(), getContext());
-                model.created.observe(getViewLifecycleOwner(), aBoolean -> {
-                    if (aBoolean) {
+                model.createNewPost(newPost, getContext());
+                model.created.observe(getViewLifecycleOwner(), isCreated -> {
+
+
+                    if (isCreated != null && isCreated) {
                         Toast.makeText(getContext(), "Tạo bài viết thành công", Toast.LENGTH_SHORT).show();
+                        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.addToBackStack("FindTeamFragment");
+                        // 1. Chuẩn bị tín hiệu
+                        Bundle result = new Bundle();
+                        result.putBoolean("refresh", true);
+
+                        // 2. GỬI TÍN HIỆU
+                        requireActivity().getSupportFragmentManager().setFragmentResult("POST_CREATED_REQUEST_KEY", result);
+
+                        // 3. ĐÓNG FRAGMENT HIỆN TẠI
+                        requireActivity().getSupportFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     }
-                    else {
-                        Toast.makeText(getContext(), "Tạo bài viết thất bại", Toast.LENGTH_SHORT).show();
-                    }
-                    getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    // Không cần làm gì nếu aBoolean là false, ViewModel sẽ xử lý lỗi.
                 });
 
             }
@@ -91,93 +111,93 @@ public class CreatePostFragment extends Fragment {
     }
 
     private void setSelectBooking(){
-            // 1. Validate response and data
-            ShareFilterFindTeamViewModel shareFilterFindTeamViewModel = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
+        // 1. Validate response and data
+        ShareFilterFindTeamViewModel shareFilterFindTeamViewModel = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
         booking = shareFilterFindTeamViewModel.getBooking().getValue();
 
         stadium = shareFilterFindTeamViewModel.getStadium().getValue();
 
-            if (booking == null) {
-                Toast.makeText(getContext(), "Không tìm thấy dữ liệu booking." , Toast.LENGTH_SHORT).show();
-                return;
-            }
+        if (booking == null) {
+            Toast.makeText(getContext(), "Không tìm thấy dữ liệu booking." , Toast.LENGTH_SHORT).show();
+            return;
+        }
 
 
-                if (stadium != null) {
-                    // Assuming CourtsDTO[] can be correctly retrieved from StadiumDTO
-                    CourtsDTO[] courtsDTOS = stadium.getCourts().toArray(new CourtsDTO[0]);
+        if (stadium != null) {
+            // Assuming CourtsDTO[] can be correctly retrieved from StadiumDTO
+            CourtsDTO[] courtsDTOS = stadium.getCourts().toArray(new CourtsDTO[0]);
 
-                    // Assuming BookingDetailViewModelDTO is not null and has at least one element
-                    if (booking.getBookingDetails() != null && !booking.getBookingDetails().isEmpty()) {
-                        BookingDetailViewModelDTO bookingDetail = booking.getBookingDetails().get(0);
+            // Assuming BookingDetailViewModelDTO is not null and has at least one element
+            if (booking.getBookingDetails() != null && !booking.getBookingDetails().isEmpty()) {
+                BookingDetailViewModelDTO bookingDetail = booking.getBookingDetails().get(0);
 
-                        // 3. Set data to UI
-                        binding.newLocationEditText.setText(stadium.getAddress());
+                // 3. Set data to UI
+                binding.newLocationEditText.setText(stadium.getAddress());
 
-                        if (courtsDTOS.length > 0) {
-                            binding.newSport.setText(courtsDTOS[0].getSportType());
-                        }
+                if (courtsDTOS.length > 0) {
+                    binding.newSport.setText(courtsDTOS[0].getSportType());
+                }
 
-                        // You still need to implement how to set the Date and Time from bookingDetail
-                        // Example (Assuming bookingDetail has a getTimeSlot and Date property):
-                        // binding.newPlayDateEditText.setText(bookingDetail.getDateString());
-                        // binding.newTimePlayAutoCompleteTextView.setText(bookingDetail.getTimeSlot());
+                // You still need to implement how to set the Date and Time from bookingDetail
+                // Example (Assuming bookingDetail has a getTimeSlot and Date property):
+                // binding.newPlayDateEditText.setText(bookingDetail.getDateString());
+                // binding.newTimePlayAutoCompleteTextView.setText(bookingDetail.getTimeSlot());
 
-                        // Display info section and fill it out
+                // Display info section and fill it out
 
-                            System.out.println("datetime: " + bookingDetail.getStartTime().toString());
-                            String playDate = DurationConverter.convertCustomToReadable(bookingDetail.getStartTime().toString(), "dd/MM/yyyy");
-                            String playTime = DurationConverter.convertCustomToReadable(bookingDetail.getStartTime().toString(), "HH:mm");
-                        binding.selectedBookingInfo.setVisibility(View.VISIBLE);
-                        String bookingInfo = String.format("Sân: %s\nNgày: %s",
-                                stadium.getName(), playDate); // Update with actual properties
+                System.out.println("datetime: " + bookingDetail.getStartTime().toString());
+                String playDate = DurationConverter.convertCustomToReadable(bookingDetail.getStartTime().toString(), "dd/MM/yyyy");
+                String playTime = DurationConverter.convertCustomToReadable(bookingDetail.getStartTime().toString(), "HH:mm");
+                binding.selectedBookingInfo.setVisibility(View.VISIBLE);
+                String bookingInfo = String.format("Sân: %s\nNgày: %s",
+                        stadium.getName(), playDate); // Update with actual properties
 
-                        binding.bookingInfoContent.setText(bookingInfo);
+                binding.bookingInfoContent.setText(bookingInfo);
 
 
-                        List<BookingDetailViewModelDTO> bookingDetailViewModelDTOS = booking.getBookingDetails();
-                        List<String> timeOptions = new ArrayList<>();
-                        timeOptions.add(playTime);
-                        Date date = bookingDetailViewModelDTOS.get(0).getStartTime();
-                        for (BookingDetailViewModelDTO detail : bookingDetailViewModelDTOS) {
-                            if(detail.getStartTime() != date){
-                                timeOptions.add(DurationConverter.convertCustomToReadable(detail.getStartTime().toString(), "HH:mm"));
-                            }
-                        }
-                        // date
-                        List<String> DateOptions = new ArrayList<>();
-                        DateOptions.add(playDate);
-                        Date datePlay = bookingDetailViewModelDTOS.get(0).getStartTime();
-                        for (BookingDetailViewModelDTO detail : bookingDetailViewModelDTOS) {
-                            if(detail.getStartTime() != datePlay){
-                                DateOptions.add(DurationConverter.convertCustomToReadable(detail.getStartTime().toString(), "dd/MM/yyyy"));
-                            }
-                        }
+                List<BookingDetailViewModelDTO> bookingDetailViewModelDTOS = booking.getBookingDetails();
+                List<String> timeOptions = new ArrayList<>();
+                timeOptions.add(playTime);
+                Date date = bookingDetailViewModelDTOS.get(0).getStartTime();
+                for (BookingDetailViewModelDTO detail : bookingDetailViewModelDTOS) {
+                    if(detail.getStartTime() != date){
+                        timeOptions.add(DurationConverter.convertCustomToReadable(detail.getStartTime().toString(), "HH:mm"));
+                    }
+                }
+                // date
+                List<String> DateOptions = new ArrayList<>();
+                DateOptions.add(playDate);
+                Date datePlay = bookingDetailViewModelDTOS.get(0).getStartTime();
+                for (BookingDetailViewModelDTO detail : bookingDetailViewModelDTOS) {
+                    if(detail.getStartTime() != datePlay){
+                        DateOptions.add(DurationConverter.convertCustomToReadable(detail.getStartTime().toString(), "dd/MM/yyyy"));
+                    }
+                }
 
-                        ArrayAdapter<String> adapterTime = new ArrayAdapter<>(
-                                this.getContext(),
-                                android.R.layout.simple_spinner_item,
-                                timeOptions
-                        );
-                        ArrayAdapter<String> adapterDate = new ArrayAdapter<>(
-                                this.getContext(),
-                                android.R.layout.simple_spinner_item,
-                                DateOptions
-                        );
+                ArrayAdapter<String> adapterTime = new ArrayAdapter<>(
+                        this.getContext(),
+                        android.R.layout.simple_spinner_item,
+                        timeOptions
+                );
+                ArrayAdapter<String> adapterDate = new ArrayAdapter<>(
+                        this.getContext(),
+                        android.R.layout.simple_spinner_item,
+                        DateOptions
+                );
 
 // 3. Đặt layout cho danh sách thả xuống (Dropdown)
-                        adapterTime.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                        adapterDate.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                adapterTime.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                adapterDate.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // 4. Gán (Binding) Adapter cho Spinner
-                        binding.newTimePlaySpinner.setAdapter(adapterTime);
-                        binding.newPlayDateEditText.setAdapter(adapterDate);
+                binding.newTimePlaySpinner.setAdapter(adapterTime);
+                binding.newPlayDateEditText.setAdapter(adapterDate);
 
-                    } else {
-                        Toast.makeText(getContext(), "Không tìm thấy chi tiết booking.", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Không tìm thấy thông tin sân vận động.", Toast.LENGTH_SHORT).show();
-                }
+            } else {
+                Toast.makeText(getContext(), "Không tìm thấy chi tiết booking.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            Toast.makeText(getContext(), "Không tìm thấy thông tin sân vận động.", Toast.LENGTH_SHORT).show();
+        }
 
     }
 
@@ -244,6 +264,24 @@ public class CreatePostFragment extends Fragment {
             binding.newTimePlaySpinner.performClick();
             return null;
         }
+        if (priceStr.isEmpty()) {
+            Toast.makeText(getContext(), "Vui lòng nhập số tiền.", Toast.LENGTH_SHORT).show();
+            binding.newPricePerPersonEditText.requestFocus();
+            return null;
+        }
+
+        if (neededPlayersStr.isEmpty()) {
+            Toast.makeText(getContext(), "Vui lòng nhập số người chơi.", Toast.LENGTH_SHORT).show();
+            binding.newNeededPlayersEditText.requestFocus();
+            return null;
+        }
+        int player = Integer.parseInt(neededPlayersStr);
+        if (player <= 0) {
+            Toast.makeText(getContext(), "Số người chơi phải lớn hơn 0!", Toast.LENGTH_SHORT).show();
+            binding.newNeededPlayersEditText.requestFocus();
+            return null;
+        }
+
 
         // --- 3. Ánh xạ dữ liệu sau khi Validation thành công ---
         CreateTeamPostDTO postDTO = new CreateTeamPostDTO();

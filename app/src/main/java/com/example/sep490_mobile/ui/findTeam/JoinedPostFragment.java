@@ -14,6 +14,7 @@ import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -54,6 +55,8 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
     private boolean isLastPage = false;
     private final int PAGE_SIZE = 10; // Số lượng mục mỗi trang
     private Map<String, String> odataUrl = new HashMap<>();
+    public static final String POST_CREATED_REQUEST_KEY = "POST_UPDATE_REQUEST_KEY";
+
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -88,6 +91,14 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        requireActivity().getSupportFragmentManager().setFragmentResultListener(POST_CREATED_REQUEST_KEY, this, (requestKey, bundle) -> {
+            boolean shouldRefresh = bundle.getBoolean("refresh", false);
+            if (shouldRefresh) {
+                Log.d("FindTeamFragment", ">>> ĐÃ NHẬN TÍN HIỆU! BẮT ĐẦU TẢI LẠI DỮ LIỆU... <<<");
+                findTeamViewModel.fetchFindTeamList(odataUrl);
+                observePostListResponse();
+            }
+        });
     }
 
     @Override
@@ -117,7 +128,14 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
                     fragmentTransaction.addToBackStack("FindTeamFragment");
-                    getParentFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                    Bundle result = new Bundle();
+                    result.putBoolean("refresh", true);
+
+                    // 2. GỬI TÍN HIỆU
+                    requireActivity().getSupportFragmentManager().setFragmentResult("POST_CREATED_REQUEST_KEY", result);
+
+                    // 3. ĐÓNG FRAGMENT HIỆN TẠI
+                    requireActivity().getSupportFragmentManager().popBackStack("FindTeamFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 }
             }
         });
@@ -390,7 +408,7 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
     }
 
     @Override
-    public void onItemClickRemoveMember(int id, int postId, String type) {
+    public void onItemClickRemoveMember(int id, int memberUserId, int postId, String type) {
 
     }
 

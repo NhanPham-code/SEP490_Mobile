@@ -215,10 +215,10 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
         isFavoriteMode = !isFavoriteMode;
         if (isFavoriteMode) {
             binding.favoriteListButton.setImageResource(R.drawable.ic_favorite_filled);
-            Toast.makeText(getContext(), "Các sân yêu thích", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Các sân yêu thích", Toast.LENGTH_SHORT).show();
         } else {
             binding.favoriteListButton.setImageResource(R.drawable.ic_favorite_border);
-            Toast.makeText(getContext(), "Tất cả sân", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(getContext(), "Tất cả sân", Toast.LENGTH_SHORT).show();
         }
         // Cập nhật lại dữ liệu hiển thị trên RecyclerView
         updateAdapterData();
@@ -236,6 +236,13 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
             listToShow = fullStadiumList.stream()
                     .filter(stadium -> favoriteIdsSet.contains(stadium.getId()))
                     .collect(Collectors.toList());
+            if (listToShow.isEmpty()) {
+                binding.emptyView.setVisibility(View.VISIBLE);
+                binding.myRecyclerView.setVisibility(View.GONE);
+            } else {
+                binding.emptyView.setVisibility(View.GONE);
+                binding.myRecyclerView.setVisibility(View.VISIBLE);
+            }
         } else {
             // Chế độ bình thường: Hiển thị toàn bộ danh sách đã tải
             listToShow = fullStadiumList;
@@ -428,7 +435,7 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
 
     // Các interface không dùng đến
     @Override public void onItemClick(int item, String type) {}
-    @Override public void onItemClickRemoveMember(int id, int postId, String type) {}
+    @Override public void onItemClickRemoveMember(int id, int memberUserId, int postId, String type) {}
 
     @Override
     public void onDestroyView() {

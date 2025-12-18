@@ -82,7 +82,7 @@ public class AccountFragment extends Fragment {
         biometricHelper = new BiometricHelper(requireActivity(), new BiometricHelper.BiometricCallback() {
             @Override
             public void onAuthenticationSuccess(BiometricPrompt.AuthenticationResult result) {
-                // <-- SỬA LỖI 1: Gán `result` cho biến tạm, không phải `null`
+                // Gán `result` cho biến tạm
                 tempAuthResult = result;
                 // Bây giờ mới gọi server để lấy token
                 accountViewModel.generateBiometricToken();
@@ -142,10 +142,15 @@ public class AccountFragment extends Fragment {
         binding.btnLogin.setOnClickListener(v -> startActivity(new Intent(getActivity(), LoginActivity.class)));
         binding.btnLogout.setOnClickListener(v -> accountViewModel.logout());
         binding.btnRegister.setOnClickListener(v -> startActivity(new Intent(getActivity(), RegisterFormActivity.class)));
-        binding.btnSettings.setOnClickListener(v -> startActivity(new Intent(getActivity(), SettingsActivity.class)));
         binding.menuChatAdmin.getRoot().setOnClickListener(v -> {
             goToChatWithAdmin();
         });
+
+        binding.btnTeams.setOnClickListener(v -> {
+            NavController navController = Navigation.findNavController(requireActivity(), R.id.nav_host_fragment_activity_main);
+            navController.navigate(R.id.navigation_find_team);
+        });
+
         // --- SỬ DỤNG LAUNCHER ĐỂ MỞ EditProfileActivity ---
         binding.ivEditProfile.setOnClickListener(v -> {
             Intent intent = new Intent(getActivity(), EditProfileActivity.class);
@@ -160,11 +165,13 @@ public class AccountFragment extends Fragment {
         binding.menuSubject.getRoot().setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(AccountFragment.this);
             navController.navigate(R.id.action_navigation_account_to_bookingHistoryFragment);
-        });binding.menuDiscount.getRoot().setOnClickListener(v -> {
+
+        });
+
+        binding.menuDiscount.getRoot().setOnClickListener(v -> {
             NavController navController = NavHostFragment.findNavController(AccountFragment.this);
             navController.navigate(R.id.action_navigation_account_to_discountListFragment);
         });
-
 
         // --- XỬ LÝ SWITCH BIOMETRIC ---
         binding.switchBiometric.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -247,6 +254,7 @@ public class AccountFragment extends Fragment {
             if (Boolean.TRUE.equals(success)) {
                 binding.layoutLoggedIn.setVisibility(View.GONE);
                 binding.layoutLoggedOut.setVisibility(View.VISIBLE);
+                binding.layoutMenuContainer.setVisibility(View.GONE);
             }
         });
 
@@ -254,7 +262,7 @@ public class AccountFragment extends Fragment {
         accountViewModel.getBiometricToken().observe(getViewLifecycleOwner(), token -> {
             // 3. Khi server trả về token, kiểm tra xem có `result` tạm và `token` không.
             if (token != null && tempAuthResult != null) {
-                // 4. ĐÃ CÓ CẢ HAI! Bây giờ mới tiến hành mã hóa.
+                // 4. Tiến hành mã hóa.
                 biometricHelper.onEncryptionSuccess(tempAuthResult, token);
 
                 Toast.makeText(getContext(), "Đã bật đăng nhập sinh trắc học.", Toast.LENGTH_SHORT).show();
@@ -278,11 +286,14 @@ public class AccountFragment extends Fragment {
         if (isLoggedIn) {
             binding.layoutLoggedIn.setVisibility(View.VISIBLE);
             binding.layoutLoggedOut.setVisibility(View.GONE);
+            binding.layoutMenuContainer.setVisibility(View.VISIBLE);
+
             updateUIFromSharedPrefs(); // Gọi hàm cập nhật UI
             updateBiometricSwitchState(); // Cập nhật trạng thái switch
         } else {
             binding.layoutLoggedIn.setVisibility(View.GONE);
             binding.layoutLoggedOut.setVisibility(View.VISIBLE);
+            binding.layoutMenuContainer.setVisibility(View.GONE);
         }
     }
 

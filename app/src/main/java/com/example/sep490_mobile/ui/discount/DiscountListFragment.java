@@ -80,10 +80,22 @@ public class DiscountListFragment extends Fragment {
         setupClickListeners();
         observeViewModel();
 
-        // --- Tải dữ liệu ban đầu ---
-        setLoadingState(); // Đặt trạng thái loading
-        viewModel.fetchInitialDiscounts(currentType); // Fetch dựa trên currentType
+        // Kiểm tra xem đã có dữ liệu chưa trước khi gọi API
+        boolean hasData = false;
+        if (currentType == DiscountViewModel.DiscountType.PERSONAL) {
+            List<ReadDiscountDTO> list = viewModel.getPersonalDiscounts().getValue();
+            hasData = (list != null && !list.isEmpty());
+        } else {
+            List<ReadDiscountDTO> list = viewModel.getFavoriteStadiumDiscounts().getValue();
+            hasData = (list != null && !list.isEmpty());
+        }
 
+        // Nếu chưa có dữ liệu thì mới load và hiện loading
+        if (!hasData) {
+            setLoadingState();
+            viewModel.fetchInitialDiscounts(currentType);
+        }
+        // Nếu đã có dữ liệu (quay lại từ Detail), Adapter sẽ tự nhận qua Observer, không cần fetch lại
 
         ensureCorrectTabSelection();
     }

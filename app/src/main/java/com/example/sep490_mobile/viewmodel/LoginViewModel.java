@@ -12,7 +12,9 @@ import com.example.sep490_mobile.data.dto.GoogleApiLoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginRequestDTO;
 import com.example.sep490_mobile.data.dto.LoginResponseDTO;
 import com.example.sep490_mobile.data.repository.UserRepository;
+import com.google.gson.Gson;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -109,19 +111,40 @@ public class LoginViewModel extends AndroidViewModel {
                 isLoading.setValue(false);
 
                 if (response.isSuccessful() && response.body() != null) {
+                    // Xử lý thành công (Code 200-299)
                     LoginResponseDTO loginResponse = response.body();
-
                     if (loginResponse.isValid()) {
-                        // LƯU DỮ LIỆU VÀO SharedPreferences (Logic nghiệp vụ)
                         saveLoginData(loginResponse);
-                        loginResult.setValue(loginResponse);
-                    } else {
-                        // Logic lỗi server báo (email/password không đúng)
                         loginResult.setValue(loginResponse);
                     }
                 } else {
-                    // Logic lỗi phản hồi không thành công từ server
-                    errorMessage.setValue("Đăng nhập thất bại: " + response.message());
+                    // Xử lý lỗi (Code != 2xx, ví dụ 400, 401)
+                    String message = "Đăng nhập thất bại"; // Mặc định
+
+                    try {
+                        // Lấy errorBody thay vì body
+                        ResponseBody errorBody = response.errorBody();
+                        if (errorBody != null) {
+                            Gson gson = new Gson();
+                            // Parse JSON lỗi từ server thành object
+                            LoginResponseDTO errorResponse = gson.fromJson(errorBody.string(), LoginResponseDTO.class);
+
+                            if (errorResponse != null && errorResponse.getMessage() != null) {
+                                message = errorResponse.getMessage();
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    // Kiểm tra mã lỗi cụ thể nếu muốn hiển thị prefix khác nhau
+                    if (response.code() == 401) {
+                        errorMessage.setValue(message);
+                    } else if (response.code() == 400) {
+                        errorMessage.setValue("Yêu cầu không hợp lệ: " + message);
+                    } else {
+                        errorMessage.setValue(message);
+                    }
                 }
             }
 

@@ -123,9 +123,17 @@ public class UpdatePostFragment extends Fragment {
                                 if(findTeamDTO1 != null){
                                     FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-
                                     fragmentTransaction.addToBackStack(mParam2);
-                                    getParentFragmentManager().popBackStack(mParam2, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                    Bundle result = new Bundle();
+                                    result.putBoolean("refresh", true);
+
+                                    // 2. GỬI TÍN HIỆU
+                                    requireActivity().getSupportFragmentManager().setFragmentResult("POST_UPDATE_REQUEST_KEY", result);
+
+                                    // 3. ĐÓNG FRAGMENT HIỆN TẠI
+                                    requireActivity().getSupportFragmentManager().popBackStack(mParam2, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
+
                                 }
                             });
                         }
@@ -177,8 +185,8 @@ public class UpdatePostFragment extends Fragment {
         if(!TextUtils.isEmpty(neededStr)){
             try {
                 neededPlayers = Integer.parseInt(neededStr);
-                if(neededPlayers < 0){
-                    Toast.makeText(getContext(), "Số thành viên cần tìm không thể âm", Toast.LENGTH_LONG).show();
+                if(neededPlayers <= 0){
+                    Toast.makeText(getContext(), "Số thành viên cần tìm phải lớn hơn 0!", Toast.LENGTH_LONG).show();
                     return null;
                 }
                 if(neededPlayers < currentReadTeamPostDTO.getJoinedPlayers()){
@@ -205,8 +213,9 @@ public class UpdatePostFragment extends Fragment {
             }
             // Remove non-digit except dot
 
-        }else{
-            Toast.makeText(getContext(), "Không được để trống giá tiền", Toast.LENGTH_LONG).show();
+        }
+        if(pricePerPerson < 0){
+            Toast.makeText(getContext(), "Số tiền không được bé hơn 0!", Toast.LENGTH_LONG).show();
         }
 
         // description - convert to HTML if you keep Markdown in EditText.

@@ -143,10 +143,13 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             createdTime = DurationConverter.convertIsoPlayDate(readTeamPostDTO.getCreatedAt(), "dd/MM/yyyy - HH:mm");
         }
 
+        String time = DurationConverter.convertDuration(readTeamPostDTO.getTimePlay(), 1);
+
         // Các thành phần khác không liên quan đến lỗi Null
+        holder.title.setText(readTeamPostDTO.getTitle());
         holder.postTimestamp.setText(createdTime);
         holder.sportType.setText(readTeamPostDTO.getSportType());
-        holder.playDateTime.setText(datePlay);
+        holder.playDateTime.setText(datePlay + " - " + time);
         holder.location.setText(readTeamPostDTO.getLocation());
         holder.playersInfo.setText("cần " + readTeamPostDTO.getJoinedPlayers() + " / " + readTeamPostDTO.getNeededPlayers()+ " người" );
         HtmlConverter.convertHtmlToMarkdown(readTeamPostDTO.getDescription(), holder.gameDescription);
@@ -193,7 +196,7 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             @Override
             public void onClick(View v) {
                 if(listener != null){
-                    listener.onItemClick(readTeamPostDTO.getId(), "join");
+                    listener.onItemClickRemoveMember(readTeamPostDTO.getId(), readTeamPostDTO.getCreatedBy(), 0, "join");
                 }
             }
         });
@@ -248,7 +251,7 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             @Override
             public void onClick(View v) {
                 if(listener != null){
-                    listener.onItemClick(readTeamPostDTO.getId(), "detail");
+                    listener.onItemClickRemoveMember(readTeamPostDTO.getId(), readTeamPostDTO.getCreatedBy(),0 , "detail");
                 }
             }
         });
@@ -278,7 +281,7 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
         public Button joinButton;
         public TextView seeMore;
         public ConstraintLayout card;
-
+        public TextView title;
         public FindTeamViewHolder(@NonNull View itemView) {
             super(itemView);
             // Ánh xạ các thành phần giao diện
@@ -296,6 +299,7 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
             joinButton = itemView.findViewById(R.id.joinButton);
             seeMore = itemView.findViewById(R.id.seeMore); // <-- ÁNH XẠ
             card = itemView.findViewById(R.id.find_team_card_item);
+            title = itemView.findViewById(R.id.post_title);
         }
     }
 }

@@ -27,18 +27,28 @@ import com.example.sep490_mobile.data.dto.UpdateTeamMemberDTO;
 import com.example.sep490_mobile.data.dto.UpdateTeamPostDTO;
 import com.example.sep490_mobile.data.dto.booking.BookingViewDTO;
 import com.example.sep490_mobile.data.dto.booking.response.BookingHistoryODataResponse;
+import com.example.sep490_mobile.data.dto.notification.CreateNotificationDTO;
+import com.example.sep490_mobile.data.dto.notification.NotificationDTO;
 import com.example.sep490_mobile.data.repository.BookingRepository;
 import com.example.sep490_mobile.data.repository.FindTeamRepository;
+import com.example.sep490_mobile.data.repository.NotificationRepository;
 import com.example.sep490_mobile.data.repository.StadiumRepository;
 import com.example.sep490_mobile.data.repository.UserRepository;
 import com.example.sep490_mobile.utils.DurationConverter;
 
+import java.text.SimpleDateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -52,6 +62,7 @@ public class FindTeamViewModel extends AndroidViewModel {
     private final StadiumRepository stadiumRepository;
     private final UserRepository userRepository;
     private final FindTeamRepository findTeamRepository;
+    private final NotificationRepository notificationRepository;
     private final BookingRepository bookingRepository;
     private final MutableLiveData<List<ReadTeamMemberForDetailDTO>> _listMember = new MutableLiveData<>();
     private final MutableLiveData<TeamMemberDetailDTO> _teamMemberDetail = new MutableLiveData<>();
@@ -91,6 +102,7 @@ public class FindTeamViewModel extends AndroidViewModel {
         this.userRepository = new UserRepository(application);
         this.findTeamRepository = new FindTeamRepository(application);
         this.bookingRepository = new BookingRepository(application);
+        this.notificationRepository = new NotificationRepository(application);
     }
 
     public void fetchFindTeamList(Map<String, String> odataUrl) {
@@ -130,7 +142,11 @@ public class FindTeamViewModel extends AndroidViewModel {
 
                 } else {
                     _isLoading.setValue(false);
-                    _errorMessage.setValue("Lỗi tải Team Posts. Mã: " + response.code());
+                    if(response.code() == 401){
+                        _errorMessage.setValue("Vui lòng đăng nhập để sửa dụng!");
+                    }else{
+                        _errorMessage.setValue("Lỗi tải Team Post: " + response.code());
+                    }
                 }
             }
 
@@ -252,7 +268,8 @@ public class FindTeamViewModel extends AndroidViewModel {
 
         // 2. Chuẩn bị filter cho API thứ nhất (fetchFindTeamList)
         Map<String, String> odataUrl = new HashMap<>();
-        odataUrl.put("$filter", "CreatedBy eq " + currentUserId );
+
+        odataUrl.put("$filter", "CreatedBy eq " + currentUserId);
 
         // 3. Gọi hàm mới để thực hiện API chuỗi
         fetchFindTeamListAndThenFetchBookingHistory(odataUrl, currentUserId, myUserId);
@@ -298,14 +315,21 @@ public class FindTeamViewModel extends AndroidViewModel {
                         // Không có gì để loại trừ, chỉ lọc theo User ID
                         url = userFilter;
                     }
+                    ZonedDateTime dateNowInVietnam = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 
+// Định dạng theo chuẩn ISO 8601 (đã bao gồm múi giờ)
+                    String formatted = dateNowInVietnam.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
                     // --- BƯỚC 2: Gọi API thứ hai (Tải Booking History) ---
-                    fetchBookingHistory(url + " and BookingDetails/any(m: m/StartTime ge " + DurationConverter.createCurrentISOSDateTime() + ")");
+                    fetchBookingHistory(url + " and Status eq 'accepted' and BookingDetails/any(m: m/StartTime ge " + DurationConverter.createCurrentISOSDateTime() + ")");
 
                 } else {
                     // Xử lý lỗi API FindTeam
                     _isLoading.setValue(false);
-                    _errorMessage.setValue("Lỗi tải Team Post: " + response.code());
+                    if(response.code() == 401){
+                        _errorMessage.setValue("Vui lòng đăng nhập để sửa dụng!");
+                    }else{
+                        _errorMessage.setValue("Lỗi tải Team Post: " + response.code());
+                    }
                 }
             }
 
@@ -425,7 +449,6 @@ public class FindTeamViewModel extends AndroidViewModel {
         findTeamRepository.addNewMember(createTeamMemberDTO).enqueue(new Callback<ReadTeamMemberDTO>() {
             @Override
             public void onResponse(Call<ReadTeamMemberDTO> call, Response<ReadTeamMemberDTO> response) {
-                _created.setValue(false);
                 if(response.isSuccessful()){
                     _created.setValue(true);
                     _isLoading.setValue(false);
@@ -689,7 +712,11 @@ public class FindTeamViewModel extends AndroidViewModel {
 
                 } else {
                     _isLoading.setValue(false);
-                    _errorMessage.setValue("Lỗi tải Team Posts. Mã: " + response.code());
+                    if(response.code() == 401){
+                        _errorMessage.setValue("Vui lòng đăng nhập để sửa dụng!");
+                    }else{
+                        _errorMessage.setValue("Lỗi tải Team Post: " + response.code());
+                    }
                 }
             }
 
@@ -758,4 +785,29 @@ public class FindTeamViewModel extends AndroidViewModel {
             }
         });
     }
+
+    public void notifyToMember(CreateNotificationDTO createNotificationDTO){
+
+        String jsonString = "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}";
+// 2. Thêm các cặp key-value bạn muốn vào trong JSON
+//    Key là một String, Value có thể là String, Integer, Boolean, Double...
+
+        createNotificationDTO.setParameters(jsonString);
+        notificationRepository.createNotification(createNotificationDTO).enqueue(new Callback<NotificationDTO>() {
+            @Override
+            public void onResponse(Call<NotificationDTO> call, Response<NotificationDTO> response) {
+                if (response.isSuccessful()){
+                    System.out.println("da thong bao:");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<NotificationDTO> call, Throwable t) {
+                _isLoading.setValue(false);
+                _errorMessage.setValue("Lỗi mạng khi tải Booking History: " + t.getMessage());
+                Log.d(TAG, "onFailure: " + t.getMessage());
+            }
+        });
+    }
+
 }
