@@ -30,7 +30,11 @@ import com.example.sep490_mobile.utils.DurationConverter;
 import com.example.sep490_mobile.utils.HtmlConverter;
 import com.example.sep490_mobile.viewmodel.FindTeamViewModel;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -293,9 +297,29 @@ public class CreatePostFragment extends Fragment {
         postDTO.setDescription(descriptionStr);
         postDTO.setNeededPlayers(Integer.parseInt((neededPlayersStr)));
         postDTO.setPricePerPerson(Double.parseDouble(priceStr));
+        String isoPlayDateTimeStr = null;
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                && isoPlayDateStr != null
+                && !isoTimePlayStr.isEmpty()) {
+
+            // Lấy ngày từ ISO date
+            LocalDate playDate = OffsetDateTime.parse(isoPlayDateStr).toLocalDate();
+
+            // Lấy giờ
+            LocalTime playTime = LocalTime.parse(isoTimePlayStr);
+
+            // Ghép ngày + giờ + timezone
+            ZonedDateTime playDateTime = ZonedDateTime.of(
+                    playDate,
+                    playTime,
+                    ZoneId.systemDefault()
+            );
+
+            isoPlayDateTimeStr = playDateTime.toOffsetDateTime().toString();
+        }
         // ⭐ Gán giá trị đã sửa lỗi
-        postDTO.setPlayDate(isoPlayDateStr);
+        postDTO.setPlayDate(isoPlayDateTimeStr);
         postDTO.setTimePlay(isoTimePlayStr);
 
         // ... (Ánh xạ PricePerPerson, NeededPlayers)

@@ -6,6 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.VideoView;
+import android.net.Uri;
+import android.widget.MediaController;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -53,22 +56,24 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         MessageViewHolder vh = (MessageViewHolder) holder;
 
         String type = chatMessage.getType() == null ? "text" : chatMessage.getType();
+        String messageContent = chatMessage.getMessage();
 
-        if (type.equals("image") || type.equals("gif")) {
-            vh.messageText.setVisibility(View.GONE);
+        // Ẩn hết trước
+        vh.messageText.setVisibility(View.GONE);
+        vh.messageImage.setVisibility(View.GONE);
+        vh.messageVideo.setVisibility(View.GONE);
+
+        if (type.equals("image")) {
             vh.messageImage.setVisibility(View.VISIBLE);
-
-            String messageContent = chatMessage.getMessage();
             String url = messageContent.substring(messageContent.indexOf(']') + 1).split("\\|")[0];
 
-            // Load ảnh hoặc GIF
             Glide.with(context)
                     .load(url)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .override(600, 600)
                     .into(vh.messageImage);
 
-            // 👉 Mở full ảnh khi click
+            // 👉 Chỉ ảnh mới phóng to khi click
             vh.messageImage.setOnClickListener(v -> {
                 new StfalconImageViewer.Builder<>(context,
                         Collections.singletonList(url),
@@ -76,9 +81,37 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                         .show();
             });
 
+        } else if (type.equals("gif")) {
+            vh.messageImage.setVisibility(View.VISIBLE);
+            String url = messageContent.substring(messageContent.indexOf(']') + 1).split("\\|")[0];
+
+            Glide.with(context)
+                    .asGif()
+                    .load(url)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .override(600, 600)
+                    .into(vh.messageImage);
+
+            // 👉 GIF KHÔNG phóng to khi click
+            vh.messageImage.setOnClickListener(null);
+
+        } else if (type.equals("video")) {
+            vh.messageVideo.setVisibility(View.VISIBLE);
+            String videoUrl = messageContent.substring(messageContent.indexOf(']') + 1).split("\\|")[0];
+
+            vh.messageVideo.setVideoURI(Uri.parse(videoUrl));
+            MediaController mediaController = new MediaController(context);
+            mediaController.setAnchorView(vh.messageVideo);
+            vh.messageVideo.setMediaController(mediaController);
+            vh.messageVideo.seekTo(1); // Show preview frame
+
+            // 👉 Phóng to video khi click (mở dialog toàn màn hình)
+            vh.messageVideo.setOnClickListener(v -> {
+                new VideoFullscreenDialog(context, videoUrl).show();
+            });
+
         } else {
             vh.messageText.setVisibility(View.VISIBLE);
-            vh.messageImage.setVisibility(View.GONE);
             vh.messageText.setText(chatMessage.getMessage());
         }
 
@@ -95,12 +128,14 @@ public class MessageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public TextView messageText;
         public TextView messageTime;
         public ImageView messageImage;
+        public VideoView messageVideo;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
             messageText = itemView.findViewById(R.id.messageText);
             messageTime = itemView.findViewById(R.id.messageTime);
             messageImage = itemView.findViewById(R.id.messageImage);
+            messageVideo = itemView.findViewById(R.id.messageVideo);
         }
     }
 
