@@ -695,33 +695,34 @@ public class StadiumDetailFragment extends Fragment {
 
         // Cập nhật giá
         // 1. Đảm bảo danh sách không rỗng
-        if (courtsList != null) {
+        if (courtsList.length > 0 && courtsList != null) {
             // 2. Khởi tạo minPrice và maxPrice bằng giá của phần tử đầu tiên
-            int minPrice = Integer.parseInt(courtsList[0].getPricePerHour() + "");
-            int maxPrice = Integer.parseInt(courtsList[0].getPricePerHour() + "");
 
-            // 3. Duyệt qua danh sách để so sánh và cập nhật
-            for (int i = 1; i < courtsList.length - 1; i++) {
-                int currentPrice = Integer.parseInt(courtsList[i].getPricePerHour() + "");;
+                int minPrice = Integer.parseInt(courtsList[0].getPricePerHour() + "");
+                int maxPrice = Integer.parseInt(courtsList[0].getPricePerHour() + "");
+                // 3. Duyệt qua danh sách để so sánh và cập nhật
+                for (int i = 1; i < courtsList.length - 1; i++) {
+                    int currentPrice = Integer.parseInt(courtsList[i].getPricePerHour() + "");;
 
-                if (currentPrice < minPrice) {
-                    minPrice = currentPrice;
+                    if (currentPrice < minPrice) {
+                        minPrice = currentPrice;
+                    }
+
+                    if (currentPrice > maxPrice) {
+                        maxPrice = currentPrice;
+                    }
                 }
 
-                if (currentPrice > maxPrice) {
-                    maxPrice = currentPrice;
+                // 4. Định dạng và hiển thị kết quả
+                String priceRange = "";
+                if(minPrice != maxPrice){
+                    priceRange = PriceFormatter.formatPrice(minPrice) + " - " + PriceFormatter.formatPrice(maxPrice);
+
+                }else{
+                    priceRange = PriceFormatter.formatPrice(minPrice);
                 }
-            }
+                binding.tvPriceRange.setText(priceRange);
 
-            // 4. Định dạng và hiển thị kết quả
-            String priceRange = "";
-            if(minPrice != maxPrice){
-                 priceRange = PriceFormatter.formatPrice(minPrice) + " - " + PriceFormatter.formatPrice(maxPrice);
-
-            }else{
-                priceRange = PriceFormatter.formatPrice(minPrice);
-            }
-            binding.tvPriceRange.setText(priceRange);
 
         } else {
             // Trường hợp danh sách rỗng hoặc null
