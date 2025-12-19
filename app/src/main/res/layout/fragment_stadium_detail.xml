@@ -33,7 +33,8 @@
                     android:background="@color/chip_background_blue"
                     android:paddingHorizontal="16dp"
                     android:paddingTop="9dp"
-                    android:paddingBottom="9dp">
+                    android:paddingBottom="9dp"
+                    tools:ignore="MissingConstraints">
 
                     <ImageButton
                         android:id="@+id/btn_back"

@@ -154,12 +154,13 @@ public class FindTeamAdapter extends RecyclerView.Adapter<FindTeamAdapter.FindTe
         holder.playersInfo.setText("cần " + readTeamPostDTO.getJoinedPlayers() + " / " + readTeamPostDTO.getNeededPlayers()+ " người" );
         HtmlConverter.convertHtmlToMarkdown(readTeamPostDTO.getDescription(), holder.gameDescription);
         holder.price.setText(price + "đ");
+        holder.joinButton.setVisibility(View.VISIBLE);
         if(readTeamPostDTO.getJoinedPlayers() >= readTeamPostDTO.getNeededPlayers()){
             holder.joinButton.setText("Đã đủ người");
             holder.joinButton.setBackgroundColor(context.getResources().getColor(R.color.grey_700));
             holder.joinButton.setEnabled(false);
         }
-        else if(leaderId == myId && memberId != myId){
+        else if(readTeamPostDTO.getCreatedBy() == myId){
             holder.joinButton.setText("Bạn là chủ bài đăng");
             holder.joinButton.setBackgroundColor(context.getResources().getColor(R.color.gradient_end));
             holder.joinButton.setEnabled(false);

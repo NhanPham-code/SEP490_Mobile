@@ -494,7 +494,7 @@ public class FindTeamViewModel extends AndroidViewModel {
         });
     }
 
-    private UpdateTeamPostDTO getUpdateMember(ReadTeamPostDTO readTeamPostDTO){
+    public UpdateTeamPostDTO getUpdateMember(ReadTeamPostDTO readTeamPostDTO){
         UpdateTeamPostDTO updateTeamPostDTO = new UpdateTeamPostDTO();
         updateTeamPostDTO.setId(readTeamPostDTO.getId());
         updateTeamPostDTO.setTitle(readTeamPostDTO.getTitle());
@@ -534,7 +534,6 @@ public class FindTeamViewModel extends AndroidViewModel {
                     _teamMemberData.setValue(response.body());
                     Log.d(TAG, "onResponse: " + response.body());
 
-                    updateTeamPost(getUpdateMember(readTeamPostDTO));
 
                 }
             }

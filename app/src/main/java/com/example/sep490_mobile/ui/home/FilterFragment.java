@@ -44,6 +44,7 @@ public class FilterFragment extends Fragment {
     private TextInputEditText etEndTime;   // Thay thế cho TextView
     private MaterialButton btnApplyFilters, btnClearAll, btnResetFilters;
     private ChipGroup sportChipGroup; // Thay thế cho CheckBox[]
+    private boolean filterPrice = true;
     // ---
 
     private int price;
@@ -224,12 +225,12 @@ public class FilterFragment extends Fragment {
         // Kết thúc Sport Type Filter
 
         // 3. Price Filter (biến 'price' đã được cập nhật bởi Slider)
-        if (price > 0) {
+        if (price > 0 && filterPrice) {
             filter += conjunction + "Courts/any(c: c/PricePerHour le " + price + ")";
             conjunction = " and ";
             model.setPrice(price + "");
         } else {
-            model.setPrice("0");
+            model.setPrice("250000");
         }
 
         // 4. Time Filter (Dùng etStartTime và etEndTime)
@@ -261,7 +262,15 @@ public class FilterFragment extends Fragment {
         System.out.println("filter: " + filter);
         if (fragmentManager.getBackStackEntryCount() > 0) {
             model.select(odata);
-            getParentFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            Bundle result = new Bundle();
+            result.putBoolean("refresh", true);
+
+            // 2. GỬI TÍN HIỆU
+            requireActivity().getSupportFragmentManager().setFragmentResult("HOME_FILTER_REQUEST_KEY", result);
+
+            // 3. ĐÓNG FRAGMENT HIỆN TẠI
+            requireActivity().getSupportFragmentManager().popBackStack("HomeFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+
         } else {
             Toast.makeText(getContext(), "Không thể đóng Fragment", Toast.LENGTH_SHORT).show();
         }
@@ -295,9 +304,9 @@ public class FilterFragment extends Fragment {
         // Tạo một hàm reset chung
         View.OnClickListener resetListener = v -> {
             // Đặt lại Slider về giá trị tối đa (ví dụ: 500)
-            priceSlider.setValue(priceSlider.getValueTo());
+            priceSlider.setValue(priceSlider.getValueTo() / 2);
             // Cập nhật Text
-            int maxPriceValue = (int) priceSlider.getValueTo() * 1000;
+            int maxPriceValue = ((int) priceSlider.getValueTo() / 2) * 1000;
             this.price = maxPriceValue;
             DecimalFormat formatter = new DecimalFormat("#,###");
             tvCurrentPrice.setText("Giá tối đa: " + formatter.format(maxPriceValue) + "đ/giờ");
@@ -310,7 +319,8 @@ public class FilterFragment extends Fragment {
             etEndTime.setText("");
 
             // Đặt lại địa điểm
-            address.setText("");
+            address.setText(" ");
+            filterPrice = false;
 
             Toast.makeText(getContext(), "Đã xóa tất cả bộ lọc", Toast.LENGTH_SHORT).show();
         };

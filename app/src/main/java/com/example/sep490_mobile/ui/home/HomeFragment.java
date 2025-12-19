@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -72,7 +73,25 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
     private boolean isLoading = false;
     private boolean isLastPage = false;
     private final int PAGE_SIZE = 10;
+    public static final String POST_CREATED_REQUEST_KEY = "HOME_FILTER_REQUEST_KEY";
 
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        // QUAN TRỌNG: Đăng ký listener tại đây
+        requireActivity().getSupportFragmentManager().setFragmentResultListener(POST_CREATED_REQUEST_KEY, this, (requestKey, bundle) -> {
+            boolean shouldRefresh = bundle.getBoolean("refresh", false);
+            if (shouldRefresh) {
+                Log.d("Home", ">>> ĐÃ NHẬN TÍN HIỆU! BẮT ĐẦU TẢI LẠI DỮ LIỆU... <<<");
+                resetPagination();
+                setupInitialOdataUrl();
+                stadiumViewModel.fetchStadium(odataUrl);
+                setupObservers();
+            }
+        });
+    }
     private FeedbackRepository feedbackRepository;
 
     @Override
@@ -125,6 +144,7 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
 
         model.getSelected().observe(getViewLifecycleOwner(), stringStringMap -> {
             if (stringStringMap != null) {
+                resetPagination();
                 odataUrl.put("$filter", stringStringMap.get("$filter"));
                 performSearch();
             }
@@ -440,6 +460,7 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        resetPagination();
         binding = null; // Tránh memory leak
     }
     @Override

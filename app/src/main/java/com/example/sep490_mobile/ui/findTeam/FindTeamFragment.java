@@ -99,7 +99,7 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         ShareFilterFindTeamViewModel model = new ViewModelProvider(requireActivity()).get(ShareFilterFindTeamViewModel.class);
         model.getSelected().observe(getViewLifecycleOwner(), item -> {
             if(item != null){
-                String baseFilter = "PlayDate gt " + DurationConverter.createCurrentISOStringToSearch();
+                String baseFilter = "PlayDate ge " + DurationConverter.createCurrentISOStringToSearch();
                 odataUrl.put("$filter", baseFilter + " and " + item.get("$filter"));
                 Log.d("FindTeamFilter", "Applying filter: " + odataUrl.get("$filter"));
                 refreshData();

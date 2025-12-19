@@ -8,20 +8,20 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.Toast;
-import androidx.annotation.NonNull;
+import android.widget. Toast;
+import androidx.annotation. NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx. recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview. widget.RecyclerView;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
+import com. google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import com.google.firebase.database. FirebaseDatabase;
+import com. google.firebase.database.ValueEventListener;
+import java.util. ArrayList;
+import java.util. Collections;
+import java.util. List;
 
 public class ChatListActivity extends AppCompatActivity {
 
@@ -35,13 +35,13 @@ public class ChatListActivity extends AppCompatActivity {
     // RecyclerView components
     private ChatListAdapter chatListAdapter;
     private List<Chat> chatList;
-    private List<Chat> originalChatList; // Giữ dữ liệu gốc để lọc
+    private List<Chat> originalChatList;
 
     // Firebase
     private DatabaseReference userChatsRef;
     private ValueEventListener userChatsListener;
 
-    // Dữ liệu người dùng hiện tại (lấy từ SharedPreferences)
+    // Dữ liệu người dùng hiện tại
     private String currentUserId;
     private String currentUserName;
 
@@ -50,56 +50,37 @@ public class ChatListActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-        // Lấy thông tin người dùng từ SharedPreferences
         loadUserData();
 
-        // Nếu không có thông tin người dùng, không thực hiện các bước còn lại
         if (currentUserId == null) {
             Toast.makeText(this, "Vui lòng đăng nhập để xem tin nhắn.", Toast.LENGTH_LONG).show();
-            finish(); // Đóng Activity
+            finish();
             return;
         }
 
-        // Khởi tạo Views
         initViews();
-
-        // Cấu hình Toolbar
         setupToolbar();
-
-        // Cấu hình RecyclerView
         setupRecyclerView();
-
-        // Thêm listener tìm kiếm
         setupSearchListener();
     }
 
-    /**
-     * Lấy thông tin người dùng (ID và Tên) từ SharedPreferences.
-     */
     private void loadUserData() {
         SharedPreferences prefs = getSharedPreferences("MyAppPrefs", Context.MODE_PRIVATE);
-        int userId = prefs.getInt("user_id", -1); // Lấy user_id, mặc định là -1 nếu không có
+        int userId = prefs.getInt("user_id", -1);
 
         if (userId != -1) {
-            // Chuyển int thành String để dùng với Firebase
             this.currentUserId = String.valueOf(userId);
-            this.currentUserName = prefs.getString("full_name", "Người dùng"); // Lấy tên, nếu không có thì dùng tên mặc định
+            this.currentUserName = prefs.getString("full_name", "Người dùng");
+            Log.d(TAG, "✅ Loaded user:  " + currentUserName + " (ID: " + currentUserId + ")");
         }
-        // Nếu userId == -1, currentUserId sẽ vẫn là null
     }
 
-    /**
-     * Ánh xạ và khởi tạo các thành phần giao diện.
-     */
     private void initViews() {
         toolbar = findViewById(R.id.toolbar);
         chatListRecyclerView = findViewById(R.id.chatList);
         searchEditText = findViewById(R.id.searchEditText);
     }
 
-    /**
-     * Cài đặt Toolbar với tiêu đề và nút quay lại.
-     */
     private void setupToolbar() {
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -109,9 +90,6 @@ public class ChatListActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Cài đặt RecyclerView, Adapter và List.
-     */
     private void setupRecyclerView() {
         chatList = new ArrayList<>();
         originalChatList = new ArrayList<>();
@@ -120,9 +98,6 @@ public class ChatListActivity extends AppCompatActivity {
         chatListRecyclerView.setAdapter(chatListAdapter);
     }
 
-    /**
-     * Cài đặt sự kiện lắng nghe cho ô tìm kiếm.
-     */
     private void setupSearchListener() {
         searchEditText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -141,16 +116,15 @@ public class ChatListActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            finish(); // Xử lý sự kiện nhấn nút quay lại trên Toolbar
+            finish();
             return true;
         }
-        return super.onOptionsItemSelected(item);
+        return super. onOptionsItemSelected(item);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        // Chỉ tải danh sách chat nếu người dùng đã được xác thực
         if (currentUserId != null) {
             loadChatList();
         }
@@ -159,17 +133,16 @@ public class ChatListActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        // Gỡ bỏ listener để tránh rò rỉ bộ nhớ
         if (userChatsRef != null && userChatsListener != null) {
             userChatsRef.removeEventListener(userChatsListener);
         }
     }
 
     /**
-     * Tải danh sách các cuộc trò chuyện từ Firebase.
+     * ✅ SỬA LẠI ĐỂ XỬ LÝ CẢ BOOLEAN VÀ OBJECT
      */
     private void loadChatList() {
-        userChatsRef = FirebaseDatabase.getInstance().getReference("userChats").child(currentUserId);
+        userChatsRef = FirebaseDatabase. getInstance().getReference("userChats").child(currentUserId);
 
         userChatsListener = new ValueEventListener() {
             @Override
@@ -177,27 +150,63 @@ public class ChatListActivity extends AppCompatActivity {
                 originalChatList.clear();
 
                 if (!snapshot.exists()) {
+                    Log.w(TAG, "⚠️ No chats found for user: " + currentUserId);
                     Toast.makeText(ChatListActivity.this, "Bạn chưa có cuộc trò chuyện nào.", Toast.LENGTH_SHORT).show();
                 } else {
+                    Log.d(TAG, "📦 Found " + snapshot.getChildrenCount() + " chats");
+
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                        Chat chat = dataSnapshot.getValue(Chat.class);
-                        if (chat != null) {
+                        try {
                             String friendId = dataSnapshot.getKey();
-                            chat.setFriendId(friendId);
-                            originalChatList.add(chat); // Thêm vào danh sách gốc
+                            Object value = dataSnapshot.getValue();
+
+                            Chat chat;
+
+                            // ✅ KIỂM TRA KIỂU DỮ LIỆU
+                            if (value instanceof Boolean) {
+                                // ❌ Nếu là Boolean (dữ liệu cũ), tạo Chat mặc định
+                                Log.w(TAG, "⚠️ Found Boolean value for userId: " + friendId + ", creating default Chat");
+
+                                chat = new Chat();
+                                chat.setFriendId(friendId);
+                                chat.setName("Người dùng"); // Tên mặc định
+                                chat.setLastMessage("Bắt đầu cuộc trò chuyện");
+                                chat.setTimestamp(System.currentTimeMillis());
+
+                                // ✅ TÙY CHỌN:  Fetch tên thật từ database users
+                                fetchUserNameAndUpdate(friendId, chat);
+
+                            } else {
+                                // ✅ Nếu là Object, convert bình thường
+                                chat = dataSnapshot.getValue(Chat.class);
+                                if (chat != null) {
+                                    chat. setFriendId(friendId);
+                                    Log.d(TAG, "✅ Loaded chat with:  " + chat.getName());
+                                }
+                            }
+
+                            if (chat != null) {
+                                originalChatList.add(chat);
+                            }
+
+                        } catch (Exception e) {
+                            Log.e(TAG, "❌ Error parsing chat:  " + e.getMessage());
+                            e.printStackTrace();
                         }
                     }
-                    // Sắp xếp danh sách gốc
-                    Collections.sort(originalChatList, (o1, o2) -> Long.compare(o2.getTimestamp(), o1.getTimestamp()));
+
+                    // Sắp xếp theo timestamp
+                    Collections.sort(originalChatList, (o1, o2) ->
+                            Long.compare(o2.getTimestamp(), o1.getTimestamp()));
                 }
 
-                // Áp dụng bộ lọc hiện tại (hoặc hiển thị toàn bộ danh sách nếu không có filter)
+                // Áp dụng bộ lọc
                 filterChats(searchEditText.getText().toString());
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Không thể tải danh sách chat: " + error.getMessage());
+                Log. e(TAG, "❌ Không thể tải danh sách chat: " + error.getMessage());
                 Toast.makeText(ChatListActivity.this, "Lỗi tải dữ liệu.", Toast.LENGTH_SHORT).show();
             }
         };
@@ -206,9 +215,34 @@ public class ChatListActivity extends AppCompatActivity {
     }
 
     /**
-     * Lọc danh sách trò chuyện dựa trên tên người dùng.
-     * @param query Từ khóa tìm kiếm.
+     * ✅ FETCH TÊN NGƯỜI DÙNG TỪ DATABASE (TÙY CHỌN)
+     * Nếu bạn có node "users" chứa thông tin user
      */
+    private void fetchUserNameAndUpdate(String userId, Chat chat) {
+        DatabaseReference userRef = FirebaseDatabase. getInstance()
+                .getReference("users")
+                .child(userId);
+
+        userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String name = snapshot.child("name").getValue(String.class);
+                    if (name != null) {
+                        chat. setName(name);
+                        chatListAdapter.notifyDataSetChanged();
+                        Log.d(TAG, "✅ Updated name for userId " + userId + ": " + name);
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "❌ Error fetching user name: " + error. getMessage());
+            }
+        });
+    }
+
     private void filterChats(String query) {
         chatList.clear();
 
@@ -223,5 +257,6 @@ public class ChatListActivity extends AppCompatActivity {
             }
         }
         chatListAdapter.notifyDataSetChanged();
+        Log.d(TAG, "🔍 Filtered chats:  " + chatList.size() + " results");
     }
 }

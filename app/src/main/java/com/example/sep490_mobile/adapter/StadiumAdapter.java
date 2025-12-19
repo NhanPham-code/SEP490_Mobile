@@ -128,7 +128,7 @@ public class StadiumAdapter extends RecyclerView.Adapter<StadiumAdapter.StadiumV
         holder.stadiumAddress.setText(stadiumDTO.address);
         holder.stadiumTime.setText(time);
         holder.stadiumSportType.setText(sportType);
-        Glide.with(this.context).load(ImageUtils.getFullUrl(stadiumImagesDTO.length > 0 ? "img/" + stadiumImagesDTO[0].imageUrl : "")).centerCrop().into(holder.stadiumImages);
+        Glide.with(this.context).load(ImageUtils.getFullUrl(stadiumImagesDTO.length > 0 ? "img/" + stadiumImagesDTO[0].imageUrl : "img/img/default.jpg")).centerCrop().into(holder.stadiumImages);
 
         // ⭐ Hiển thị số sao trung bình nếu có (nếu không thì để 0)
         float avgRating = 0f;

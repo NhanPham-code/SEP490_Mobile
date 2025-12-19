@@ -202,13 +202,14 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
 
         ));
     }
-
+    //chấp nhận tham gia
     private void acceptMember(int id, int postId, int memberUserId) {
         ReadTeamPostDTO post = findPostById(postId);
         String teamName = findTeamDTO.getTeamPostDTOS().get(0).getTitle();
         if (post != null) {
             UpdateTeamMemberDTO updateDto = new UpdateTeamMemberDTO(id, "Member");
             findTeamViewModel.updateTeamMember(updateDto, post);
+            findTeamViewModel.updateTeamPost(findTeamViewModel.getUpdateMember(post));
             findTeamViewModel.notifyToMember(new CreateNotificationDTO(
                     memberUserId,
                     "Recruitment.Accepted",
@@ -218,22 +219,24 @@ public class PostDetailFragment extends Fragment implements OnItemClickListener 
 
             ));
             int joined = post.getJoinedPlayers() + 1;
+            post.setJoinedPlayers(joined);
             if(joined == post.getNeededPlayers()){
                 findTeamViewModel.getTeamMember(post.getStadiumId());
                 findTeamViewModel.listMember.observe(getViewLifecycleOwner(), member ->{
                     if(member != null){
                         for (ReadTeamMemberForDetailDTO readTeamMemberForDetailDTO : member){
                             if(readTeamMemberForDetailDTO.getRole().equalsIgnoreCase("Waiting") && readTeamMemberForDetailDTO.getUserId() != memberUserId){
-                                findTeamViewModel.deleteMember(readTeamMemberForDetailDTO.getId(), post.getId(), post, "waiting");
-                            }
-                            findTeamViewModel.notifyToMember(new CreateNotificationDTO(
-                                    readTeamMemberForDetailDTO.getUserId(),
-                                    "Recruitment.full",
-                                    "Nhóm đã đầy người chơi",
-                                    "Nhóm đã đủ người chơi, bạn hãy tìm nhóm khác để tham gia!",
-                                    "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
+                                findTeamViewModel.deleteMember(readTeamMemberForDetailDTO.getId(), post.getId(), post, "no");
+                                findTeamViewModel.notifyToMember(new CreateNotificationDTO(
+                                        readTeamMemberForDetailDTO.getUserId(),
+                                        "Recruitment.full",
+                                        "Nhóm đã đầy người chơi",
+                                        "Nhóm đã đủ người chơi, bạn hãy tìm nhóm khác để tham gia!",
+                                        "{\"title\":\"FindTeam\",\"content\":\"/FindTeam/FindTeam\"}"
 
-                            ));
+                                ));
+                            }
+
                         }
                     }
                 });

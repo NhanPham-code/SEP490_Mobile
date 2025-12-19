@@ -39,7 +39,17 @@
             android:src="@drawable/image"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Send Image"
-            android:scaleType="centerInside"/>
+            android:scaleType="centerInside" />
+
+        <ImageButton
+            android:id="@+id/videoBtn"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_video1"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Send Video"
+            android:scaleType="centerInside" />
 
         <ImageButton
             android:id="@+id/gifBtn"
@@ -49,7 +59,31 @@
             android:src="@drawable/gif"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="Send GIF"
-            android:scaleType="centerInside"/>
+            android:scaleType="centerInside" />
+
+        <!-- AUDIO CALL BUTTON -->
+        <ImageButton
+            android:id="@+id/btnAudioCall"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_call"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Gọi Audio"
+            android:scaleType="centerInside" />
+
+        <!-- VIDEO CALL BUTTON -->
+        <ImageButton
+            android:id="@+id/btnVideoCall"
+            android:layout_width="25dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="4dp"
+            android:src="@drawable/ic_video"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Gọi Video"
+            android:scaleType="centerInside"
+            android:visibility="gone" />
+
 
         <EditText
             android:id="@+id/messageInput"

@@ -74,6 +74,7 @@ public class FilterFindTeam extends Fragment {
         binding.applyFiltersBtn.setOnClickListener(v -> applyFilters());
         binding.resetFiltersBtn.setOnClickListener(v -> resetFilters());
         binding.clearFiltersBtn.setOnClickListener(v -> resetFilters()); // Giống chức năng Đặt Lại
+        binding.locationClearBtn.setOnClickListener(v -> binding.locationSearchInput.setText(""));
     }
 
     private void closeFragment() {
@@ -153,23 +154,22 @@ public class FilterFindTeam extends Fragment {
                     .collect(Collectors.joining(" or "));
             odata.add("(" + sportFilter + ")");
         }
-        String date = binding.playDateFilter.getText().toString(); // e.g., "26-10-2025"
+        String date = binding.playDateFilter.getText().toString(); // e.g., "21/12/2025"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             if (!date.isEmpty()) {
-                // 1. Parse the input date string
-                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+                // 1. Parse the input date string with the correct format
+                DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
                 LocalDate localPlayDate = LocalDate.parse(date, inputFormatter);
 
                 // 2. Define the start and end of the day in UTC
-                // Start of the day: 2025-10-26T00:00:00Z
+                // Start of the day: 2025-12-21T00:00:00Z
                 OffsetDateTime startOfDay = localPlayDate.atStartOfDay().atOffset(ZoneOffset.UTC);
-                // End of the day (start of the next day): 2025-10-27T00:00:00Z
+                // End of the day (start of the next day): 2025-12-22T00:00:00Z
                 OffsetDateTime startOfNextDay = localPlayDate.plusDays(1).atStartOfDay().atOffset(ZoneOffset.UTC);
 
                 // 3. Create the OData filter clause for the date range
-                // The query will be: (PlayDate ge 2025-10-26T00:00:00Z and PlayDate lt 2025-10-27T00:00:00Z)
-                // Note that there are no single quotes around the date values.
-                String odataFilter = String.format("(PlayDate lt %s)",
+                // The query will be: (PlayDate ge 2025-12-21T00:00:00Z and PlayDate lt 2025-12-22T00:00:00Z)
+                String odataFilter = String.format("(PlayDate ge %s and PlayDate lt %s)",
                         startOfDay.toString(),
                         startOfNextDay.toString());
                 odata.add(odataFilter);

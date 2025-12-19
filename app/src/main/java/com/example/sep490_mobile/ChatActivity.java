@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.util.Base64;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -21,7 +20,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.IOException;
@@ -36,25 +34,22 @@ import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 
-// BƯỚC 1: Implement interface để nhận kết quả từ Dialog
 public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifSelectedListener {
 
     private static final String TAG = "ChatActivity";
     private static final int PICK_IMAGE_REQUEST = 1;
-    // Nếu muốn dùng ImgBB, giữ lại dòng này và đổi API key nếu cần:
-    // private static final String IMGBB_API_KEY = "2f25b1206387ee1533a68c5bb1d1f54d";
-    // Nếu muốn dùng Cloudinary:
+    private static final int PICK_VIDEO_REQUEST = 2;
+
     private static final String CLOUDINARY_CLOUD_NAME = "dwt7k4avh";
     private static final String CLOUDINARY_UPLOAD_PRESET = "ChatMoBe";
 
     private final OkHttpClient client = new OkHttpClient();
-    private final Gson gson = new Gson();
 
     private RecyclerView messagesRecyclerView;
     private MessageAdapter messageAdapter;
     private List<ChatMessage> chatMessageList;
     private EditText messageInput;
-    private ImageButton sendBtn, imageBtn, gifBtn; // Đã thêm biến cho nút GIF
+    private ImageButton sendBtn, imageBtn, gifBtn, videoBtn, btnAudioCall, btnVideoCall;
 
     private DatabaseReference chatRef;
     private ValueEventListener chatListener;
@@ -81,57 +76,75 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
             return;
         }
 
-        getSupportActionBar().setTitle(receiverName);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(receiverName);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        // Ánh xạ các view
         messagesRecyclerView = findViewById(R.id.messages);
         messageInput = findViewById(R.id.messageInput);
         sendBtn = findViewById(R.id.sendBtn);
         imageBtn = findViewById(R.id.imageBtn);
-        gifBtn = findViewById(R.id.gifBtn); // Ánh xạ nút GIF
+        gifBtn = findViewById(R.id.gifBtn);
+        videoBtn = findViewById(R.id.videoBtn);
+        btnAudioCall = findViewById(R.id.btnAudioCall);
+        btnVideoCall = findViewById(R.id.btnVideoCall);
 
-        // Cài đặt RecyclerView
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
         messagesRecyclerView.setLayoutManager(linearLayoutManager);
 
-        // Cài đặt Adapter
         chatMessageList = new ArrayList<>();
         messageAdapter = new MessageAdapter(this, chatMessageList, senderId);
         messagesRecyclerView.setAdapter(messageAdapter);
 
-        // Tạo chatId và tham chiếu Firebase
         chatId = generateChatId(senderId, receiverId);
         chatRef = FirebaseDatabase.getInstance().getReference("chats").child(chatId);
 
-        // Gắn listener cho các nút
         sendBtn.setOnClickListener(v -> sendTextMessage());
         imageBtn.setOnClickListener(v -> openImagePicker());
-        gifBtn.setOnClickListener(v -> showGifPicker()); // BƯỚC 2: Gắn sự kiện click cho nút GIF
+        gifBtn.setOnClickListener(v -> showGifPicker());
+        videoBtn.setOnClickListener(v -> openVideoPicker());
+
+        // Audio call
+        btnAudioCall.setOnClickListener(v -> {
+            Intent intent = new Intent(ChatActivity.this, VideoCallActivity.class);
+            intent.putExtra("SENDER_ID", senderId);
+            intent.putExtra("SENDER_NAME", senderName);
+            intent.putExtra("RECEIVER_ID", receiverId);
+            intent.putExtra("RECEIVER_NAME", receiverName);
+            intent.putExtra("IS_VIDEO_CALL", false);
+            intent.putExtra("IS_OUTGOING", true);
+            startActivity(intent);
+        });
+
+        // Video call
+        btnVideoCall.setOnClickListener(v -> {
+            Intent intent = new Intent(ChatActivity.this, VideoCallActivity.class);
+            intent.putExtra("SENDER_ID", senderId);
+            intent.putExtra("SENDER_NAME", senderName);
+            intent.putExtra("RECEIVER_ID", receiverId);
+            intent.putExtra("RECEIVER_NAME", receiverName);
+            intent.putExtra("IS_VIDEO_CALL", true);
+            intent.putExtra("IS_OUTGOING", true);
+            startActivity(intent);
+        });
     }
 
-    // BƯỚC 3: Hàm để hiển thị Dialog chọn GIF
     private void showGifPicker() {
         GifPickerDialogFragment gifPicker = new GifPickerDialogFragment();
         gifPicker.show(getSupportFragmentManager(), "gif_picker_dialog");
     }
 
-    // BƯỚC 4: Hàm này sẽ được tự động gọi khi người dùng chọn một GIF từ Dialog
     @Override
     public void onGifSelected(String gifUrl) {
         Log.d(TAG, "Selected GIF URL: " + gifUrl);
         sendMediaMessage("gif", "[GIF]" + gifUrl + "|gif");
     }
 
-    // Hàm tạo chatId đã được sửa lỗi
     private String generateChatId(String id1, String id2) {
-        if (id1.compareTo(id2) < 0) {
-            return id1 + "_" + id2;
-        } else {
-            return id2 + "_" + id1;
-        }
+        return id1.compareTo(id2) < 0 ? id1 + "_" + id2 : id2 + "_" + id1;
     }
 
     @Override
@@ -159,7 +172,7 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
                     }
                 }
                 messageAdapter.notifyDataSetChanged();
-                messagesRecyclerView.scrollToPosition(chatMessageList.size() - 1);
+                messagesRecyclerView.scrollToPosition(Math.max(chatMessageList.size() - 1, 0));
             }
 
             @Override
@@ -176,18 +189,24 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
         startActivityForResult(intent, PICK_IMAGE_REQUEST);
     }
 
+    private void openVideoPicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+        startActivityForResult(intent, PICK_VIDEO_REQUEST);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
-            // Nếu muốn dùng ImgBB thì gọi hàm sau:
-            // uploadImageToImgBB(data.getData());
-            // Nếu muốn dùng Cloudinary thì gọi hàm sau:
-            uploadImageToCloudinary(data.getData());
+        if (resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
+            Uri fileUri = data.getData();
+            if (requestCode == PICK_IMAGE_REQUEST) {
+                uploadImageToCloudinary(fileUri);
+            } else if (requestCode == PICK_VIDEO_REQUEST) {
+                uploadVideoToCloudinary(fileUri);
+            }
         }
     }
 
-    // --- HÀM UPLOAD ẢNH LÊN CLOUDINARY ---
     private void uploadImageToCloudinary(Uri imageUri) {
         Toast.makeText(this, "Đang tải ảnh lên Cloudinary...", Toast.LENGTH_SHORT).show();
         try (InputStream is = getContentResolver().openInputStream(imageUri)) {
@@ -229,47 +248,48 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
             Toast.makeText(this, "Không thể đọc file ảnh.", Toast.LENGTH_SHORT).show();
         }
     }
-    // --- HẾT HÀM CLOUDINARY ---
 
-    // --- NẾU MUỐN DÙNG IMGBB, GIỮ LẠI HÀM NÀY ---
-    /*
-    private void uploadImageToImgBB(Uri imageUri) {
-        Toast.makeText(this, "Đang tải ảnh...", Toast.LENGTH_SHORT).show();
-        try (InputStream is = getContentResolver().openInputStream(imageUri)) {
+    private void uploadVideoToCloudinary(Uri videoUri) {
+        Toast.makeText(this, "Đang tải video lên Cloudinary...", Toast.LENGTH_SHORT).show();
+        try (InputStream is = getContentResolver().openInputStream(videoUri)) {
             byte[] inputData = new byte[is.available()];
             is.read(inputData);
-            String base64Image = Base64.encodeToString(inputData, Base64.DEFAULT);
 
             RequestBody requestBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("key", IMGBB_API_KEY)
-                    .addFormDataPart("image", base64Image)
+                    .addFormDataPart("file", "video.mp4", RequestBody.create(okhttp3.MediaType.parse("video/*"), inputData))
+                    .addFormDataPart("upload_preset", CLOUDINARY_UPLOAD_PRESET)
                     .build();
 
-            Request request = new Request.Builder().url("https://api.imgbb.com/1/upload").post(requestBody).build();
+            String url = "https://api.cloudinary.com/v1_1/" + CLOUDINARY_CLOUD_NAME + "/video/upload";
+            Request request = new Request.Builder().url(url).post(requestBody).build();
 
             client.newCall(request).enqueue(new Callback() {
                 @Override public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    runOnUiThread(() -> Toast.makeText(ChatActivity.this, "Tải ảnh thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show());
+                    runOnUiThread(() -> Toast.makeText(ChatActivity.this, "Tải video thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show());
                 }
 
                 @Override public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                    String responseBody = response.body().string();
+                    Log.d(TAG, "Cloudinary video response: " + responseBody);
                     if (response.isSuccessful()) {
-                        String responseBody = response.body().string();
-                        ImgBBResponse imgBBResponse = gson.fromJson(responseBody, ImgBBResponse.class);
-                        if (imgBBResponse != null && imgBBResponse.data != null) {
-                            sendMediaMessage("image", "[IMAGE]" + imgBBResponse.data.url + "|image");
+                        try {
+                            JSONObject json = new JSONObject(responseBody);
+                            String videoUrl = json.getString("secure_url");
+                            sendMediaMessage("video", "[VIDEO]" + videoUrl + "|video");
+                        } catch (JSONException e) {
+                            runOnUiThread(() -> Toast.makeText(ChatActivity.this, "Lỗi đọc JSON Cloudinary!", Toast.LENGTH_SHORT).show());
+                            Log.e(TAG, "JSONException: " + e.getMessage());
                         }
                     } else {
-                        runOnUiThread(() -> Toast.makeText(ChatActivity.this, "Lỗi tải ảnh: " + response.message(), Toast.LENGTH_SHORT).show());
+                        runOnUiThread(() -> Toast.makeText(ChatActivity.this, "Lỗi tải video: " + response.message(), Toast.LENGTH_SHORT).show());
                     }
                 }
             });
         } catch (IOException e) {
-            Toast.makeText(this, "Không thể đọc file ảnh.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Không thể đọc file video.", Toast.LENGTH_SHORT).show();
         }
     }
-    */
 
     private void sendTextMessage() {
         String messageText = messageInput.getText().toString().trim();
@@ -296,15 +316,10 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
     private void updateLastMessage(String type, String content, long timestamp) {
         String lastMsg;
         switch (type) {
-            case "image":
-                lastMsg = "📷 Photo";
-                break;
-            case "gif":
-                lastMsg = "🎬 GIF";
-                break;
-            default:
-                lastMsg = content;
-                break;
+            case "image": lastMsg = "📷 Photo"; break;
+            case "gif": lastMsg = "🎬 GIF"; break;
+            case "video": lastMsg = "🎥 Video"; break;
+            default: lastMsg = content; break;
         }
 
         DatabaseReference userChatRef1 = FirebaseDatabase.getInstance().getReference("userChats").child(senderId).child(receiverId);
@@ -322,24 +337,17 @@ public class ChatActivity extends AppCompatActivity implements GifAdapter.OnGifS
     private void increaseUnreadCount(String userId) {
         DatabaseReference unreadRef = FirebaseDatabase.getInstance()
                 .getReference("unreadMessages")
-                .child(userId); // node của người nhận
+                .child(userId);
 
         unreadRef.get().addOnSuccessListener(snapshot -> {
             long currentCount = 0;
             if (snapshot.exists()) {
                 Object value = snapshot.getValue();
-                if (value instanceof Long) {
-                    currentCount = (Long) value;
-                } else if (value instanceof Integer) {
-                    currentCount = ((Integer) value).longValue();
-                }
+                if (value instanceof Long) currentCount = (Long) value;
+                else if (value instanceof Integer) currentCount = ((Integer) value).longValue();
             }
             unreadRef.setValue(currentCount + 1);
         }).addOnFailureListener(e ->
                 Log.e("ChatActivity", "Không thể cập nhật unreadMessages: " + e.getMessage()));
     }
-
-    // Nếu dùng ImgBBResponse thì giữ lại, không thì có thể bỏ
-    private static class ImgBBResponse { Data data; }
-    private static class Data { String url; }
 }
