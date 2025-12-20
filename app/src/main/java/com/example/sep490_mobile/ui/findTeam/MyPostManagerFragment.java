@@ -272,9 +272,15 @@ public class MyPostManagerFragment extends Fragment implements OnItemClickListen
 
         findTeamViewModel.findTeam.observe(getViewLifecycleOwner(), findTeamDTO1 -> {
             if(findTeamDTO1 != null){
+                binding.recyclerViewMyPost.setVisibility(View.VISIBLE);
+                binding.emptyView.setVisibility(View.GONE);
                 findTeamDTO = findTeamDTO1;
                 adapter.setPostData(findTeamDTO, this);
                 adapter.notifyDataSetChanged();
+            }
+            if(findTeamDTO1 == null || findTeamDTO1.getTeamPostDTOS().size() <= 0){
+                binding.recyclerViewMyPost.setVisibility(View.GONE);
+                binding.emptyView.setVisibility(View.VISIBLE);
             }
         });
     }

@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 import androidx.annotation.Nullable;
@@ -265,6 +266,8 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
             }
         } else {
             // Chế độ bình thường: Hiển thị toàn bộ danh sách đã tải
+            binding.emptyView.setVisibility(View.GONE);
+            binding.myRecyclerView.setVisibility(View.VISIBLE);
             listToShow = fullStadiumList;
         }
         // Cập nhật cả danh sách sân và danh sách ID yêu thích cho adapter
@@ -302,11 +305,24 @@ public class HomeFragment extends Fragment implements OnItemClickListener, OnFav
                 resetPagination(); // Reset phân trang khi có tìm kiếm mới
                 odataUrl.put("$top", String.valueOf(PAGE_SIZE));
                 odataUrl.put("$skip", "0");
+                String unsignedQuery = removeVietnameseSigns.removeVietnameseSigns(searchQuery);
 
-                if (searchQuery.isEmpty()) {
-                    odataUrl.remove("$filter");
-                } else {
-                    String unsignedQuery = removeVietnameseSigns.removeVietnameseSigns(searchQuery);
+                SharedViewModel model = new ViewModelProvider(requireActivity()).get(SharedViewModel.class);
+                AtomicBoolean checkFilter = new AtomicBoolean(true);
+                model.getSelected().observe(getViewLifecycleOwner(), stringStringMap -> {
+                    checkFilter.set(false);
+                    if (stringStringMap != null) {
+
+                        odataUrl.put("$filter", stringStringMap.get("$filter"));
+                        String filter = odataUrl.get("$filter");
+                        odataUrl.replace("$filter", "contains(NameUnsigned, '" + unsignedQuery + "') and (" + filter + ")");
+
+                    }else{
+                        odataUrl.put("$filter", "contains(NameUnsigned, '" + unsignedQuery + "')");
+
+                    }
+                });
+                if(checkFilter.get()){
                     odataUrl.put("$filter", "contains(NameUnsigned, '" + unsignedQuery + "')");
                 }
                 performSearch();

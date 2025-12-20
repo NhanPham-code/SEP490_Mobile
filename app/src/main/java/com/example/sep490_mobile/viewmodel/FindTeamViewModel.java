@@ -269,7 +269,7 @@ public class FindTeamViewModel extends AndroidViewModel {
         // 2. Chuẩn bị filter cho API thứ nhất (fetchFindTeamList)
         Map<String, String> odataUrl = new HashMap<>();
 
-        odataUrl.put("$filter", "CreatedBy eq " + currentUserId);
+        odataUrl.put("$filter", "CreatedBy eq " + currentUserId + " and PlayDate ge " + DurationConverter.createCurrentISOString());
 
         // 3. Gọi hàm mới để thực hiện API chuỗi
         fetchFindTeamListAndThenFetchBookingHistory(odataUrl, currentUserId, myUserId);
@@ -305,12 +305,12 @@ public class FindTeamViewModel extends AndroidViewModel {
                     if (!id.isEmpty()) {
                         // SỬA LỖI ODATA: Thay thế "Id not in (x,y)" bằng "(Id ne x and Id ne y)"
                         String exclusionFilter = id.stream()
-                                .map(singleId -> String.format("Id ne %s", singleId))
-                                .collect(Collectors.joining(" and "));
+                                .map(singleId -> String.format("%s", singleId))
+                                .collect(Collectors.joining(","));
 
                         // Bao filter loại trừ trong ngoặc đơn để đảm bảo ưu tiên toán tử
                         // Kết quả: (Id ne 1 and Id ne 5) and UserId eq 3
-                        url = String.format("(%s) and %s", exclusionFilter, userFilter);
+                        url = String.format("not (Id in (%s)) and %s", exclusionFilter, userFilter);
                     } else {
                         // Không có gì để loại trừ, chỉ lọc theo User ID
                         url = userFilter;

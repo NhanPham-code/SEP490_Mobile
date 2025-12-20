@@ -225,7 +225,7 @@ public class FilterFragment extends Fragment {
         // Kết thúc Sport Type Filter
 
         // 3. Price Filter (biến 'price' đã được cập nhật bởi Slider)
-        if (price > 0 && filterPrice) {
+        if (price >= 0 && filterPrice) {
             filter += conjunction + "Courts/any(c: c/PricePerHour le " + price + ")";
             conjunction = " and ";
             model.setPrice(price + "");
