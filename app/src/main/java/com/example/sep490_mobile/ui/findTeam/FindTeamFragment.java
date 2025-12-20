@@ -397,6 +397,7 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
 
         findTeamViewModel.findTeam.observe(getViewLifecycleOwner(), response -> {
             if (response != null) {
+
                 findTeamDTO = response;
                 adapter.setFindTeamDTO(findTeamDTO, this);
                 if (adapter.getItemCount() >= count) {
@@ -408,6 +409,11 @@ public class FindTeamFragment extends Fragment implements OnItemClickListener{
         findTeamViewModel.totalCount.observe(getViewLifecycleOwner(), integer -> {
             if(integer != null && integer > 0){
                 count = integer;
+                binding.emptyView.setVisibility(View.GONE);
+                binding.swipeRefreshLayout.setVisibility(View.VISIBLE);
+            }else{
+                binding.swipeRefreshLayout.setVisibility(View.GONE);
+                binding.emptyView.setVisibility(View.VISIBLE);
             }
         });
 

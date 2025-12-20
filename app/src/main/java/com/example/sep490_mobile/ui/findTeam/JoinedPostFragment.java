@@ -253,9 +253,15 @@ public class JoinedPostFragment extends Fragment implements OnItemClickListener 
 
         findTeamViewModel.findTeam.observe(getViewLifecycleOwner(), findTeamDTO1 -> {
             if(findTeamDTO1 != null){
+                binding.recyclerViewJoinedPost.setVisibility(View.VISIBLE);
+                binding.emptyView.setVisibility(View.GONE);
                 findTeamDTO = findTeamDTO1;
                 adapter.setPostData(findTeamDTO, this);
                 adapter.notifyDataSetChanged();
+            }
+            if(findTeamDTO1 == null || findTeamDTO1.getTeamPostDTOS().size() <= 0){
+                binding.recyclerViewJoinedPost.setVisibility(View.GONE);
+                binding.emptyView.setVisibility(View.VISIBLE);
             }
         });
     }

@@ -64,7 +64,32 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/empty_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@+id/button_container"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
 
+        <ImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:src="@drawable/ic_empty_box"
+            android:contentDescription="Không có bài đăng"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Không có bài đăng nào"
+            android:textSize="18sp"
+            android:textColor="@android:color/darker_gray"/>
+    </LinearLayout>
 
     <!-- 3. RecyclerView được điều chỉnh nằm dưới thanh tìm kiếm/lọc -->
     <androidx.recyclerview.widget.RecyclerView
@@ -90,3 +115,4 @@
         android:elevation="4dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+
