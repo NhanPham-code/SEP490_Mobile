@@ -30,6 +30,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.sep490_mobile.databinding.ActivityMainBinding;
 import com.example.sep490_mobile.utils.NotificationConnector;
+import com.example.sep490_mobile.utils.NotificationHelper;
 import com.example.sep490_mobile.viewmodel.NotificationCountViewModel;
 import com.example.sep490_mobile.viewmodel.BookingViewModel;
 import com.example.sep490_mobile.call.CallManager;
@@ -305,6 +306,17 @@ public class MainActivity extends AppCompatActivity {
                 badge.setNumber(count);
             } else {
                 badge.setVisible(false);
+            }
+        });
+
+        // Lắng nghe thông báo từ SignalR gửi về thông qua LiveData trong Connector
+        NotificationConnector.getInstance().newNotificationReceived.observe(this, notificationSignalRDTO -> {
+            if (notificationSignalRDTO != null) {
+                NotificationHelper notificationHelper = new NotificationHelper(this);
+                // Tạo channel (cần thiết cho Android O trở lên)
+                notificationHelper.createNotificationChannel();
+                // Hiển thị thông báo
+                notificationHelper.showNotification(notificationSignalRDTO);
             }
         });
     }

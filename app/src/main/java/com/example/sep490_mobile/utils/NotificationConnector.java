@@ -25,7 +25,8 @@ import io.reactivex.rxjava3.core.Single;
 
 public class NotificationConnector {
     private static final String TAG = "NotificationConnector";
-    private static final String HUB_URL_BASE = "https://10.0.2.2:7072/notificationHub";
+    // Ví dụ: thay 10.0.2.2
+    private static final String HUB_URL_BASE = "https://localhost:7072/notificationHub";
 
     private static volatile NotificationConnector instance;
     private HubConnection hubConnection;
